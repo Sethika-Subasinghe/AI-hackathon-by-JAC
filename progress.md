@@ -62,7 +62,7 @@ Read with `plan.md`, `README.md` and `skill.md`.
 | T11 | Patient form UI: description with example chips, location, optional PDF drop zone | B5 | Sethika | Not started | T07 | |
 | T12 | AgentTimeline UI: expandable steps, polls events | B4 | Sethika | Not started | T09 | Build early, it makes every agent visible |
 | T13 | Orchestrator Agent: `decide_next` by llm(), guard rules, follow-up question flow | A1 | Dimuth | Not started | T10 | |
-| T14 | Geoapify: geocode and autocomplete, routing and ETA, caching | plan F5 | Akeesha | Not started | T03 | |
+| T14 | Geoapify: geocode and autocomplete, routing and ETA, caching | plan F5 | Akeesha | In progress | T03 | Claimed by Akeesha. |
 | T15 | Hospital Matcher Agent with tools and deterministic fallback | A4 | Dimuth | Not started | T04, T05, T14 | |
 | T16 | Result UI: HospitalCard, AlternativesList with reasons, MapPanel with route | B3 | Sethika | Not started | T14, T15 | |
 | T17 | Dispatch Agent + simulated ambulance, police and hospital requests + accept/decline endpoints | A5 | Dimuth | Not started | T15 | |
