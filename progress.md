@@ -44,7 +44,7 @@ Read with `plan.md`, `README.md` and `skill.md`.
 ## 4. Task tracker
 | ID | Task | Ref | Owner | Status | Depends | Note |
 |---|---|---|---|---|---|---|
-| T00 | Register and check in (every member, 8:00 AM) | rules | All | In progress | | Tick names here: Sethika ✅, Akeesha ✅ |
+| T00 | Register and check in (every member, 8:00 AM) | rules | All | Done | | Tick names here: Sethika ✅, Akeesha ✅, Dimuth ✅ |
 | T01 | Repo skeleton: `pip install jaseci`, Jac app runs, folders, `.gitignore`, `.env.example` | plan 6 | Dimuth | In progress | | |
 | T02 | Jac MCP + Jac skills on each machine (`codex mcp add jac -- jac mcp`, `claude mcp add jac -- jac mcp`, `jac guide --export .claude/skills`) | skill | All | Not started | T01 | Tick names here: |
 | T03 | API keys: free LLM key (Gemini or Groq) and Geoapify key, local `.env` only | plan 6 | Akeesha | Blocked | | Need Akeesha's Gemini/Groq and Geoapify keys; no browser session is available, and T01 has not yet added `.gitignore` / `.env.example`. Never put keys in git. |
