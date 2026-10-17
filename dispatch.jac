@@ -19,6 +19,7 @@ import from models { CaseState, CaseStatus, CaseRequest, EventStatus, Hospital, 
 import from agent_log { start_event, finish_event, log_event, find_case, compact_case }
 import from hospitals { my_hospital }
 import from geoapify { get_route }
+import from reliability { model_available, record_model_success, record_model_failure }
 
 glob COUNTDOWN_SECONDS: float = 10.0;
 # Demo speed: the ambulance covers the route this many times faster than real time.
@@ -55,6 +56,7 @@ obj DispatchView {
         case_status: str,
         seconds_left: float,
         requests: list[RequestView],
+        previous: list[RequestView] = [],
         ambulance_progress: float = 0.0;
 }
 
@@ -86,6 +88,11 @@ def _requests(cs: CaseState) -> list[Request] {
     return [r for r in [cs ->:CaseRequest:->]];
 }
 
+"""Requests of the current attempt (earlier attempts stay as history)."""
+def _current(cs: CaseState) -> list[Request] {
+    return [r for r in _requests(cs) if r.attempt == cs.replan_count];
+}
+
 def _view_request(r: Request) -> RequestView {
     return RequestView(
         id=jid(r),
@@ -112,19 +119,14 @@ def _new_request(
         kind=kind,
         target=target,
         target_id=target_id,
+        attempt=cs.replan_count,
         message=message,
         route=route,
         created_at=time.time()
     ))[0];
 }
 
-"""Create the three requests and open the countdown. Safe to call twice."""
-def start_dispatch(cs: CaseState) -> list[Request] {
-    existing = _requests(cs);
-    if len(existing) > 0 {
-        return existing;
-    }
-    ev = start_event(cs, "dispatch", "prepare", "Preparing ambulance, police and hospital requests");
+def _make_requests(cs: CaseState) -> list[Request] {
     hospital_name = "the chosen hospital";
     route_coords: list[list[float]] = [];
     km = 0.0;
@@ -142,12 +144,14 @@ def start_dispatch(cs: CaseState) -> list[Request] {
     }
     unit = cs.unit_needed.name;
     plan = _template_plan(hospital_name, unit, eta, km);
-    if LIVE_MODEL["on"] {
+    if LIVE_MODEL["on"] and model_available() {
         try {
             plan = draft_dispatch_messages(
-                compact_case(cs) + f"\nHospital: {hospital_name}, ETA {round(eta)} min, route {km:.1f} km"
+                compact_case(cs) + f"{chr(10)}Hospital: {hospital_name}, ETA {round(eta)} min, route {km:.1f} km"
             );
+            record_model_success();
         } except Exception {
+            record_model_failure();
             cs.used_fallback = True;
         }
     }
@@ -155,10 +159,30 @@ def start_dispatch(cs: CaseState) -> list[Request] {
     created.append(_new_request(cs, RequestKind.AMBULANCE, "Ambulance service", "", plan.ambulance_message, route_coords));
     created.append(_new_request(cs, RequestKind.POLICE, "Traffic police", "", plan.police_message, route_coords));
     created.append(_new_request(cs, RequestKind.HOSPITAL_ALERT, hospital_name, cs.hospital_id, plan.hospital_message, []));
+    return created;
+}
+
+"""Create the three requests and open the countdown. Safe to call twice."""
+def start_dispatch(cs: CaseState) -> list[Request] {
+    existing = _current(cs);
+    if len(existing) > 0 {
+        return existing;
+    }
+    ev = start_event(cs, "dispatch", "prepare", "Preparing ambulance, police and hospital requests");
+    created = _make_requests(cs);
     cs.status = CaseStatus.DISPATCHING;
     cs.countdown_ends_at = time.time() + COUNTDOWN_SECONDS;
     finish_event(ev, EventStatus.DONE, "Requests ready (simulated)", "Dispatching in 10 seconds unless you cancel");
     log_event(cs, "dispatch", "countdown", EventStatus.WAITING, "Dispatching in 10 seconds", "Tap Cancel to stop");
+    return created;
+}
+
+"""Re-dispatch to a new hospital after a re-plan. The patient already agreed, so there is no second countdown."""
+def dispatch_now(cs: CaseState) -> list[Request] {
+    ev = start_event(cs, "dispatch", "redispatch", "Alerting the new hospital, ambulance and police");
+    created = _make_requests(cs);
+    _send(cs);
+    finish_event(ev, EventStatus.DONE, "New requests sent (simulated)", "Ambulance, police and the new hospital were alerted");
     return created;
 }
 
@@ -180,13 +204,16 @@ def _tick(cs: CaseState) {
     if cs.status == CaseStatus.DISPATCHING and time.time() >= cs.countdown_ends_at {
         _send(cs);
     }
+    # Decline, no free beds or no answer: the Re-plan Agent takes over (import here to avoid a cycle).
+    import from replan { replan_if_needed }
+    replan_if_needed(cs);
 }
 
 def _ambulance_progress(cs: CaseState) -> float {
     if cs.status != CaseStatus.DISPATCHED or cs.eta_minutes <= 0.0 {
         return 0.0;
     }
-    for r in _requests(cs) {
+    for r in _current(cs) {
         if r.kind == RequestKind.AMBULANCE and r.sent_at > 0.0 {
             seconds = cs.eta_minutes * 60.0 / DEMO_SPEEDUP;
             return min(1.0, (time.time() - r.sent_at) / max(seconds, 1.0));
@@ -204,7 +231,8 @@ def _dispatch_view(cs: CaseState) -> DispatchView {
         case_id=jid(cs),
         case_status=cs.status.name,
         seconds_left=left,
-        requests=[_view_request(r) for r in _requests(cs)],
+        requests=[_view_request(r) for r in _current(cs)],
+        previous=[_view_request(r) for r in _requests(cs) if r.attempt != cs.replan_count],
         ambulance_progress=_ambulance_progress(cs)
     );
 }
@@ -227,7 +255,7 @@ def:pub cancel_dispatch(case_id: str) -> DispatchView | None {
     }
     _tick(cs);
     if cs.status == CaseStatus.DISPATCHING {
-        for r in _requests(cs) {
+        for r in _current(cs) {
             r.status = RequestStatus.CANCELLED;
         }
         cs.status = CaseStatus.CANCELLED;
@@ -286,6 +314,8 @@ def:pub respond_alert(token: str, request_id: str, accept: bool) -> AlertView | 
                     r.status = RequestStatus.DECLINED;
                     cs.status = CaseStatus.REPLANNING;
                     log_event(cs, "dispatch", "hospital_declined", EventStatus.FAILED, f"{r.target} declined", "Finding another hospital");
+                    import from replan { replan_case }
+                    replan_case(cs);
                 }
                 return _alert_view(r, cs);
             }

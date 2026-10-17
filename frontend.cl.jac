@@ -4,6 +4,7 @@ import "./assets/theme.css";
 import from .components.AppHeader { AppHeader }
 import from .components.SafetyBanner { SafetyBanner }
 import from .components.UiKit { AppButton, EmptyState, StatusBadge, SurfaceCard }
+import from .components.PatientFlow { PatientFlow }
 sv import from hospitals { HospitalView, list_hospitals, hospital_login, hospital_logout, my_hospital, change_free_beds }
 
 
@@ -69,13 +70,7 @@ def:pub app -> JsxElement {
                     <SurfaceCard eyebrow="Your workspace" title={view_title} accent={True}>
                         <p className="workspace-detail">{view_detail}</p>
                         {if active_view == "patient" {
-                            <EmptyState
-                                icon=">"
-                                title="Start with what you know"
-                                detail="The guided patient form and location tools arrive in T11."
-                            >
-                                <AppButton label="Patient intake coming next" disabled={True}/>
-                            </EmptyState>
+                            <PatientFlow/>
                         } elif active_view == "hospital" {
                             <section className="hospital-ops" aria-label="Hospital operations dashboard">
                                 {if hospital is None {
