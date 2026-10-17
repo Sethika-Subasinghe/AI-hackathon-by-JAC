@@ -173,8 +173,8 @@ def run_case(cs: CaseState) -> int {
             try {
                 action = decide_next(_state_text(cs));
                 record_model_success();
-            } except Exception {
-                record_model_failure();
+            } except Exception as err {
+                record_model_failure(str(err));
                 cs.used_fallback = True;
             }
         } else {

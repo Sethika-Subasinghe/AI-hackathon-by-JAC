@@ -1,0 +1,51 @@
+.countdown-banner {
+  display: grid; grid-template-columns: auto 1fr; gap: 20px; align-items: center; padding: 20px;
+  border-radius: 18px; background: var(--critical); color: #fff; box-shadow: 0 10px 30px rgba(220, 38, 38, .35);
+}
+.countdown-banner .cd-ring { position: relative; width: 108px; height: 108px; }
+.countdown-banner .cd-ring svg { transform: rotate(-90deg); }
+.countdown-banner .cd-track { fill: none; stroke: rgba(255, 255, 255, .28); stroke-width: 9; }
+.countdown-banner .cd-progress { fill: none; stroke: #fff; stroke-width: 9; stroke-linecap: round; transition: stroke-dashoffset .9s linear; }
+.countdown-banner .cd-number { position: absolute; inset: 0; display: grid; place-items: center; font-size: 40px; font-weight: 900; font-variant-numeric: tabular-nums; }
+.countdown-banner .cd-label { margin: 0; font-size: 12px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; opacity: .9; }
+.countdown-banner h3 { margin: 2px 0 6px; font-size: 24px; }
+.countdown-banner p { margin: 0 0 12px; line-height: 1.45; }
+.countdown-banner .cd-cancel {
+  min-height: 52px; padding: 0 28px; border: 0; border-radius: 12px; background: #fff; color: #991b1b;
+  font: inherit; font-size: 17px; font-weight: 900; cursor: pointer;
+}
+.countdown-banner .cd-cancel:focus-visible { outline: 4px solid #fde68a; outline-offset: 2px; }
+.dispatch-status { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 18px; display: grid; gap: 12px; }
+.dispatch-status h3 { margin: 0; font-size: 20px; }
+.dispatch-status .ds-note { margin: 0; font-size: 13px; color: var(--muted); }
+.dispatch-status .ds-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.dispatch-status .ds-row { display: flex; justify-content: space-between; gap: 12px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); }
+.dispatch-status .ds-row.accepted { border-color: #16a34a; background: #f0fdf4; }
+.dispatch-status .ds-row.declined, .dispatch-status .ds-row.timeout { border-color: #f59e0b; background: #fffbeb; }
+.dispatch-status .ds-row.cancelled { opacity: .65; }
+.dispatch-status .ds-main { min-width: 0; }
+.dispatch-status .ds-main p { margin: 0; overflow-wrap: anywhere; }
+.dispatch-status .ds-kind { font-weight: 800; }
+.dispatch-status .ds-target { font-size: 14px; color: var(--primary); font-weight: 700; }
+.dispatch-status .ds-message { margin-top: 4px; font-size: 13px; color: var(--muted); }
+.dispatch-status .ds-side { display: grid; gap: 6px; justify-items: end; align-content: start; flex: none; }
+.dispatch-status .ds-status { font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 999px; background: var(--primary-soft); color: var(--primary); text-align: right; }
+.dispatch-status .ds-status.accepted { background: #dcfce7; color: #166534; }
+.dispatch-status .ds-status.declined, .dispatch-status .ds-status.timeout { background: #fef3c7; color: #92400e; }
+.dispatch-status .ds-status.cancelled { background: #e5e7eb; color: #374151; }
+.dispatch-status .ds-sim { font-size: 11px; font-weight: 800; padding: 1px 8px; border-radius: 999px; background: #eef2ff; color: #3730a3; }
+.dispatch-status .ds-progress { display: grid; gap: 6px; }
+.dispatch-status .ds-progress-label { font-size: 13px; font-weight: 700; }
+.dispatch-status .ds-bar { height: 10px; border-radius: 999px; background: var(--primary-soft); overflow: hidden; }
+.dispatch-status .ds-bar span { display: block; height: 100%; background: var(--primary); transition: width .9s linear; }
+.dispatch-status .ds-previous summary { cursor: pointer; font-weight: 700; color: var(--muted); min-height: 36px; }
+.cancelled-note { padding: 14px 16px; border-radius: 12px; background: #f3f4f6; border: 1px solid #d1d5db; }
+@media (max-width: 520px) {
+  .countdown-banner { grid-template-columns: 1fr; justify-items: center; text-align: center; }
+  .countdown-banner .cd-cancel { width: 100%; }
+  .dispatch-status .ds-row { flex-direction: column; }
+  .dispatch-status .ds-side { justify-items: start; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .countdown-banner .cd-progress, .dispatch-status .ds-bar span { transition: none; }
+}

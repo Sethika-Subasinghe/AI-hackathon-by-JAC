@@ -10,7 +10,9 @@ import from react { useEffect }
 import from .IntakeForm { IntakeForm }
 import from .UiKit { StatusBadge }
 import from .AgentTimeline { AgentTimeline }
+import from .DispatchStatus { CountdownBanner, DispatchStatus }
 sv import from orchestrator { CaseView, create_case, run_case_by_id, get_case, answer_followup }
+sv import from dispatch { DispatchView, get_dispatch, cancel_dispatch }
 sv import from agent_log { EventView, case_events }
 sv import from geoapify { AddressSuggestion, GeocodeResult, autocomplete, geocode }
 
@@ -29,6 +31,7 @@ def:pub PatientFlow -> JsxElement {
         case_id: str = "",
         current: CaseView | None = None,
         events: list[EventView] = [],
+        dispatch: DispatchView | None = None,
         followup_answer: str = "";
 
     def update_description(e: ChangeEvent);
@@ -41,6 +44,7 @@ def:pub PatientFlow -> JsxElement {
     def remove_file();
     async def submit_intake(e: FormEvent) -> None;
     async def refresh_case() -> None;
+    async def cancel_countdown() -> None;
     def update_followup(e: ChangeEvent);
     async def send_followup(e: FormEvent) -> None;
     def start_over();
@@ -106,6 +110,17 @@ def:pub PatientFlow -> JsxElement {
                     <p className="case-note">
                         {"Your request is being handled. Severity: " + current.severity + "." if current is not None else "Sending your request..."}
                     </p>
+                }}
+                {if dispatch is not None and dispatch.case_status == "DISPATCHING" {
+                    <CountdownBanner seconds_left={dispatch.seconds_left} on_cancel={cancel_countdown}/>
+                }}
+                {if dispatch is not None and dispatch.case_status == "CANCELLED" {
+                    <p className="cancelled-note" role="status">
+                        Dispatch cancelled. Nothing was sent. If this is still an emergency, call 1990 now.
+                    </p>
+                }}
+                {if dispatch is not None and (dispatch.case_status == "DISPATCHED" or dispatch.case_status == "DISPATCHING") {
+                    <DispatchStatus dispatch={dispatch}/>
                 }}
                 <AgentTimeline events={events}/>
                 <button type="button" className="link-button" onClick={reset_click}>Start a new request</button>

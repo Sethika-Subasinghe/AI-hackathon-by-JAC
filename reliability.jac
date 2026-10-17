@@ -36,9 +36,12 @@ def record_model_success() {
     breaker["open_until"] = 0.0;
 }
 
-def record_model_failure() {
+def record_model_failure(error_text: str = "") {
+    # A rejected key or missing model never fixes itself: open the breaker at once.
+    lowered = error_text.lower();
+    permanent = "authentication" in lowered or "api key" in lowered or "api_key" in lowered or "not found" in lowered;
     breaker["failures"] += 1.0;
-    if breaker["failures"] >= float(BREAKER_FAILURES) {
+    if permanent or breaker["failures"] >= float(BREAKER_FAILURES) {
         breaker["open_until"] = time.time() + BREAKER_PAUSE_SECONDS;
         breaker["failures"] = 0.0;
     }

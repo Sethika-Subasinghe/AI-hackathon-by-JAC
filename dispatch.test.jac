@@ -1,12 +1,13 @@
 """Tests for dispatch.jac (annex). Live services off, no network. The countdown clock is moved by hand."""
 
-import from models { Hospital, Location, Severity, UnitType }
+import from models { CaseRequest, Hospital, Location, Severity, UnitType }
 import from data.hospital_seed { DEMO_HOSPITAL_PASSWORD }
 import from agent_log { case_events }
-import from hospitals { hospital_login, list_hospitals }
+import from hospitals { hospital_login, list_hospitals, sessions }
 import from matcher { LIVE_SERVICES, match_case }
 
 def _critical_case() -> CaseState {
+    AUTO_ACCEPT["on"] = False;
     LIVE_SERVICES["on"] = False;
     LIVE_MODEL["on"] = False;
     cs = (root.shared ++> CaseState(
@@ -124,4 +125,38 @@ test "other hospitals and bad tokens see nothing" {
     assert len([a for a in hospital_alerts(other_token) if a.case_id == jid(cs)]) == 0;
     req = [r for r in get_dispatch(jid(cs)).requests if r.kind == "HOSPITAL_ALERT"][0];
     assert respond_alert(other_token, req.id, True) is None;
+}
+
+test "a hospital nobody is signed in for accepts by itself" {
+    sessions.clear();
+    cs = _critical_case();
+    AUTO_ACCEPT["on"] = True;
+    start_dispatch(cs);
+    cs.countdown_ends_at = 0.0;
+    get_dispatch(jid(cs));
+    for r in [cs ->:CaseRequest:->] {
+        r.sent_at = r.sent_at - 30.0;
+    }
+    view = get_dispatch(jid(cs));
+    alert = [r for r in view.requests if r.kind == "HOSPITAL_ALERT"][0];
+    assert alert.status == "ACCEPTED";
+    assert cs.replan_count == 0;
+    AUTO_ACCEPT["on"] = False;
+}
+
+test "a signed-in hospital is never answered for" {
+    cs = _critical_case();
+    AUTO_ACCEPT["on"] = True;
+    start_dispatch(cs);
+    cs.countdown_ends_at = 0.0;
+    token = _login_as(cs.hospital_id);
+    assert token != "";
+    get_dispatch(jid(cs));
+    for r in [cs ->:CaseRequest:->] {
+        r.sent_at = r.sent_at - 10.0;
+    }
+    view = get_dispatch(jid(cs));
+    alert = [r for r in view.requests if r.kind == "HOSPITAL_ALERT"][0];
+    assert alert.status == "SENT";
+    AUTO_ACCEPT["on"] = False;
 }
