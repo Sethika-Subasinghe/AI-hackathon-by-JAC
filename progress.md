@@ -78,7 +78,7 @@ Read with `plan.md`, `README.md` and `skill.md`.
 | T25 | Reliability: timeouts, retries, fallbacks, "Using backup logic" banner, canned demo results | A10 | Dimuth | Not started | T13, T15 | |
 | T26 | UI polish: loading, empty and error states, responsive check (360/768/1280), accessibility, microcopy | B6 | Sethika | Not started | T16, T18 | |
 | T27 | Demo tools: Load demo scenario, Reset demo data, Skip time | B7 | Akeesha | Not started | T22 | |
-| T28 | Jac share check at midday and 4:00 PM; fix if under 80% | plan 10 | Akeesha | Not started | T01 | Ask Jaseci staff how it is measured |
+| T28 | Jac share check at midday and 4:00 PM; fix if under 80% | plan 10 | Akeesha | In progress | T01 | Claimed by Akeesha; measuring both source lines and GitHub-style language bytes. |
 | T29 | Deploy to Jac Hammer + local fallback | plan 6 | Akeesha | Not started | T26 | |
 | T30 | Record demo video (both scenarios) | plan 9 | Sethika | Not started | T29 | Due 5:30 PM |
 | T31 | Final README (setup, usage, structure, links, screenshots) + written description of how Jac/Jaseci was used | README | Akeesha | Not started | T29 | |
