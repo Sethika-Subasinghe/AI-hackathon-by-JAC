@@ -1,3 +1,5 @@
+# HOSTING URL
+https://static-dimensions-precious-biblical.trycloudflare.com
 ---------------------------------------------------------------------------------------------------------
 ## ATTENTION ##
 
