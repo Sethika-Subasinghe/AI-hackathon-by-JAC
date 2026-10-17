@@ -6,9 +6,8 @@ Decides the next step for a case, one step at a time (max 8):
     action = guard(action, cs) # deterministic rules can veto the model
     run the step, log it, repeat
 
-Steps whose agents are not built yet (document, re-plan)
-call the `_do_*` placeholders below. Each owning task (T24, T20)
-replaces its placeholder with the real agent call.
+The re-plan step is not built yet: `_do_replan` below is a placeholder that
+T20 replaces with the real agent call.
 """
 
 import from models { CaseState, CaseStatus, EventStatus, Severity, Location }
@@ -16,6 +15,7 @@ import from agent_log { start_event, finish_event, log_event, compact_case, find
 import from triage { triage_case }
 import from matcher { match_case }
 import from dispatch { start_dispatch }
+import from documents { read_report }
 
 enum Step { ASK_FOLLOWUP, READ_DOCUMENT, TRIAGE, MATCH, DISPATCH, REPLAN, FINISH }
 sem Step.ASK_FOLLOWUP = "Ask the patient one follow-up question because the text is too vague.";
@@ -113,10 +113,7 @@ def _state_text(cs: CaseState) -> str {
 }
 
 def _do_read_document(cs: CaseState) {
-    # Placeholder until T24 (Document Agent) is connected.
-    ev = start_event(cs, "document", "read_report", "Reading your report");
-    cs.report_summary = "Report could not be read";
-    finish_event(ev, EventStatus.FAILED, "Couldn't read the report, continuing with your description");
+    read_report(cs);
 }
 
 def _do_match(cs: CaseState) {

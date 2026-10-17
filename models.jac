@@ -71,6 +71,7 @@ node CaseState {
         origin: Location,
         has_pdf: bool = False,
         report_summary: str = "",
+        report_text: str = "",
         severity: Severity = Severity.STABLE,
         unit_needed: UnitType = UnitType.GENERAL,
         red_flags: list[str] = [],
