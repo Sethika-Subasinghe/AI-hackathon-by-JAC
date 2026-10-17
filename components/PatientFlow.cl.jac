@@ -9,7 +9,9 @@ import "../assets/patient.css";
 import from react { useEffect }
 import from .IntakeForm { IntakeForm }
 import from .UiKit { StatusBadge }
+import from .AgentTimeline { AgentTimeline }
 sv import from orchestrator { CaseView, create_case, run_case_by_id, get_case, answer_followup }
+sv import from agent_log { EventView, case_events }
 sv import from geoapify { AddressSuggestion, GeocodeResult, autocomplete, geocode }
 
 def:pub PatientFlow -> JsxElement {
@@ -26,6 +28,7 @@ def:pub PatientFlow -> JsxElement {
         error: str = "",
         case_id: str = "",
         current: CaseView | None = None,
+        events: list[EventView] = [],
         followup_answer: str = "";
 
     def update_description(e: ChangeEvent);
@@ -104,6 +107,7 @@ def:pub PatientFlow -> JsxElement {
                         {"Your request is being handled. Severity: " + current.severity + "." if current is not None else "Sending your request..."}
                     </p>
                 }}
+                <AgentTimeline events={events}/>
                 <button type="button" className="link-button" onClick={reset_click}>Start a new request</button>
             </section>
         }}

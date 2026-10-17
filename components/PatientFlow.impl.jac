@@ -126,6 +126,7 @@ impl PatientFlow.refresh_case() -> None {
     if latest is not None {
         current = latest;
     }
+    events = await case_events(case_id);
 }
 
 impl PatientFlow.update_followup(e: ChangeEvent) {
@@ -145,6 +146,7 @@ impl PatientFlow.send_followup(e: FormEvent) -> None {
 impl PatientFlow.start_over() {
     case_id = "";
     current = None;
+    events = [];
     description = "";
     address = "";
     location_ready = False;
