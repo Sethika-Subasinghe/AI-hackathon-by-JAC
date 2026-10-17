@@ -57,7 +57,7 @@ Read with `plan.md`, `README.md` and `skill.md`.
 | T05 | Graph model and shared types: Hospital, Unit, BedStatus, CaseState, AgentEvent, ClinicPatient, Request | A9 | Dimuth | Done | T01 | Model in `models.jac` (checked, smoke-tested); summary in Shared notes |
 | T06 | Hospital login + bed-update backend | plan F2 | Dimuth | Done | T05 | API in `hospitals.jac`, shape in Shared notes; unit test passes (`jac test hospitals.jac`) |
 | T07 | Design system and app shell: tokens, fonts, layout, SafetyBanner, base components, responsive | B1-B3 | Sethika | Done | T01 | Responsive Jac shell, persistent safety banner, Patient/Hospital/Clinic navigation, and reusable UI primitives verified at 360/768/1280 px; Jac MCP validation/lint and live app checks pass. |
-| T08 | Hospital dashboard UI: login page, bed cards, BedStepper | B5 | Sethika | Not started | T06, T07 | |
+| T08 | Hospital dashboard UI: login page, bed cards, BedStepper | B5 | Sethika | In progress | T06, T07 | Claimed by Sethika. |
 | T09 | Agent conventions: `llm` setup, typed outputs, AgentEvent logging helper | A0, A8 | Dimuth | Done | T05 | Helpers in `agent_log.jac`; `by llm()` checked with MockLLM; real model needs T03 keys |
 | T10 | Triage Agent: `by llm()`, red-flag override, fallback | A2 | Dimuth | Done | T09 | `triage.jac`; 5 tests pass with MockLLM, not yet tried with a real model (needs T03 key) |
 | T11 | Patient form UI: description with example chips, location, optional PDF drop zone | B5 | Sethika | Not started | T07 | |
