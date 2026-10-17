@@ -8,7 +8,7 @@ For every coding agent on the team. Read with `plan.md`, `README.md` and `progre
 - Critical dispatch uses a **10-second countdown with Cancel** (replaces "confirm before dispatch").
 - **Re-planning:** if the chosen hospital declines or runs out of beds, agents re-match and re-dispatch automatically.
 - Memory: per-case state, plus a saved **profile for clinic patients only**.
-- **Surgery waiting lists (T33):** plain Jac functions and graph nodes, no model. Expected wait in weeks = patients waiting / operations per week; hospitals are ranked by wait plus 0.1 week per km. Patient side: `SurgeryPlanner`; hospital side: `SurgeryLists` in the dashboard.
+- **Surgery waiting lists (T35):** plain Jac functions and graph nodes, no model. Expected wait in weeks = patients waiting / operations per week; hospitals are ranked by wait plus 0.1 week per km. Patient side: `SurgeryPlanner`; hospital side: `SurgeryLists` in the dashboard.
 - English only. Responsive on phone, tablet and PC. Medical theme (see Part B).
 
 ## Jac-first rules (competition requirement: at least 80% Jac)
