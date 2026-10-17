@@ -1,0 +1,54 @@
+.patient-flow .intake { display: grid; gap: 22px; }
+.patient-flow .field { display: grid; gap: 8px; }
+.patient-flow .field label, .patient-flow .field-label { font-size: 14px; font-weight: 800; color: var(--text); }
+.patient-flow .intake textarea, .patient-flow .intake input[type="text"] {
+  width: 100%; box-sizing: border-box; background: var(--surface); color: var(--text);
+  border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; font: inherit; line-height: 1.5;
+}
+.patient-flow .intake textarea { resize: vertical; min-height: 110px; }
+.patient-flow .intake input[type="text"] { min-height: 46px; }
+.patient-flow .intake textarea:focus, .patient-flow .intake input[type="text"]:focus { outline: 3px solid var(--primary-light); outline-offset: 1px; border-color: var(--primary); }
+.patient-flow .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.patient-flow .chip {
+  background: var(--primary-soft); color: var(--primary); border: 1px solid transparent; border-radius: 999px;
+  min-height: 40px; padding: 0 14px; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; text-align: left;
+}
+.patient-flow .chip:hover { border-color: var(--primary-light); }
+.patient-flow .locate-row { display: grid; grid-template-columns: 1fr auto; gap: 10px; }
+.patient-flow .locate-button {
+  background: var(--surface); color: var(--primary); border: 1px solid var(--primary); border-radius: 12px;
+  min-height: 46px; padding: 0 16px; font: inherit; font-weight: 800; cursor: pointer; white-space: nowrap;
+}
+.patient-flow .locate-button:disabled { opacity: .6; cursor: progress; }
+.patient-flow .hint { margin: 0; font-size: 13px; color: var(--muted); }
+.patient-flow .hint.ok { color: var(--primary); font-weight: 700; }
+.patient-flow .suggestions { list-style: none; margin: 0; padding: 4px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.patient-flow .suggestions button {
+  width: 100%; min-height: 44px; text-align: left; background: transparent; border: 0; border-radius: 8px;
+  padding: 0 12px; font: inherit; color: var(--text); cursor: pointer;
+}
+.patient-flow .suggestions button:hover { background: var(--primary-soft); }
+.patient-flow .dropzone {
+  display: flex; align-items: center; gap: 14px; min-height: 76px; padding: 14px 16px; cursor: pointer;
+  border: 2px dashed var(--line); border-radius: 14px; background: var(--bg);
+}
+.patient-flow .dropzone:hover { border-color: var(--primary-light); }
+.patient-flow .dropzone input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.patient-flow .drop-icon {
+  display: grid; place-items: center; width: 44px; height: 44px; border-radius: 10px;
+  background: var(--primary); color: #fff; font-size: 12px; font-weight: 900;
+}
+.patient-flow .drop-copy { color: var(--muted); font-size: 14px; overflow-wrap: anywhere; }
+.patient-flow .link-button { justify-self: start; background: none; border: 0; padding: 4px 0; color: var(--primary); font: inherit; font-weight: 700; cursor: pointer; text-decoration: underline; }
+.patient-flow .form-error { margin: 0; padding: 10px 12px; border-radius: 10px; background: #fdecee; border: 1px solid #f3b6bd; color: #8a1c28; }
+.patient-flow .submit { justify-self: stretch; min-height: 52px; font-size: 16px; }
+@media (max-width: 520px) {
+.patient-flow .locate-row { grid-template-columns: 1fr; }
+.patient-flow .locate-button { width: 100%; }
+}
+.patient-flow .case-panel { display: grid; gap: 14px; }
+.patient-flow .case-note { margin: 0; color: var(--muted); }
+.patient-flow .followup { display: grid; gap: 8px; }
+.patient-flow .followup label { font-weight: 800; }
+.patient-flow .followup input { min-height: 46px; border: 1px solid var(--line); border-radius: 12px; padding: 0 14px; font: inherit; }
+
