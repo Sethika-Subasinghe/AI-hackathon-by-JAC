@@ -74,7 +74,7 @@ Read with `plan.md`, `README.md` and `skill.md`.
 | T19 | Hospital incoming alerts: AlertCard with Accept and Decline in the dashboard | B3, B5 | Sethika | Not started | T08, T17 | |
 | T20 | Re-plan Agent: decline, full or timeout → re-match and re-dispatch | A6 | Dimuth | Not started | T17, T19 | |
 | T21 | Map: moving ambulance marker and police clearance panel | B3 | Akeesha | Not started | T16, T17 | |
-| T22 | Clinic Reminder Agent + ClinicPatient profile + mock email inbox | A7 | Dimuth | Not started | T05 | |
+| T22 | Clinic Reminder Agent + ClinicPatient profile + mock email inbox | A7 | Dimuth | In progress | T05 | |
 | T23 | Clinic UI: form, reminder card, EmailPreview, in-app notices | B5 | Akeesha | Not started | T07, T22 | |
 | T24 | Document Agent: pypdf extractor + `summarise_report` | A3 | Dimuth | Not started | T10 | |
 | T25 | Reliability: timeouts, retries, fallbacks, "Using backup logic" banner, canned demo results | A10 | Dimuth | Not started | T13, T15 | |
