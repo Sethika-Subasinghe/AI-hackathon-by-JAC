@@ -48,7 +48,7 @@ Read with `plan.md`, `README.md` and `skill.md`.
 | T00 | Register and check in (every member, 8:00 AM) | rules | All | Done | | Tick names here: Sethika ✅, Akeesha ✅, Dimuth ✅ |
 | T01 | Repo skeleton: `pip install jaseci`, Jac app runs, folders, `.gitignore`, `.env.example` | plan 6 | Dimuth | Done | | Fullstack scaffold runs (`jac start --dev main.jac`, page + walkers verified). `[plugins.scale.microservices] enabled = false` in jac.toml stops jac-scale auto-microservice mode; server module is plain `endpoints.jac`. |
 | T02 | Jac MCP + Jac skills on each machine (`codex mcp add jac -- jac mcp`, `claude mcp add jac -- jac mcp`, `jac guide --export .claude/skills`) | skill | All | Done | T01 | Tick names here: Akeesha ✅ (Jac 0.16.7 and Jac MCP verified); Sethika ✅ (Jac 0.16.7; Jac MCP registered and verified); Dimuth ✅ (skills exported; MCP registration unavailable because `claude` CLI is not on PATH). Team confirmed complete. |
-| T03 | API keys: free LLM key (Gemini or Groq) and Geoapify key, local `.env` only | plan 6 | Akeesha | Blocked | | Need Akeesha's Gemini/Groq and Geoapify keys; no browser session is available, and T01 has not yet added `.gitignore` / `.env.example`. Never put keys in git. |
+| T03 | API keys: free LLM key (Gemini or Groq) and Geoapify key, local `.env` only | plan 6 | Akeesha | Done | | Gemini and Geoapify credentials are stored only in ignored `.env`; both were validated against their provider APIs without exposing values. |
 | T04 | Fake Sri Lanka hospital dataset (public and private, units, beds, coordinates) | plan F1 | Akeesha | Not started | T01 | |
 | T05 | Graph model and shared types: Hospital, Unit, BedStatus, CaseState, AgentEvent, ClinicPatient, Request | A9 | Dimuth | In progress | T01 | Post data model in Shared notes |
 | T06 | Hospital login + bed-update backend | plan F2 | Dimuth | Not started | T05 | Post API shape in Shared notes |
@@ -84,7 +84,7 @@ Keep this to 3 to 6 items and refresh it whenever a task is Done.
 1. **T05** Dimuth: graph model and shared types
 2. **T07** Sethika: design system and app shell
 3. **T04** Akeesha: fake hospital dataset
-4. **T03** Akeesha: LLM and Geoapify keys (blocked on credentials)
+4. **T14** Akeesha: Geoapify geocoding, routing, ETA and caching
 5. **T28** Akeesha: Jac share check
 
 ## 6. Shared notes (blockers, interface changes, decisions)
@@ -97,6 +97,7 @@ Add one entry per completed piece of work: date and time, who, what changed, fil
 
 | Date | Who | What changed | Files |
 |---|---|---|---|
+| 2026-10-17 | Akeesha | Completed T03: moved uploaded credentials out of tracked `.env.example` into ignored `.env`, restored the blank template, and validated Gemini and Geoapify API access without exposing keys | progress.md (credentials remain local in `.env`) |
 | 2026-10-17 10:05 | Sethika | Marked shared T02 Done after team confirmation, refreshed Next up, and cleared T07's resolved T01 blocker | progress.md |
 | 2026-10-17 09:52 | Sethika | Completed Sethika's T02 setup: verified Jac 0.16.7 and jac-mcp 0.1.24, registered the Jac MCP in Codex, and confirmed it is enabled | progress.md |
 | 2026-10-17 09:39 | Sethika | Completed Sethika's T00 registration check-in; shared task remains in progress for the other team members | progress.md |
