@@ -9,6 +9,8 @@ import from .components.Skeleton { Skeleton }
 import from .components.UiKit { AppButton, EmptyState, StatusBadge, SurfaceCard }
 import from .components.PatientFlow { PatientFlow }
 import from .components.BedCard { BedCard }
+import from .components.SurgeryPlanner { SurgeryPlanner }
+import from .components.SurgeryLists { SurgeryLists }
 import from .components.AlertCard { AlertCard }
 import from react { useEffect }
 sv import from dispatch { AlertView, hospital_alerts, respond_alert }
@@ -60,6 +62,9 @@ def:pub app -> JsxElement {
     if active_view == "hospital" {
         view_title = "Hospital operations";
         view_detail = "Keep free beds accurate and answer incoming patients.";
+    } elif active_view == "surgery" {
+        view_title = "Planned surgery";
+        view_detail = "See which hospital can operate soonest and join its waiting list.";
     } elif active_view == "clinic" {
         view_title = "Clinic reminders";
         view_detail = "Save your visit once and get reminders in good time.";
@@ -161,9 +166,12 @@ def:pub app -> JsxElement {
                                                 }}
                                             </div>
                                         </section>
+                                        <SurgeryLists token={hospital_token}/>
                                     </div>
                                 }}
                             </section>
+                        } elif active_view == "surgery" {
+                            <SurgeryPlanner/>
                         } else {
                             <ClinicWorkspace key={str(demo_reset_version)}/>
                         }}

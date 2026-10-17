@@ -143,6 +143,23 @@ node MailItem {
         simulated: bool = True;
 }
 
+"""A surgery a hospital offers and how many patients are waiting for it."""
+node SurgeryList {
+    has surgery_code: str,
+        waiting: int = 0,
+        weekly_capacity: int = 5,
+        updated_at: float = 0.0;
+}
+
+"""A patient who joined a hospital's waiting list for a surgery."""
+node SurgeryApplication {
+    has surgery_code: str,
+        hospital_id: str,
+        patient_name: str,
+        position: int,
+        applied_at: float = 0.0;
+}
+
 edge HasUnit: Hospital --> Unit {}
 
 edge HasBeds: Unit --> BedStatus {}
@@ -150,3 +167,7 @@ edge HasBeds: Unit --> BedStatus {}
 edge CaseEvent: CaseState --> AgentEvent {}
 
 edge CaseRequest: CaseState --> Request {}
+
+edge HasSurgery: Hospital --> SurgeryList {}
+
+edge HasApplication: SurgeryList --> SurgeryApplication {}

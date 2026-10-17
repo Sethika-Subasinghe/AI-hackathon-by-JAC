@@ -10,6 +10,7 @@ import from matcher { matches }
 import from replan { replanning }
 import from orchestrator { FAIL_STEP }
 import from dispatch { AUTO_ACCEPT }
+import from surgery { reset_surgery_lists }
 
 """Counts of demo records removed and hospital records restored."""
 obj DemoResetResult {
@@ -44,6 +45,7 @@ def:pub reset_demo_data -> DemoResetResult {
     }
 
     hospitals_restored = reset_demo_hospitals();
+    reset_surgery_lists();
     reset_simulated_clock();
     reset_breaker();
     matches.clear();
@@ -55,6 +57,6 @@ def:pub reset_demo_data -> DemoResetResult {
         cases_removed=len(cases),
         clinic_profiles_removed=len(profiles),
         hospitals_restored=hospitals_restored,
-        message="Demo data reset. Cases and clinic profiles were cleared, bed counts restored, and simulated time reset."
+        message="Demo data reset. Cases and clinic profiles were cleared, bed counts and surgery waiting lists restored, and simulated time reset."
     );
 }

@@ -19,6 +19,12 @@ import from dispatch {
 import from documents { ReportSummary, UploadResult, upload_report }
 import from reliability { SystemStatus, get_system_status }
 import from mapconfig { MapConfig, get_map_config }
+import from surgery {
+    SurgeryOption, SurgeryChoice, SurgeryListView, JoinResult,
+    list_surgery_catalog, find_surgery_hospitals, join_surgery_list,
+    my_surgery_lists, set_surgery_waiting, change_surgery_waiting,
+    change_surgery_capacity, set_surgery_offered
+}
 import from clinic {
     EmailDraft, ClinicView, ClinicResult, MailView,
     save_clinic_patient, get_clinic_patient, clinic_inbox, skip_time,
@@ -38,3 +44,4 @@ cl {
         return <ClientApp/>;
     }
 }
+

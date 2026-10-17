@@ -23,6 +23,7 @@ A patient or family describes the condition (and can upload a medical PDF), shar
 - **Emergency dispatch (critical only):** ambulance request, police route clearance and a hospital pre-arrival alert, sent after a 10-second countdown the patient can cancel (simulated in this demo)
 - **Hospital dashboard:** hospital staff log in to update bed availability and see incoming-patient alerts they can accept or decline
 - **Clinic reminders:** in-app notice and email for clinic dates, with a suggested arrival time
+- **Surgery waiting lists:** patients choose a planned surgery (cataract, hernia, knee replacement and more) and see the hospital with the shortest expected wait near them, then join its list; hospitals keep their waiting counts up to date
 - **Medical PDF upload (optional):** key facts are extracted and passed to triage
 - **Live agent timeline:** every agent step, tool call and decision is shown to the user as it happens
 - **Automatic re-planning:** if a hospital declines or is full, the agents pick the next best hospital and re-dispatch

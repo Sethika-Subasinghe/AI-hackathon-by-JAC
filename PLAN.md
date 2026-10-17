@@ -9,7 +9,7 @@ Problem: in an emergency, families don't know which hospital has capacity or the
 
 ## 2. Users
 - **Patient / family** (main user): describe condition, share location, get a hospital recommendation.
-- **Hospital staff**: log in, update bed availability, see incoming-patient alerts and accept or decline them.
+- **Hospital staff**: log in, update bed availability, see incoming-patient alerts and accept or decline them, and keep the **surgery waiting lists** (patients waiting per planned surgery) up to date.
 - **Ambulance and police**: simulated receivers of dispatch and route-clearance requests (demo only).
 
 ## 3. Scope
@@ -41,6 +41,7 @@ An Orchestrator agent decides which agent runs next. Each agent has a clear job,
 8. Clinic Reminder Agent + saved clinic-patient profile + mock email, then real email as a stretch
 9. PDF Document Agent
 10. Polish: loading states, error handling, demo data reset, disclaimer
+11. **Surgery waiting lists (added 3:10 PM, T33):** planned surgeries such as cataract have long waits in Sri Lanka. Hospitals keep the number of patients waiting and operations per week; a patient picks a surgery, sees the best hospitals ranked by expected wait and distance, and can join a list. Built in Jac (`surgery.jac`), a "Surgery" tab for patients and a "Surgery waiting lists" section in the hospital dashboard.
 
 ## 6. Tech stack
 - **Language:** Jac, at least 80% of code, covering backend and frontend. Use nodes/edges/walkers for the hospital graph and `by llm` style agent functions for the AI parts. Plain JS/CSS only where Jac can't cover it (keep under 20%). Verify exact syntax against jaclang.org/docs/latest.

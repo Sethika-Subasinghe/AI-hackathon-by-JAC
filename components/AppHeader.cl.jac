@@ -6,10 +6,12 @@ def:pub AppHeader(
     on_select: Callable[[str], None],
 ) -> JsxElement {
     def show_patient(_e: MouseEvent) { on_select("patient"); }
+    def show_surgery(_e: MouseEvent) { on_select("surgery"); }
     def show_hospital(_e: MouseEvent) { on_select("hospital"); }
     def show_clinic(_e: MouseEvent) { on_select("clinic"); }
 
     patient_class: str = "nav-button active" if active_view == "patient" else "nav-button";
+    surgery_class: str = "nav-button active" if active_view == "surgery" else "nav-button";
     hospital_class: str = "nav-button active" if active_view == "hospital" else "nav-button";
     clinic_class: str = "nav-button active" if active_view == "clinic" else "nav-button";
 
@@ -21,6 +23,9 @@ def:pub AppHeader(
         <nav className="primary-nav" aria-label="Primary navigation">
             <button type="button" className={patient_class} aria-pressed={active_view == "patient"} onClick={show_patient}>
                 Patient
+            </button>
+            <button type="button" className={surgery_class} aria-pressed={active_view == "surgery"} onClick={show_surgery}>
+                Surgery
             </button>
             <button type="button" className={hospital_class} aria-pressed={active_view == "hospital"} onClick={show_hospital}>
                 Hospital

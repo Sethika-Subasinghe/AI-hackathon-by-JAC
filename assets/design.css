@@ -64,6 +64,7 @@
 .app-shell:has(.case-panel) .rs-route .rs-pin { background: var(--primary); border-color: var(--primary); box-shadow: 0 0 0 4px #cdeae5; }
 .app-shell:has(.case-panel) .route-steps li + li::before { border-top: 2px solid var(--primary); }
 .app-shell.view-hospital .route-steps,
+.app-shell.view-surgery .route-steps,
 .app-shell.view-clinic .route-steps { display: none; }
 
 /* ---- workspace ---- */
@@ -72,9 +73,11 @@
   grid-template-columns: minmax(0, 1.5fr) minmax(280px, .62fr);
 }
 .app-shell.view-hospital .workspace-grid,
+.app-shell.view-surgery .workspace-grid,
 .app-shell.view-clinic .workspace-grid,
 .app-shell:has(.case-panel) .workspace-grid { grid-template-columns: minmax(0, 1fr); }
 .app-shell.view-hospital .side-stack,
+.app-shell.view-surgery .side-stack,
 .app-shell.view-clinic .side-stack,
 .app-shell:has(.case-panel) .side-stack { display: none; }
 

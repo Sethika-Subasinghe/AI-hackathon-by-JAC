@@ -1,0 +1,76 @@
+/* ---- patient side: surgery planner ---- */
+.surgery-planner { display: grid; gap: 26px; }
+.surgery-planner .sp-heading { margin: 0 0 12px; font-size: 1.05rem; font-weight: 800; }
+.surgery-planner .sp-optional { font-weight: 500; font-size: .85rem; color: var(--muted); }
+.surgery-planner .sp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; }
+.surgery-planner .sp-surgery {
+  display: grid; gap: 2px; text-align: left; padding: 14px 16px; min-height: 64px; cursor: pointer;
+  background: var(--surface); border: 1.5px solid #cfe0dd; border-radius: 14px; font: inherit; color: var(--text);
+}
+.surgery-planner .sp-surgery:hover { border-color: var(--primary-light); }
+.surgery-planner .sp-surgery.selected { border-color: var(--primary); background: var(--primary-soft); box-shadow: 0 0 0 3px rgba(20, 184, 166, .22); }
+.surgery-planner .sp-name { font-weight: 800; }
+.surgery-planner .sp-speciality { font-size: 13px; color: var(--muted); }
+.surgery-planner .sp-form { display: grid; gap: 12px; }
+.surgery-planner .sp-locate { display: grid; grid-template-columns: 1fr auto; gap: 10px; }
+.surgery-planner input[type="text"] {
+  width: 100%; box-sizing: border-box; min-height: 48px; padding: 0 14px; font: inherit;
+  background: #fbfdfd; border: 1px solid #cfe0dd; border-radius: 14px; color: var(--text);
+}
+.surgery-planner .sp-locate-button {
+  min-height: 48px; padding: 0 16px; border-radius: 14px; border: 1px solid var(--primary);
+  background: var(--surface); color: var(--primary); font: inherit; font-weight: 800; cursor: pointer; white-space: nowrap;
+}
+.surgery-planner .sp-suggestions { list-style: none; margin: 0; padding: 4px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.surgery-planner .sp-suggestions button { width: 100%; min-height: 44px; text-align: left; background: none; border: 0; border-radius: 8px; padding: 0 12px; font: inherit; cursor: pointer; }
+.surgery-planner .sp-suggestions button:hover { background: var(--primary-soft); }
+.surgery-planner .sp-error { margin: 0; padding: 10px 12px; border-radius: 10px; background: #fdecee; border: 1px solid #f3b6bd; color: #8a1c28; }
+.surgery-planner .sp-results { display: grid; gap: 14px; }
+.surgery-planner .sp-summary { margin: 0; padding: 12px 14px; border-radius: 12px; background: #e9f6f3; color: #0b5c55; font-weight: 700; }
+.surgery-planner .sp-name-row { display: grid; gap: 6px; max-width: 420px; }
+.surgery-planner .sp-name-row label { font-weight: 800; font-size: .95rem; }
+.surgery-planner .sp-join-result { margin: 0; padding: 12px 14px; border-radius: 12px; line-height: 1.45; }
+.surgery-planner .sp-join-result.ok { background: #dcfce7; color: #14532d; border: 1px solid #86efac; }
+.surgery-planner .sp-join-result.fail { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+.surgery-planner .sp-option { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 18px; display: grid; gap: 8px; }
+.surgery-planner .sp-option.best { border: 2px solid var(--primary); box-shadow: 0 8px 24px rgba(15, 118, 110, .12); }
+.surgery-planner .sp-option h4 { margin: 0; font-size: 1.2rem; }
+.surgery-planner .sp-city { margin: 0; color: var(--muted); }
+.surgery-planner .sp-option-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.surgery-planner .sp-best { background: var(--primary); color: #fff; border-radius: 999px; padding: 3px 12px; font-size: 12px; font-weight: 900; }
+.surgery-planner .sp-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
+.surgery-planner .sp-stats > div { background: var(--bg); border-radius: 12px; padding: 10px 12px; }
+.surgery-planner .sp-big { margin: 0; font-size: 1.15rem; font-weight: 900; color: var(--primary); font-variant-numeric: tabular-nums; }
+.surgery-planner .sp-label { margin: 2px 0 0; font-size: 12px; color: var(--muted); }
+.surgery-planner .sp-join { justify-self: start; padding: 0 22px; }
+.surgery-planner .sp-note { margin: 0; font-size: 12px; color: var(--muted); }
+@media (max-width: 520px) {
+  .surgery-planner .sp-locate { grid-template-columns: 1fr; }
+  .surgery-planner .sp-join { justify-self: stretch; }
+}
+
+/* ---- hospital side: waiting-list controls (inside the dark panel) ---- */
+.hospital-ops .surgery-lists { display: grid; gap: 12px; margin-top: 8px; }
+.hospital-ops .sl-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.hospital-ops .sl-head h4 { margin: 0; font-size: 18px; }
+.hospital-ops .sl-total { font-size: 13px; font-weight: 800; padding: 3px 12px; border-radius: 999px; background: #1e293b; color: #cbd5e1; }
+.hospital-ops .sl-help { margin: 0; color: #aebfce; font-size: 14px; line-height: 1.5; }
+.hospital-ops .sl-notice { margin: 0; padding: 10px 12px; border-radius: 9px; background: #123d37; border: 1px solid #25776b; color: #baf5e5; }
+.hospital-ops .sl-empty { margin: 0; padding: 14px 16px; border: 1px dashed #34465e; border-radius: 12px; color: #aebfce; }
+.hospital-ops .sl-list { display: grid; gap: 12px; }
+.hospital-ops .sl-row { background: #111a2e; border: 1px solid #293b55; border-radius: 12px; padding: 16px; display: grid; gap: 12px; }
+.hospital-ops .sl-title { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.hospital-ops .sl-name { margin: 0; font-weight: 800; color: #fff; }
+.hospital-ops .sl-speciality { margin: 2px 0 0; font-size: 12px; color: #94a3b8; }
+.hospital-ops .sl-wait { font-size: 13px; font-weight: 800; padding: 3px 12px; border-radius: 999px; background: #14532d; color: #bbf7d0; white-space: nowrap; }
+.hospital-ops .sl-controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+.hospital-ops .sl-label { margin: 0 0 6px; font-size: 12px; color: #aebfce; font-weight: 700; }
+.hospital-ops .sl-stepper { display: flex; align-items: center; gap: 8px; }
+.hospital-ops .sl-stepper strong { min-width: 56px; text-align: center; font-size: 22px; font-variant-numeric: tabular-nums; color: #fff; }
+.hospital-ops .sl-stepper button { min-width: 44px; height: 44px; border: 0; border-radius: 10px; background: #1b765f; color: #fff; font: inherit; font-weight: 800; cursor: pointer; }
+.hospital-ops .sl-stepper button:disabled { opacity: .45; cursor: not-allowed; }
+.hospital-ops .sl-remove { justify-self: start; background: none; border: 0; padding: 4px 0; color: #94a3b8; font: inherit; font-size: 13px; text-decoration: underline; cursor: pointer; }
+.hospital-ops .sl-add { display: grid; gap: 6px; }
+.hospital-ops .sl-add label { font-weight: 800; font-size: 14px; }
+.hospital-ops .sl-add-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.hospital-ops .sl-add-row select { flex: 1 1 240px; min-height: 48px; border-radius: 12px; border: 1px solid #34465e; background: #17243a; color: #fff; padding: 0 12px; font: inherit; }
