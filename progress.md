@@ -64,7 +64,7 @@ Read with `plan.md`, `README.md` and `skill.md`.
 | T11 | Patient form UI: description with example chips, location, optional PDF drop zone | B5 | Sethika | Not started | T07 | |
 | T12 | AgentTimeline UI: expandable steps, polls events | B4 | Sethika | Not started | T09 | Build early, it makes every agent visible |
 | T13 | Orchestrator Agent: `decide_next` by llm(), guard rules, follow-up question flow | A1 | Dimuth | Done | T10 | `orchestrator.jac`; 7 MockLLM tests pass. Match, dispatch, re-plan and document steps are placeholders until T15, T17, T20, T24 |
-| T14 | Geoapify: geocode and autocomplete, routing and ETA, caching | plan F5 | Akeesha | In progress | T03 | Claimed by Akeesha. |
+| T14 | Geoapify: geocode and autocomplete, routing and ETA, caching | plan F5 | Akeesha | Done | T03 | Sri Lanka geocoding/autocomplete and driving route/ETA endpoints use in-memory caches; live provider calls and labelled straight-line fallback verified. |
 | T15 | Hospital Matcher Agent with tools and deterministic fallback | A4 | Dimuth | Not started | T04, T05, T14 | |
 | T16 | Result UI: HospitalCard, AlternativesList with reasons, MapPanel with route | B3 | Sethika | Not started | T14, T15 | |
 | T17 | Dispatch Agent + simulated ambulance, police and hospital requests + accept/decline endpoints | A5 | Dimuth | Not started | T15 | |
@@ -86,12 +86,12 @@ Read with `plan.md`, `README.md` and `skill.md`.
 
 ## 5. Next up
 Keep this to 3 to 6 items and refresh it whenever a task is Done.
-1. **T15** Dimuth: Hospital Matcher Agent (needs T14 Geoapify from Akeesha, can start with the fallback ranking)
+1. **T15** Dimuth: Hospital Matcher Agent (unblocked by T14)
 2. **T08** Sethika: hospital dashboard UI
 3. **T11** Sethika: patient form UI
-4. **T14** Akeesha: Geoapify geocoding, routing, ETA and caching
-5. **T12** Sethika: live agent timeline UI
-6. **T22** Dimuth: Clinic Reminder Agent
+4. **T12** Sethika: live agent timeline UI
+5. **T22** Dimuth: Clinic Reminder Agent
+6. **T28** Akeesha: Jac share check
 
 ## 6. Shared notes (blockers, interface changes, decisions)
 Add a dated line when an API shape, data model or decision changes. Newest first.
@@ -109,6 +109,7 @@ Add one entry per completed piece of work: date and time, who, what changed, fil
 
 | Date | Who | What changed | Files |
 |---|---|---|---|
+| 2026-10-17 | Akeesha | Completed T14: added cached Sri Lanka geocoding and autocomplete plus map-ready driving routes and ETA, with a labelled straight-line fallback; verified Jac tests, MCP validation/lint, and live Geoapify calls | geoapify.jac, geoapify.test.jac, main.jac, progress.md |
 | 2026-10-17 10:30 | Sethika | Completed T07: replaced the guestbook with a responsive, stateful CareRoute shell; added persistent medical safety messaging, Patient/Hospital/Clinic navigation, reusable UI primitives, accessible design tokens, documentation, and verified 360/768/1280 layouts plus navigation interactions | frontend.cl.jac, frontend.impl.jac, components/AppHeader.cl.jac, components/SafetyBanner.cl.jac, components/UiKit.cl.jac, assets/theme.css, PLAN.md, README.md, CHANGELOG.md, progress.md |
 | 2026-10-17 | Akeesha | Completed T04: added a typed Jac dataset of 10 fictional Sri Lankan hospitals with 46 unit/bed records, integrated idempotent lazy graph seeding with the hospital API, and verified data integrity plus the live list endpoint | data/hospital_seed.jac, data/hospital_seed.test.jac, hospitals.jac, hospitals.test.jac, progress.md |
 | 2026-10-17 | Akeesha | Completed T03: moved uploaded credentials out of tracked `.env.example` into ignored `.env`, restored the blank template, and validated Gemini and Geoapify API access without exposing keys | progress.md (credentials remain local in `.env`) |
