@@ -99,15 +99,19 @@ test "hospital sees the alert and accepts it" {
     assert again.status == "ACCEPTED";
 }
 
-test "a decline sends the case to re-planning" {
+test "a decline hands the case to the re-plan agent" {
     cs = _critical_case();
     start_dispatch(cs);
     cs.countdown_ends_at = 0.0;
     token = _login_as(cs.hospital_id);
     mine = [a for a in hospital_alerts(token) if a.case_id == jid(cs)];
     done = respond_alert(token, mine[0].request_id, False);
+    first = [h for h in list_hospitals() if h.id not in cs.excluded_hospital_ids];
     assert done.status == "DECLINED";
-    assert cs.status == CaseStatus.REPLANNING;
+    assert cs.replan_count == 1;
+    assert len(cs.excluded_hospital_ids) == 1;
+    assert cs.status == CaseStatus.DISPATCHED;
+    assert len(first) > 0;
 }
 
 test "other hospitals and bad tokens see nothing" {

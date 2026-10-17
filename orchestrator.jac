@@ -6,8 +6,7 @@ Decides the next step for a case, one step at a time (max 8):
     action = guard(action, cs) # deterministic rules can veto the model
     run the step, log it, repeat
 
-The re-plan step is not built yet: `_do_replan` below is a placeholder that
-T20 replaces with the real agent call.
+Every step now calls its real agent (document, triage, matcher, dispatch, re-plan).
 """
 
 import from models { CaseState, CaseStatus, EventStatus, Severity, Location }
@@ -16,6 +15,7 @@ import from triage { triage_case }
 import from matcher { match_case }
 import from dispatch { start_dispatch }
 import from documents { read_report }
+import from replan { replan_case }
 
 enum Step { ASK_FOLLOWUP, READ_DOCUMENT, TRIAGE, MATCH, DISPATCH, REPLAN, FINISH }
 sem Step.ASK_FOLLOWUP = "Ask the patient one follow-up question because the text is too vague.";
@@ -128,9 +128,7 @@ def _do_dispatch(cs: CaseState) {
 }
 
 def _do_replan(cs: CaseState) {
-    # Placeholder until T20 (Re-plan Agent) is connected.
-    log_event(cs, "replan", "re_match", EventStatus.FAILED, "Re-planning is not connected yet");
-    cs.status = CaseStatus.DONE;
+    replan_case(cs);
 }
 
 """Run the orchestrator loop for a case. Returns the number of steps taken.

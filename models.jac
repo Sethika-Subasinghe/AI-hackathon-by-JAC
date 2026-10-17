@@ -110,6 +110,7 @@ node Request {
         created_at: float = 0.0,
         sent_at: float = 0.0,
         target_id: str = "",
+        attempt: int = 0,
         route: list[list[float]] = [];
 }
 
