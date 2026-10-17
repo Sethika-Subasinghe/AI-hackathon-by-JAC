@@ -56,7 +56,7 @@ Read with `plan.md`, `README.md` and `skill.md`.
 | T06 | Hospital login + bed-update backend | plan F2 | Dimuth | Done | T05 | API in `hospitals.jac`, shape in Shared notes; unit test passes (`jac test hospitals.jac`) |
 | T07 | Design system and app shell: tokens, fonts, layout, SafetyBanner, base components, responsive | B1-B3 | Sethika | In progress | T01 | Claimed by Sethika. |
 | T08 | Hospital dashboard UI: login page, bed cards, BedStepper | B5 | Sethika | Not started | T06, T07 | |
-| T09 | Agent conventions: `llm` setup, typed outputs, AgentEvent logging helper | A0, A8 | Dimuth | Not started | T05 | |
+| T09 | Agent conventions: `llm` setup, typed outputs, AgentEvent logging helper | A0, A8 | Dimuth | In progress | T05 | |
 | T10 | Triage Agent: `by llm()`, red-flag override, fallback | A2 | Dimuth | Not started | T09 | |
 | T11 | Patient form UI: description with example chips, location, optional PDF drop zone | B5 | Sethika | Not started | T07 | |
 | T12 | AgentTimeline UI: expandable steps, polls events | B4 | Sethika | Not started | T09 | Build early, it makes every agent visible |
