@@ -1,132 +1,159 @@
-"""T12 AgentTimeline component: polls case_events once per second and shows
-expandable timeline steps for every agent action.
+"""Agent timeline: every agent step, live, expandable, with hand-offs made visible.
 
-Used by the Patient view to make every agent decision visible live.
+Stateless apart from its own open/closed UI state. The parent polls
+`case_events` and passes the list in.
 """
 
-sv import from agent_log { EventView, case_events }
-import from react { useEffect }
+import "../assets/timeline.css";
+sv import from agent_log { EventView }
 
+glob AGENT_LABELS: dict[str, str] = {
+    "orchestrator": "Orchestrator",
+    "triage": "Triage",
+    "document": "Report reader",
+    "matcher": "Hospital matcher",
+    "dispatch": "Dispatch",
+    "replan": "Re-plan"
+};
 
-"""One step in the agent timeline."""
-def _TimelineStep(ev: EventView, expanded: bool, on_toggle: Callable[[str], None]) -> JsxElement {
-    def handle_toggle(_e: MouseEvent) {
-        on_toggle(ev.id);
-    }
+glob AGENT_BADGES: dict[str, str] = {
+    "orchestrator": "OR",
+    "triage": "TR",
+    "document": "DO",
+    "matcher": "MA",
+    "dispatch": "DI",
+    "replan": "RP"
+};
 
-    status_icon: str = "⏳" if ev.status == "RUNNING" else (
-        "✅" if ev.status == "DONE" else (
-            "⚠️" if ev.status == "FAILED" else "⏸"
-        )
-    );
-    status_tone: str = "teal" if ev.status == "DONE" else (
-        "critical" if ev.status == "FAILED" else (
-            "urgent" if ev.status == "RUNNING" else "info"
-        )
-    );
-    agent_label: str = ev.agent.replace("_", " ").title();
-
-    return <li
-        className={"timeline-step timeline-step--" + ev.status.lower()}
-        aria-live="polite"
-    >
-        <button
-            type="button"
-            className="timeline-trigger"
-            aria-expanded={expanded}
-            onClick={handle_toggle}
-        >
-            <span className={"timeline-icon timeline-icon--" + status_tone} aria-hidden="true">{status_icon}</span>
-            <div className="timeline-summary">
-                <span className="timeline-title">{ev.title}</span>
-                <span className="timeline-agent">{agent_label + " · " + ev.step}</span>
-            </div>
-            <span className="timeline-chevron" aria-hidden="true">{"▼" if expanded else "▶"}</span>
-        </button>
-
-        {expanded and <div className="timeline-detail">
-            {ev.detail and <p className="timeline-detail-text">{ev.detail}</p>}
-            <p className="timeline-meta">
-                <span className="timeline-ts">{ev.timestamp}</span>
-                {"  ·  Used backup logic" if "backup logic" in ev.detail.lower() else ""}
-            </p>
-        </div>}
-    </li>;
+def _label(agent: str) -> str {
+    return AGENT_LABELS.get(agent, agent.title()) as str;
 }
 
+def _marker(status: str) -> str {
+    if status == "DONE" {
+        return "✓";
+    }
+    if status == "FAILED" {
+        return "!";
+    }
+    if status == "WAITING" {
+        return "…";
+    }
+    return "";
+}
 
-"""Live agent timeline. Polls `case_events` every second while `case_id` is set.
-Shows expandable steps, newest appended as they arrive.
-Pass `case_status` to stop polling once the case is finished."""
-def:pub AgentTimeline(
-    case_id: str,
-    case_status: str = "",
-    children: any = None,
-) -> JsxElement {
-    has events: list[EventView] = [];
-    has loading: bool = True;
-    has expanded_ids: dict[str, bool] = {};
+def _status_word(status: str) -> str {
+    if status == "DONE" {
+        return "Done";
+    }
+    if status == "FAILED" {
+        return "Problem, handled";
+    }
+    if status == "WAITING" {
+        return "Waiting";
+    }
+    return "Working";
+}
 
-    def on_toggle(event_id: str) {
-        if event_id in expanded_ids {
-            del expanded_ids[event_id];
+def _clock(ts: float) -> str {
+    when: any = new(Date, ts * 1000);  # jac:ignore[E1053]
+    return when.toLocaleTimeString() as str;
+}
+
+def:pub AgentTimeline(events: list[EventView]) -> JsxElement {
+    has open_ids: list[str] = [],
+        raw_ids: list[str] = [],
+        collapsed: bool = False;
+
+    def toggle_panel(_e: MouseEvent) { collapsed = not collapsed; }
+
+    def toggle_step(step_id: str) {
+        if step_id in open_ids {
+            open_ids = [i for i in open_ids if i != step_id];
         } else {
-            expanded_ids[event_id] = True;
+            open_ids = open_ids + [step_id];
         }
-        # Force re-render by reassigning.
-        expanded_ids = dict(expanded_ids);
     }
 
-    finished_statuses: list[str] = ["DONE", "CANCELLED", "DISPATCHED", "FAILED"];
-
-    # Poll once on mount, then every second while the case is running.
-    # Per jac guide: outer lambda must NOT be annotated -> None because it returns cleanup.
-    useEffect(lambda {
-        active: list[bool] = [True];
-
-        def fetch_once() {
-            if case_id == "" or not active[0] { return; }
-            case_events(case_id).then(lambda(result: any) {
-                if result is not None and active[0] {
-                    events = result;
-                    loading = False;
-                }
-            });
+    def toggle_raw(step_id: str) {
+        if step_id in raw_ids {
+            raw_ids = [i for i in raw_ids if i != step_id];
+        } else {
+            raw_ids = raw_ids + [step_id];
         }
+    }
 
-        fetch_once();
-        interval = setInterval(lambda { fetch_once(); }, 1000);
-        return lambda {
-            active[0] = False;
-            clearInterval(interval);
-        };
-    }, [case_id, case_status]);
+    count: int = len(events);
+    working: bool = len([e for e in events if e.status == "RUNNING"]) > 0;
+    headline: str = "No steps yet";
+    if count > 0 {
+        headline = events[count - 1].title;
+    }
 
-    done: bool = case_status in finished_statuses;
-
-    return <section className="agent-timeline" aria-label="Agent timeline" aria-live="polite">
-        <div className="timeline-header">
-            <h4 className="timeline-heading">Agent steps</h4>
-            {loading and case_id != "" and <span className="timeline-spinner" aria-label="Loading agent events">⏳</span>}
-            {done and <span className="timeline-done-badge">All steps complete</span>}
-        </div>
-
-        {if case_id == "" {
-            <p className="timeline-empty">Submit a case to see the agent work here.</p>
-        } elif len(events) == 0 and not loading {
-            <p className="timeline-empty">No events yet — agents are starting.</p>
+    return <section className="agent-timeline" aria-label="What the agents are doing">
+        <header className="at-head">
+            <div>
+                <p className="at-eyebrow">Agent activity</p>
+                <h3>{headline}</h3>
+            </div>
+            <button
+                type="button"
+                className="at-toggle"
+                aria-expanded={not collapsed}
+                onClick={toggle_panel}
+            >{"Show steps (" + str(count) + ")" if collapsed else "Hide steps"}</button>
+        </header>
+        {if not collapsed {
+            <ol className="at-list" aria-live="polite" aria-busy={working}>
+                {if count == 0 {
+                    <li className="at-empty">The agents will appear here as soon as they start.</li>
+                }}
+                {for (i, ev) in enumerate(events) {
+                    <li
+                        key={ev.id}
+                        className={"at-step " + ev.status.lower() + (" highlight" if ev.agent == "replan" or ev.step == "hospital_declined" else "")}
+                    >
+                        {if i > 0 and events[i - 1].agent != ev.agent {
+                            <p className="at-handoff">{"Hand-off to " + _label(ev.agent)}</p>
+                        }}
+                        <div className="at-row">
+                            <span className="at-badge" aria-hidden="true">{AGENT_BADGES.get(ev.agent, "AG")}</span>
+                            <span className={"at-state " + ev.status.lower()} aria-hidden="true">{_marker(ev.status)}</span>
+                            <div className="at-main">
+                                <p className="at-title">{ev.title}</p>
+                                <p className="at-meta">
+                                    {_label(ev.agent) + " · " + _status_word(ev.status) + " · " + _clock(ev.timestamp)}
+                                    {if "simulated" in ev.title.lower() or ev.agent == "dispatch" {
+                                        <span className="at-sim">Simulated</span>
+                                    }}
+                                </p>
+                            </div>
+                            {if ev.detail != "" {
+                                <button
+                                    type="button"
+                                    className="at-more"
+                                    aria-expanded={ev.id in open_ids}
+                                    aria-label={"Details for " + ev.title}
+                                    onClick={lambda (e: MouseEvent) { toggle_step(ev.id); }}
+                                >{"Less" if ev.id in open_ids else "Details"}</button>
+                            }}
+                        </div>
+                        {if ev.id in open_ids {
+                            <div className="at-detail">
+                                <p>{ev.detail}</p>
+                                <button
+                                    type="button"
+                                    className="at-link"
+                                    onClick={lambda (e: MouseEvent) { toggle_raw(ev.id); }}
+                                >{"Hide raw" if ev.id in raw_ids else "Show raw"}</button>
+                                {if ev.id in raw_ids {
+                                    <pre className="at-raw">{JSON.stringify(ev, None, 2)}</pre>
+                                }}
+                            </div>
+                        }}
+                    </li>
+                }}
+            </ol>
         }}
-
-        <ol className="timeline-list" aria-label="Agent event steps">
-            {for ev in events {
-                <_TimelineStep
-                    ev={ev}
-                    expanded={expanded_ids.get(ev.id, False)}
-                    on_toggle={on_toggle}
-                    key={ev.id}
-                />
-            }}
-        </ol>
-        {children}
     </section>;
 }

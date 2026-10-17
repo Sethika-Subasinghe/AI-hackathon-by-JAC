@@ -221,8 +221,8 @@ def match_case(cs: CaseState) -> MatchResult {
                     shown[i].reason = sentences[i];
                 }
             }
-        } except Exception {
-            record_model_failure();
+        } except Exception as err {
+            record_model_failure(str(err));
             result.used_fallback = True;
         }
     }

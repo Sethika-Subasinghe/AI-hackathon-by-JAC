@@ -27,3 +27,13 @@ test "a success resets the failure count" {
 test "the model timeout is set" {
     assert litellm.request_timeout == MODEL_TIMEOUT_SECONDS;
 }
+
+test "a rejected key opens the breaker at once" {
+    reset_breaker();
+    record_model_failure("litellm.AuthenticationError: API key not valid");
+    assert not model_available();
+    reset_breaker();
+    record_model_failure("read timed out");
+    assert model_available();
+    reset_breaker();
+}

@@ -169,8 +169,8 @@ def _deliver(task: ReminderTask, p: ClinicPatient) {
                 f"Patient {p.name}. Clinic {p.clinic} on {p.clinic_date}, which is {when}. Suggested arrival {arrival}."
             );
             record_model_success();
-        } except Exception {
-            record_model_failure();
+        } except Exception as err {
+            record_model_failure(str(err));
             draft = _template_email(p.name, p.clinic, p.clinic_date, arrival, when);
         }
     }

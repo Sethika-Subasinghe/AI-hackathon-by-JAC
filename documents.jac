@@ -91,8 +91,8 @@ def read_report(cs: CaseState) -> bool {
         try {
             summary = _flatten(summarise_report(text));
             record_model_success();
-        } except Exception {
-            record_model_failure();
+        } except Exception as err {
+            record_model_failure(str(err));
             used_fallback = True;
         }
     } else {

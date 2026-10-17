@@ -133,6 +133,17 @@ impl PatientFlow.refresh_case() -> None {
             }
         }
     }
+    events = await case_events(case_id);
+    if latest is not None and latest.severity == "CRITICAL" {
+        dispatch = await get_dispatch(case_id);
+    }
+}
+
+impl PatientFlow.cancel_countdown() -> None {
+    if case_id == "" {
+        return;
+    }
+    dispatch = await cancel_dispatch(case_id);
 }
 
 impl PatientFlow.update_followup(e: ChangeEvent) {
@@ -152,6 +163,8 @@ impl PatientFlow.send_followup(e: FormEvent) -> None {
 impl PatientFlow.start_over() {
     case_id = "";
     current = None;
+    events = [];
+    dispatch = None;
     description = "";
     address = "";
     location_ready = False;

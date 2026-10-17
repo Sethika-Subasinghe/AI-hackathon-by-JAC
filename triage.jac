@@ -156,8 +156,8 @@ def triage_case(cs: CaseState) -> TriageResult {
             try {
                 result = triage_llm(cs.description, cs.report_summary);
                 record_model_success();
-            } except Exception {
-                record_model_failure();
+            } except Exception as err {
+                record_model_failure(str(err));
                 result = None;
             }
         }

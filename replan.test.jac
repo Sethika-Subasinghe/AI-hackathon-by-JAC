@@ -5,7 +5,7 @@ import from data.hospital_seed { DEMO_HOSPITAL_PASSWORD }
 import from agent_log { case_events }
 import from hospitals { hospital_login, list_hospitals, set_free_beds }
 import from matcher { LIVE_SERVICES, match_case }
-import from dispatch { LIVE_MODEL, start_dispatch, get_dispatch, hospital_alerts, respond_alert }
+import from dispatch { AUTO_ACCEPT, LIVE_MODEL, start_dispatch, get_dispatch, hospital_alerts, respond_alert }
 
 def _login_as(hospital_id: str) -> str {
     for h in [root.shared -->][?:Hospital] {
@@ -18,6 +18,7 @@ def _login_as(hospital_id: str) -> str {
 
 """A critical cardiac case that is already dispatched to its best hospital."""
 def _dispatched_case() -> CaseState {
+    AUTO_ACCEPT["on"] = False;
     LIVE_SERVICES["on"] = False;
     LIVE_MODEL["on"] = False;
     cs = (root.shared ++> CaseState(

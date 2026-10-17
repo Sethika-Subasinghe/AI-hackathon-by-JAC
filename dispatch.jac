@@ -17,7 +17,7 @@ Everything here is simulated and labelled `simulated=True`.
 import time;
 import from models { CaseState, CaseStatus, CaseRequest, EventStatus, Hospital, Request, RequestKind, RequestStatus }
 import from agent_log { start_event, finish_event, log_event, find_case, compact_case }
-import from hospitals { my_hospital }
+import from hospitals { my_hospital, sessions }
 import from geoapify { get_route }
 import from reliability { model_available, record_model_success, record_model_failure }
 
@@ -25,6 +25,9 @@ glob COUNTDOWN_SECONDS: float = 10.0;
 # Demo speed: the ambulance covers the route this many times faster than real time.
 glob DEMO_SPEEDUP: float = 30.0;
 glob LIVE_MODEL: dict[str, bool] = {"on": True};
+# Demo: a hospital nobody is signed in for answers by itself (simulated) after this long.
+glob AUTO_ACCEPT: dict[str, bool] = {"on": True};
+glob AUTO_ACCEPT_SECONDS: float = 8.0;
 
 """Messages for each recipient, short and factual, no diagnosis."""
 obj DispatchPlan {
@@ -150,8 +153,8 @@ def _make_requests(cs: CaseState) -> list[Request] {
                 compact_case(cs) + f"{chr(10)}Hospital: {hospital_name}, ETA {round(eta)} min, route {km:.1f} km"
             );
             record_model_success();
-        } except Exception {
-            record_model_failure();
+        } except Exception as err {
+            record_model_failure(str(err));
             cs.used_fallback = True;
         }
     }
@@ -204,19 +207,36 @@ def _tick(cs: CaseState) {
     if cs.status == CaseStatus.DISPATCHING and time.time() >= cs.countdown_ends_at {
         _send(cs);
     }
+    _auto_accept(cs);
     # Decline, no free beds or no answer: the Re-plan Agent takes over (import here to avoid a cycle).
     import from replan { replan_if_needed }
     replan_if_needed(cs);
 }
 
+"""A simulated hospital with nobody signed in accepts after a few seconds, so the demo
+does not re-plan by itself. A signed-in hospital always decides for itself."""
+def _auto_accept(cs: CaseState) {
+    if not AUTO_ACCEPT["on"] or cs.status != CaseStatus.DISPATCHED {
+        return;
+    }
+    for r in _current(cs) {
+        if r.kind == RequestKind.HOSPITAL_ALERT and r.status == RequestStatus.SENT {
+            if time.time() - r.sent_at >= AUTO_ACCEPT_SECONDS and r.target_id not in sessions.values() {
+                r.status = RequestStatus.ACCEPTED;
+                log_event(cs, "dispatch", "hospital_accepted", EventStatus.DONE, f"{r.target} accepted the patient (simulated)", "Ready for arrival");
+            }
+        }
+    }
+}
+
 def _ambulance_progress(cs: CaseState) -> float {
-    if cs.status != CaseStatus.DISPATCHED or cs.eta_minutes <= 0.0 {
+    if cs.status != CaseStatus.DISPATCHED {
         return 0.0;
     }
     for r in _current(cs) {
         if r.kind == RequestKind.AMBULANCE and r.sent_at > 0.0 {
             seconds = cs.eta_minutes * 60.0 / DEMO_SPEEDUP;
-            return min(1.0, (time.time() - r.sent_at) / max(seconds, 1.0));
+            return min(1.0, (time.time() - r.sent_at) / max(seconds, 3.0));
         }
     }
     return 0.0;

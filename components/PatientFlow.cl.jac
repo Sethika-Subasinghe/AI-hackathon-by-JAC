@@ -10,7 +10,10 @@ import from .IntakeForm { IntakeForm }
 import from .AgentTimeline { AgentTimeline }
 import from .ResultPanel { HospitalCard, AlternativesList, MapPanel }
 import from .UiKit { StatusBadge }
+import from .DispatchStatus { CountdownBanner, DispatchStatus }
 sv import from orchestrator { CaseView, create_case, run_case_by_id, get_case, answer_followup }
+sv import from dispatch { DispatchView, get_dispatch, cancel_dispatch }
+sv import from agent_log { EventView, case_events }
 sv import from geoapify { AddressSuggestion, GeocodeResult, autocomplete, geocode }
 sv import from matcher { MatchResult, HospitalPick, get_match }
 
@@ -30,7 +33,9 @@ def:pub PatientFlow -> JsxElement {
         case_id: str = "",
         current: CaseView | None = None,
         followup_answer: str = "",
-        match_result: MatchResult | None = None;
+        match_result: MatchResult | None = None,
+        events: list[EventView] = [],
+        dispatch: DispatchView | None = None;
 
     def update_description(e: ChangeEvent);
     def pick_example(text: str);
@@ -42,6 +47,7 @@ def:pub PatientFlow -> JsxElement {
     def remove_file();
     async def submit_intake(e: FormEvent) -> None;
     async def refresh_case() -> None;
+    async def cancel_countdown() -> None;
     def update_followup(e: ChangeEvent);
     async def send_followup(e: FormEvent) -> None;
     def start_over();
@@ -145,7 +151,6 @@ def:pub PatientFlow -> JsxElement {
                         </form>
                     </div>
                 }}
-
                 {# Two-column: result + map on left, timeline on right #}
                 <div className="result-layout">
                     <div className="result-main">
@@ -194,12 +199,20 @@ def:pub PatientFlow -> JsxElement {
                     </div>
 
                     <aside className="result-timeline-aside">
-                        <AgentTimeline
-                            case_id={case_id}
-                            case_status={status_text}
-                        />
+                        <AgentTimeline events={events}/>
                     </aside>
                 </div>
+                {if dispatch is not None and dispatch.case_status == "DISPATCHING" {
+                    <CountdownBanner seconds_left={dispatch.seconds_left} on_cancel={cancel_countdown}/>
+                }}
+                {if dispatch is not None and dispatch.case_status == "CANCELLED" {
+                    <p className="cancelled-note" role="status">
+                        Dispatch cancelled. Nothing was sent. If this is still an emergency, call 1990 now.
+                    </p>
+                }}
+                {if dispatch is not None and (dispatch.case_status == "DISPATCHED" or dispatch.case_status == "DISPATCHING") {
+                    <DispatchStatus dispatch={dispatch}/>
+                }}
             </section>
         }}
     </div>;
