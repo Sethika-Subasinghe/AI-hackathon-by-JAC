@@ -80,31 +80,26 @@ def:pub AgentTimeline(
     finished_statuses: list[str] = ["DONE", "CANCELLED", "DISPATCHED", "FAILED"];
 
     # Poll once on mount, then every second while the case is running.
+    # Per jac guide: outer lambda must NOT be annotated -> None because it returns cleanup.
     useEffect(lambda {
-        done: list[bool] = [False];
+        active: list[bool] = [True];
 
-        async def fetch_events() {
-            if case_id == "" { return; }
-            fetched = await case_events(case_id);
-            if fetched is not None {
-                events = fetched;
-            }
-            loading = False;
+        def fetch_once() {
+            if case_id == "" or not active[0] { return; }
+            case_events(case_id).then(lambda(result: any) {
+                if result is not None and active[0] {
+                    events = result;
+                    loading = False;
+                }
+            });
         }
 
-        async def poll() {
-            await fetch_events();
-            if case_status not in finished_statuses and not done[0] {
-                interval = setInterval(lambda { fetch_events(); }, 1000);
-                return lambda {
-                    done[0] = True;
-                    clearInterval(interval);
-                };
-            }
-        }
-
-        poll();
-        return lambda { done[0] = True; };
+        fetch_once();
+        interval = setInterval(lambda { fetch_once(); }, 1000);
+        return lambda {
+            active[0] = False;
+            clearInterval(interval);
+        };
     }, [case_id, case_status]);
 
     done: bool = case_status in finished_statuses;

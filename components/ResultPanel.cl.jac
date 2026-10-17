@@ -50,7 +50,7 @@ def:pub HospitalCard(
                 <span className="hc-stat-label">{"ETA" + (" · Estimated" if estimated else "")}</span>
             </div>
             <div className="hc-stat">
-                <span className="hc-stat-value">{str(round(distance_km, 1)) + " km"}</span>
+                <span className="hc-stat-value">{str(round(distance_km)) + " km"}</span>
                 <span className="hc-stat-label">Distance</span>
             </div>
             <div className={"hc-stat hc-beds hc-beds--" + beds_tone}>
