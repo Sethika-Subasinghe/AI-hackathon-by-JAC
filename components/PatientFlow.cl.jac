@@ -11,7 +11,10 @@ import from .IntakeForm { IntakeForm }
 import from .UiKit { StatusBadge }
 import from .AgentTimeline { AgentTimeline }
 import from .DispatchStatus { CountdownBanner, DispatchStatus }
+import from .ResultCards { HospitalCard, AlternativesList }
+import from .MapPanel { MapPanel }
 sv import from orchestrator { CaseView, create_case, run_case_by_id, get_case, answer_followup }
+sv import from matcher { MatchResult, get_match }
 sv import from dispatch { DispatchView, get_dispatch, cancel_dispatch }
 sv import from agent_log { EventView, case_events }
 sv import from geoapify { AddressSuggestion, GeocodeResult, autocomplete, geocode }
@@ -32,6 +35,7 @@ def:pub PatientFlow -> JsxElement {
         current: CaseView | None = None,
         events: list[EventView] = [],
         dispatch: DispatchView | None = None,
+        match_result: MatchResult | None = None,
         followup_answer: str = "";
 
     def update_description(e: ChangeEvent);
@@ -118,6 +122,17 @@ def:pub PatientFlow -> JsxElement {
                     <p className="cancelled-note" role="status">
                         Dispatch cancelled. Nothing was sent. If this is still an emergency, call 1990 now.
                     </p>
+                }}
+                {if match_result is not None and match_result.best is not None {
+                    <HospitalCard pick={match_result.best} unit={current.unit if current is not None else ""}/>
+                    <MapPanel
+                        origin_lat={lat}
+                        origin_lon={lon}
+                        best={match_result.best}
+                        alternatives={match_result.alternatives}
+                        ambulance_progress={dispatch.ambulance_progress if dispatch is not None else 0.0}
+                    />
+                    <AlternativesList alternatives={match_result.alternatives}/>
                 }}
                 {if dispatch is not None and (dispatch.case_status == "DISPATCHED" or dispatch.case_status == "DISPATCHING") {
                     <DispatchStatus dispatch={dispatch}/>

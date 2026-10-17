@@ -1,0 +1,13 @@
+.map-panel { display: grid; gap: 8px; }
+.map-panel .map-canvas { height: 340px; border-radius: 16px; border: 1px solid var(--line); overflow: hidden; background: var(--primary-soft); z-index: 0; }
+.map-panel .map-legend { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12px; color: var(--muted); }
+.map-panel .map-legend li { display: flex; align-items: center; gap: 6px; }
+.map-pin { display: grid; place-items: center; }
+.map-pin span, .map-panel .map-legend .map-pin { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-size: 12px; font-weight: 900; border: 2px solid #fff; box-shadow: 0 2px 6px rgba(15, 23, 42, .35); }
+.map-pin.patient span, .map-pin.patient { background: #2563eb; }
+.map-pin.best span, .map-pin.best { background: var(--primary); }
+.map-pin.alt span, .map-pin.alt { background: #64748b; }
+.map-pin.ambulance span, .map-pin.ambulance { background: var(--critical); }
+.map-panel .map-legend .map-pin span { width: auto; height: auto; border: 0; box-shadow: none; background: none; font-size: 11px; }
+.map-panel .map-legend .map-pin { width: 22px; height: 22px; }
+@media (max-width: 520px) { .map-panel .map-canvas { height: 260px; } }
