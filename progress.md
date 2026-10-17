@@ -51,7 +51,7 @@ Read with `plan.md`, `README.md` and `skill.md`.
 | T04 | Fake Sri Lanka hospital dataset (public and private, units, beds, coordinates) | plan F1 | Akeesha | Not started | T01 | |
 | T05 | Graph model and shared types: Hospital, Unit, BedStatus, CaseState, AgentEvent, ClinicPatient, Request | A9 | Dimuth | Not started | T01 | Post data model in Shared notes |
 | T06 | Hospital login + bed-update backend | plan F2 | Dimuth | Not started | T05 | Post API shape in Shared notes |
-| T07 | Design system and app shell: tokens, fonts, layout, SafetyBanner, base components, responsive | B1-B3 | Sethika | Not started | T01 | |
+| T07 | Design system and app shell: tokens, fonts, layout, SafetyBanner, base components, responsive | B1-B3 | Sethika | Blocked | T01 | Waiting for Dimuth to complete T01 (repo skeleton and runnable Jac app) before this task can be claimed. |
 | T08 | Hospital dashboard UI: login page, bed cards, BedStepper | B5 | Sethika | Not started | T06, T07 | |
 | T09 | Agent conventions: `llm` setup, typed outputs, AgentEvent logging helper | A0, A8 | Dimuth | Not started | T05 | |
 | T10 | Triage Agent: `by llm()`, red-flag override, fallback | A2 | Dimuth | Not started | T09 | |
