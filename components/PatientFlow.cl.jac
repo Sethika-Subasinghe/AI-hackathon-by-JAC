@@ -162,6 +162,7 @@ def:pub PatientFlow -> JsxElement {
                         </form>
                     </div>
                 }}
+                <DispatchPanel dispatch={dispatch} on_cancel={cancel_countdown}/>
                 {#* Two-column: result and map on left, timeline on right *#}
                 <div className="result-layout">
                     <div className="result-main">
@@ -191,7 +192,6 @@ def:pub PatientFlow -> JsxElement {
                         <AgentTimeline events={events}/>
                     </aside>
                 </div>
-                <DispatchPanel dispatch={dispatch} on_cancel={cancel_countdown}/>
             </section>
         }}
     </div>;

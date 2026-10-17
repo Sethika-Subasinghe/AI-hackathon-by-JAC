@@ -1,0 +1,161 @@
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
+
+/* CareRoute design pass: form first, a real route indicator, calmer cards.
+   Loaded last, every rule is scoped under .app-shell so it wins over earlier files. */
+
+.app-shell {
+  --font: "Plus Jakarta Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --ink: #0b1f2a;
+  --radius-card: 22px;
+  font-family: var(--font);
+  color: var(--ink);
+  background:
+    radial-gradient(1200px 420px at 85% -120px, #dff3ef 0%, transparent 60%),
+    linear-gradient(#f4f9f8, #f4f9f8);
+}
+.app-shell button,
+.app-shell input,
+.app-shell textarea,
+.app-shell select { font-family: var(--font); }
+.app-shell :focus-visible { outline: 3px solid #14b8a6; outline-offset: 2px; }
+
+/* ---- page frame ---- */
+.app-shell .main-shell { padding: clamp(18px, 3vw, 34px) 0 56px; }
+
+/* ---- demo tools: present, but quiet ---- */
+.app-shell .demo-tools {
+  margin: 0 0 18px; padding: 8px 14px; gap: 10px; border-radius: 999px;
+  background: transparent; border: 1px dashed #b6d8d2; font-size: 12px;
+}
+.app-shell .demo-tools p { display: none; }
+.app-shell .demo-tools strong { font-size: 12px; font-weight: 700; color: #4b6b73; }
+.app-shell .demo-tools .demo-tool-actions p,
+.app-shell .demo-tools .demo-reset-message,
+.app-shell .demo-tools .demo-reset-error { display: block; margin: 0; }
+
+/* ---- intro replaces the old hero: one line of purpose, then the work ---- */
+.app-shell .intro-band {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  flex-wrap: wrap; gap: 18px 32px; margin: 0 0 20px;
+}
+.app-shell .intro-copy h1 {
+  margin: 0 0 6px; font-weight: 800; letter-spacing: -0.025em; line-height: 1.1;
+  font-size: clamp(1.75rem, 1.15rem + 1.9vw, 2.6rem); color: var(--ink);
+}
+.app-shell .intro-copy p { margin: 0; max-width: 52ch; font-size: 1.05rem; line-height: 1.5; color: #4b6b73; }
+
+/* the route: three stops joined by a dashed line, filling in as the case moves on */
+.app-shell .route-steps { display: flex; align-items: center; list-style: none; margin: 0; padding: 0; }
+.app-shell .route-steps li { display: flex; align-items: center; gap: 8px; font-size: .9rem; font-weight: 700; color: #7a949a; }
+.app-shell .route-steps li + li::before {
+  content: ""; width: clamp(28px, 5vw, 56px); height: 0; margin: 0 12px;
+  border-top: 2px dashed #b6d8d2;
+}
+.app-shell .rs-pin {
+  width: 16px; height: 16px; border-radius: 50%; background: #fff;
+  border: 3px solid #b6d8d2; box-sizing: border-box; flex: none;
+}
+.app-shell .rs-describe { color: var(--ink); }
+.app-shell .rs-describe .rs-pin { background: var(--primary); border-color: var(--primary); box-shadow: 0 0 0 4px #cdeae5; }
+.app-shell:has(.case-panel) .rs-describe .rs-pin,
+.app-shell:has(.case-panel) .rs-locate .rs-pin { background: var(--primary); border-color: var(--primary); box-shadow: none; }
+.app-shell:has(.case-panel) .rs-locate { color: var(--ink); }
+.app-shell:has(.case-panel) .rs-route { color: var(--ink); }
+.app-shell:has(.case-panel) .rs-route .rs-pin { background: var(--primary); border-color: var(--primary); box-shadow: 0 0 0 4px #cdeae5; }
+.app-shell:has(.case-panel) .route-steps li + li::before { border-top: 2px solid var(--primary); }
+.app-shell.view-hospital .route-steps,
+.app-shell.view-clinic .route-steps { display: none; }
+
+/* ---- workspace ---- */
+.app-shell .workspace-grid {
+  margin-top: 0; align-items: start;
+  grid-template-columns: minmax(0, 1.5fr) minmax(280px, .62fr);
+}
+.app-shell.view-hospital .workspace-grid,
+.app-shell.view-clinic .workspace-grid,
+.app-shell:has(.case-panel) .workspace-grid { grid-template-columns: minmax(0, 1fr); }
+.app-shell.view-hospital .side-stack,
+.app-shell.view-clinic .side-stack,
+.app-shell:has(.case-panel) .side-stack { display: none; }
+
+.app-shell .workspace-card {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--radius-card); padding: clamp(18px, 3vw, 32px);
+  box-shadow: 0 1px 2px rgba(11, 31, 42, .04), 0 18px 40px -22px rgba(11, 31, 42, .22);
+}
+
+/* right column: short, light, no stretched empty boxes */
+.app-shell .side-stack { align-content: start; position: sticky; top: 92px; }
+.app-shell .side-stack .surface-card { height: auto; border-radius: var(--radius-card); box-shadow: none; }
+.app-shell .side-stack .surface-card h2 { font-size: 1.05rem; margin: 0 0 14px; }
+.app-shell .eyebrow:empty { display: none; }
+.app-shell .confidence-card {
+  align-items: flex-start; background: #e9f6f3; color: var(--ink);
+  border: 1px solid #cfe9e4; border-radius: 16px; padding: 16px 18px;
+}
+.app-shell .confidence-card p { color: #4b6b73; }
+.app-shell .confidence-icon { background: var(--primary); color: #fff; }
+
+/* ---- forms and buttons ---- */
+.app-shell .app-button,
+.app-shell button.app-button {
+  min-height: 52px; border: 0; border-radius: 14px; font-weight: 800; font-size: 1rem;
+  background: linear-gradient(180deg, #16897f, #0f766e); color: #fff;
+  box-shadow: 0 8px 18px -8px rgba(15, 118, 110, .6);
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.app-shell .app-button:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 12px 22px -10px rgba(15, 118, 110, .7); }
+.app-shell .app-button:disabled { opacity: .45; box-shadow: none; cursor: not-allowed; }
+
+.app-shell .patient-flow .intake { gap: 26px; }
+.app-shell .patient-flow .field label,
+.app-shell .patient-flow .field-label { font-size: .95rem; font-weight: 800; }
+.app-shell .patient-flow .intake textarea,
+.app-shell .patient-flow .intake input[type="text"] { border-radius: 14px; border-color: #cfe0dd; background: #fbfdfd; }
+.app-shell .patient-flow .chip { background: #fff; border: 1px solid #cfe0dd; color: #234f57; font-weight: 600; }
+.app-shell .patient-flow .chip:hover { background: var(--primary-soft); border-color: var(--primary-light); }
+.app-shell .patient-flow .dropzone { position: relative; border-radius: 16px; }
+.app-shell .patient-flow .dropzone input[type="file"] {
+  position: absolute !important; width: 1px !important; height: 1px !important;
+  opacity: 0 !important; overflow: hidden; clip: rect(0 0 0 0); pointer-events: none;
+}
+
+/* ---- result: the answer first, the timeline beside it ---- */
+.app-shell .result-layout { grid-template-columns: minmax(0, 1.3fr) minmax(340px, .85fr); gap: 24px; margin-top: 16px; }
+.app-shell .result-timeline-aside { top: 92px; max-height: calc(100vh - 116px); overflow: auto; }
+.app-shell .hospital-card { border-radius: 20px; }
+.app-shell .hospital-card h3 { font-size: 1.5rem; letter-spacing: -0.02em; }
+.app-shell .agent-timeline { border-radius: 20px; }
+.app-shell .case-panel { gap: 18px; }
+
+/* dispatch status: three requests side by side, so it stays short above the result */
+.app-shell .dispatch-status .ds-list { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+.app-shell .dispatch-status .ds-row { flex-direction: column; gap: 8px; }
+.app-shell .dispatch-status .ds-side { justify-items: start; grid-auto-flow: column; justify-content: start; align-items: center; gap: 8px; }
+.app-shell .dispatch-status .ds-message { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* ---- hospital and clinic tabs ---- */
+.app-shell .hospital-ops { margin: 0; border-radius: 18px; }
+.app-shell .ops-login { max-width: 520px; }
+
+@media (max-width: 1000px) {
+  .app-shell .workspace-grid { grid-template-columns: minmax(0, 1fr); }
+  .app-shell .side-stack { position: static; }
+  .app-shell .result-layout { grid-template-columns: minmax(0, 1fr); }
+  .app-shell .result-timeline-aside { position: static; max-height: none; }
+}
+/* hospital tab: the dark panel is the card, no white frame around it */
+.app-shell.view-hospital .workspace-card { padding: 0; background: none; border: 0; box-shadow: none; }
+.app-shell.view-hospital .hospital-ops { padding: clamp(18px, 3vw, 32px); border-radius: var(--radius-card); }
+
+@media (max-width: 520px) {
+  .app-shell .safety-banner { flex-wrap: wrap; gap: 6px 12px; }
+  .app-shell .safety-banner p { flex: 1 1 220px; }
+  .app-shell .intro-band { align-items: flex-start; }
+  .app-shell .route-steps li { font-size: .82rem; }
+  .app-shell .route-steps li + li::before { width: 18px; margin: 0 6px; }
+  .app-shell .workspace-card { padding: 16px; border-radius: 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-shell .app-button { transition: none; }
+}

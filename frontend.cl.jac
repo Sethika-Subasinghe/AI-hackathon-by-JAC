@@ -13,6 +13,7 @@ sv import from dispatch { AlertView, hospital_alerts, respond_alert }
 import from .components.ClinicWorkspace { ClinicWorkspace }
 sv import from hospitals { HospitalView, list_hospitals, hospital_login, hospital_logout, my_hospital, change_free_beds }
 sv import from demo { DemoResetResult, reset_demo_data }
+import "./assets/design.css";
 
 
 def:pub app -> JsxElement {
@@ -52,17 +53,17 @@ def:pub app -> JsxElement {
     }, [hospital_token]);
 
     waiting_alerts: int = len([a for a in alerts if a.status == "SENT"]);
-    view_title: str = "Patient care";
-    view_detail: str = "Describe what is happening and CareRoute will coordinate the next safe step.";
+    view_title: str = "Tell us what is happening.";
+    view_detail: str = "We find a hospital with free beds and warn it before you arrive.";
     if active_view == "hospital" {
         view_title = "Hospital operations";
-        view_detail = "Update capacity and respond to incoming patient alerts from one calm workspace.";
+        view_detail = "Keep free beds accurate and answer incoming patients.";
     } elif active_view == "clinic" {
         view_title = "Clinic reminders";
-        view_detail = "Save a clinic visit and preview timely in-app and email reminders.";
+        view_detail = "Save your visit once and get reminders in good time.";
     }
 
-    return <div className="app-shell">
+    return <div className={"app-shell view-" + active_view}>
         <AppHeader active_view={active_view} on_select={select_view}/>
         <SafetyBanner/>
 
@@ -87,34 +88,21 @@ def:pub app -> JsxElement {
                 {demo_reset_error and <p className="demo-reset-error" role="alert">{demo_reset_error}</p>}
             </section>
 
-            <section className="hero" aria-labelledby="care-route-title">
-                <div className="hero-copy">
-                    <StatusBadge label="Agent-assisted care routing" tone="teal"/>
-                    <h1 id="care-route-title">The right care route, when every minute matters.</h1>
-                    <p>
-                        CareRoute helps families find suitable hospitals with available beds,
-                        while keeping the people coordinating care in the loop.
-                    </p>
-                    <div className="trust-row" aria-label="CareRoute capabilities">
-                        <span><strong>24/7</strong> guidance</span>
-                        <span><strong>Live</strong> capacity</span>
-                        <span><strong>Visible</strong> agent steps</span>
-                    </div>
+            <section className="intro-band" aria-labelledby="care-route-title">
+                <div className="intro-copy">
+                    <h1 id="care-route-title">{view_title}</h1>
+                    <p>{view_detail}</p>
                 </div>
-                <div className="hero-orbit" aria-hidden="true">
-                    <div className="orbit-ring orbit-ring-large"></div>
-                    <div className="orbit-ring orbit-ring-small"></div>
-                    <div className="orbit-core"><span>+</span></div>
-                    <span className="orbit-node node-one">01</span>
-                    <span className="orbit-node node-two">02</span>
-                    <span className="orbit-node node-three">03</span>
-                </div>
+                <ol className="route-steps" aria-label="Your route through CareRoute">
+                    <li className="rs-describe"><span className="rs-pin" aria-hidden="true"></span>Describe</li>
+                    <li className="rs-locate"><span className="rs-pin" aria-hidden="true"></span>Locate</li>
+                    <li className="rs-route"><span className="rs-pin" aria-hidden="true"></span>Route</li>
+                </ol>
             </section>
 
             <section className="workspace-grid" aria-label="CareRoute workspace">
                 <div aria-live="polite">
-                    <SurfaceCard eyebrow="Your workspace" title={view_title} accent={True}>
-                        <p className="workspace-detail">{view_detail}</p>
+                    <section className="workspace-card">
                         {if active_view == "patient" {
                             <PatientFlow key={str(demo_reset_version)}/>
                         } elif active_view == "hospital" {
@@ -175,11 +163,11 @@ def:pub app -> JsxElement {
                         } else {
                             <ClinicWorkspace key={str(demo_reset_version)}/>
                         }}
-                    </SurfaceCard>
+                    </section>
                 </div>
 
                 <aside className="side-stack" aria-label="How CareRoute works">
-                    <SurfaceCard eyebrow="What happens next" title="A clear, visible hand-off">
+                    <SurfaceCard eyebrow="" title="What happens next">
                         <ol className="step-list">
                             <li><span>1</span><div><strong>Describe</strong><p>Share the concern in everyday language.</p></div></li>
                             <li><span>2</span><div><strong>Locate</strong><p>Compare suitable hospitals and live capacity.</p></div></li>
