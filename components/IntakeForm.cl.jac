@@ -28,6 +28,8 @@ def:pub IntakeForm(
     description: str,
     address: str,
     suggestions: list[AddressSuggestion],
+    address_searching: bool,
+    address_feedback: str,
     location_ready: bool,
     locating: bool,
     file_name: str,
@@ -85,11 +87,16 @@ def:pub IntakeForm(
             </div>
             <p className={"hint ok" if location_ready else "hint"} aria-live="polite">{location_note}</p>
             {if len(suggestions) > 0 {
-                <ul className="suggestions" role="listbox" aria-label="Address suggestions">
+                <ul key="address-suggestions" className="suggestions" role="listbox" aria-label="Address suggestions">
                     {for s in suggestions {
                         <SuggestionItem key={s.label + str(s.lat)} s={s} on_pick={on_suggestion}/>
                     }}
                 </ul>
+            }}
+            {if address_searching {
+                <p key="address-searching" className="hint" role="status" aria-live="polite">Searching for nearby addresses…</p>
+            } elif address_feedback != "" {
+                <p key="address-feedback" className="hint" role="status" aria-live="polite">{address_feedback}</p>
             }}
         </div>
 
@@ -108,12 +115,12 @@ def:pub IntakeForm(
                 <input id="intake-file" type="file" accept="application/pdf" onChange={on_file}/>
             </label>
             {if file_name != "" {
-                <button type="button" className="link-button" onClick={remove_click}>Remove report</button>
+                <button key="remove-report" type="button" className="link-button" onClick={remove_click}>Remove report</button>
             }}
         </div>
 
         {if error != "" {
-            <p className="form-error" role="alert">{error}</p>
+            <p key="intake-error" className="form-error" role="alert">{error}</p>
         }}
 
         <button type="submit" className="app-button submit" disabled={not can_submit}>

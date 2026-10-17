@@ -13,9 +13,22 @@ impl PatientFlow.update_address(e: ChangeEvent) -> None {
     address = value;
     location_ready = False;
     if len(value.strip()) >= 3 {
-        suggestions = await autocomplete(value, 5);
+        address_searching = True;
+        address_feedback = "";
+        try {
+            suggestions = await autocomplete(value, 5);
+            if len(suggestions) == 0 {
+                address_feedback = "No matching addresses found. Try a nearby town or district.";
+            }
+        } except Exception {
+            suggestions = [];
+            address_feedback = "Address search is temporarily unavailable. You can still enter the address and continue.";
+        }
+        address_searching = False;
     } else {
         suggestions = [];
+        address_searching = False;
+        address_feedback = "";
     }
 }
 
@@ -25,6 +38,7 @@ impl PatientFlow.pick_suggestion(label: str, s_lat: float, s_lon: float) {
     lon = s_lon;
     location_ready = True;
     suggestions = [];
+    address_feedback = "";
 }
 
 impl PatientFlow.use_my_location() {
@@ -91,7 +105,13 @@ impl PatientFlow.submit_intake(e: FormEvent) -> None {
             error = "Please tell us where the patient is, or tap Use my location.";
             return;
         }
-        found = await geocode(address);
+        try {
+            found = await geocode(address);
+        } except Exception {
+            submitting = False;
+            error = "Location search is temporarily unavailable. Please try again or use your location.";
+            return;
+        }
         if not found.ok {
             submitting = False;
             error = "We could not find that address. Try a nearby town or use your location.";
@@ -102,16 +122,27 @@ impl PatientFlow.submit_intake(e: FormEvent) -> None {
     }
     lat = use_lat;
     lon = use_lon;
-    new_id = await create_case(description.strip(), use_lat, use_lon, address, picked_file is not None);
+    new_id = "";
+    try {
+        new_id = await create_case(description.strip(), use_lat, use_lon, address, picked_file is not None);
+    } except Exception {
+        submitting = False;
+        error = "We could not start your request. Please check your connection and try again.";
+        return;
+    }
+    case_error = "";
     if picked_file is not None {
         form_class: any = FormData;
         form: any = new(form_class);  # jac:ignore[E1053]
         form.append("case_id", new_id);
         form.append("file", picked_file);
         try {
-            await fetch("/function/upload_report", {"method": "POST", "body": form});
+            upload_response: any = await fetch("/function/upload_report", {"method": "POST", "body": form});
+            if not upload_response.ok {
+                case_error = "We could not attach the PDF. The request will continue with your description.";
+            }
         } except Exception {
-            error = "";
+            case_error = "We could not attach the PDF. The request will continue with your description.";
         }
     }
     case_id = new_id;
@@ -124,26 +155,31 @@ impl PatientFlow.refresh_case() -> None {
     if case_id == "" {
         return;
     }
-    latest = await get_case(case_id);
-    if latest is not None {
-        current = latest;
-        # Fetch match result when the case is matched or done.
-        if latest.status in ["MATCHED", "DONE", "DISPATCHING", "DISPATCHED"] and match_result is None {
-            mr = await get_match(case_id);
-            if mr is not None {
-                match_result = mr;
+    try {
+        latest = await get_case(case_id);
+        if latest is not None {
+            current = latest;
+            # Fetch match result when the case is matched or done.
+            if latest.status in ["MATCHED", "DONE", "DISPATCHING", "DISPATCHED"] and match_result is None {
+                mr = await get_match(case_id);
+                if mr is not None {
+                    match_result = mr;
+                }
             }
         }
-    }
-    events = await case_events(case_id);
-    if latest is not None and latest.hospital_id != "" {
-        shown_id = match_result.best.hospital_id if match_result is not None and match_result.best is not None else "";
-        if shown_id != latest.hospital_id {
-            match_result = await get_match(case_id);
+        events = await case_events(case_id);
+        if latest is not None and latest.hospital_id != "" {
+            shown_id = match_result.best.hospital_id if match_result is not None and match_result.best is not None else "";
+            if shown_id != latest.hospital_id {
+                match_result = await get_match(case_id);
+            }
         }
-    }
-    if latest is not None and latest.severity == "CRITICAL" {
-        dispatch = await get_dispatch(case_id);
+        if latest is not None and latest.severity == "CRITICAL" {
+            dispatch = await get_dispatch(case_id);
+        }
+        case_error = "";
+    } except Exception {
+        case_error = "We could not refresh this request just now. We will keep trying automatically.";
     }
 }
 
@@ -171,6 +207,7 @@ impl PatientFlow.send_followup(e: FormEvent) -> None {
 impl PatientFlow.start_over() {
     case_id = "";
     current = None;
+    case_error = "";
     events = [];
     dispatch = None;
     match_result = None;
@@ -180,5 +217,7 @@ impl PatientFlow.start_over() {
     picked_file = None;
     file_name = "";
     error = "";
+    address_feedback = "";
+    address_searching = False;
     match_result = None;
 }

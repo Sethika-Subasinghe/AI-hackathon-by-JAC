@@ -46,7 +46,7 @@ def:pub CountdownBanner(seconds_left: float, on_cancel: Callable[[], None]) -> J
     fraction: float = max(0.0, min(1.0, seconds_left / COUNTDOWN_TOTAL));
     offset: float = RING_LENGTH * (1.0 - fraction);
 
-    return <section className="countdown-banner" role="alert" aria-live="assertive">
+    return <section className="countdown-banner" role="region" aria-label="Emergency dispatch countdown">
         <div className="cd-ring" aria-hidden="true">
             <svg viewBox="0 0 108 108" width="108" height="108">
                 <circle className="cd-track" cx="54" cy="54" r="48"></circle>
@@ -63,7 +63,7 @@ def:pub CountdownBanner(seconds_left: float, on_cancel: Callable[[], None]) -> J
         </div>
         <div className="cd-copy">
             <p className="cd-label">Critical case</p>
-            <h3>{"Dispatching in " + str(shown) + "…"}</h3>
+            <h3 aria-live="off">{"Dispatching in " + str(shown) + "…"}</h3>
             <p>An ambulance, police route clearance and a hospital alert are ready. Nothing is sent until this reaches zero.</p>
             <button type="button" className="cd-cancel" onClick={cancel_click}>Cancel dispatch</button>
         </div>
@@ -91,7 +91,7 @@ def:pub DispatchStatus(dispatch: DispatchView) -> JsxElement {
     percent: int = int(dispatch.ambulance_progress * 100.0);
     has_previous: bool = len(dispatch.previous) > 0;
 
-    return <section className="dispatch-status" aria-label="Dispatch status" aria-live="polite">
+    return <section className="dispatch-status" aria-label="Dispatch status">
         <h3>Help is on the way</h3>
         <p className="ds-note">These actions are simulated for the demo. In a real emergency call 1990.</p>
         <ul className="ds-list">
@@ -116,4 +116,24 @@ def:pub DispatchStatus(dispatch: DispatchView) -> JsxElement {
             </details>
         }}
     </section>;
+}
+
+"""Render only the active dispatch UI while accepting the optional case state."""
+def:pub DispatchPanel(
+    dispatch: DispatchView | None,
+    on_cancel: Callable[[], None],
+) -> JsxElement {
+    return <div className="dispatch-panel-slot">
+        {if dispatch is not None and dispatch.case_status == "DISPATCHING" {
+            <CountdownBanner key="dispatch-countdown" seconds_left={dispatch.seconds_left} on_cancel={on_cancel}/>
+        }}
+        {if dispatch is not None and dispatch.case_status == "CANCELLED" {
+            <p key="dispatch-cancelled" className="cancelled-note" role="status">
+                Dispatch cancelled. Nothing was sent. If this is still an emergency, call 1990 now.
+            </p>
+        }}
+        {if dispatch is not None and (dispatch.case_status == "DISPATCHED" or dispatch.case_status == "DISPATCHING") {
+            <DispatchStatus key="dispatch-status" dispatch={dispatch}/>
+        }}
+    </div>;
 }

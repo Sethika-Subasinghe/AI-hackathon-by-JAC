@@ -11,7 +11,7 @@ import from .AgentTimeline { AgentTimeline }
 import from .ResultCards { HospitalCard, AlternativesList }
 import from .MapPanel { MapPanel }
 import from .UiKit { StatusBadge }
-import from .DispatchStatus { CountdownBanner, DispatchStatus }
+import from .DispatchStatus { DispatchPanel }
 sv import from orchestrator { CaseView, create_case, run_case_by_id, get_case, answer_followup }
 sv import from dispatch { DispatchView, get_dispatch, cancel_dispatch }
 sv import from agent_log { EventView, case_events }
@@ -27,10 +27,13 @@ def:pub PatientFlow -> JsxElement {
         location_ready: bool = False,
         locating: bool = False,
         suggestions: list[AddressSuggestion] = [],
+        address_searching: bool = False,
+        address_feedback: str = "",
         picked_file: any = None,
         file_name: str = "",
         submitting: bool = False,
         error: str = "",
+        case_error: str = "",
         case_id: str = "",
         current: CaseView | None = None,
         followup_answer: str = "",
@@ -64,7 +67,24 @@ def:pub PatientFlow -> JsxElement {
     tone: str = "info";
     status_text: str = "Starting your request";
     if current is not None {
-        status_text = current.status;
+        status_text = "Request received";
+        if current.status == "NEEDS_INFO" {
+            status_text = "More information needed";
+        } elif current.status == "TRIAGED" {
+            status_text = "Urgency checked";
+        } elif current.status == "MATCHED" {
+            status_text = "Hospital found";
+        } elif current.status == "DISPATCHING" {
+            status_text = "Dispatch countdown";
+        } elif current.status == "DISPATCHED" {
+            status_text = "Help is on the way";
+        } elif current.status == "REPLANNING" {
+            status_text = "Finding another hospital";
+        } elif current.status == "DONE" {
+            status_text = "Request complete";
+        } elif current.status == "CANCELLED" {
+            status_text = "Request cancelled";
+        }
         if current.severity == "CRITICAL" {
             tone = "critical";
         } elif current.severity == "URGENT" {
@@ -75,13 +95,23 @@ def:pub PatientFlow -> JsxElement {
     }
 
     unit_label: str = current.unit if current is not None else "GENERAL";
+    result_loading: bool = current is None or current.status not in ["DONE", "CANCELLED"];
+    result_message: str = "Sending your request to the agents…" if current is None else "Agents are working — your hospital recommendation will appear here.";
+    if current is not None and current.status == "DONE" {
+        result_message = "No hospital recommendation is available right now. If this is an emergency, call 1990.";
+    } elif current is not None and current.status == "CANCELLED" {
+        result_message = "This request was cancelled. You can start a new request whenever you are ready.";
+    }
 
     return <div className="patient-flow">
         {if case_id == "" {
             <IntakeForm
+                key="patient-intake"
                 description={description}
                 address={address}
                 suggestions={suggestions}
+                address_searching={address_searching}
+                address_feedback={address_feedback}
                 location_ready={location_ready}
                 locating={locating}
                 file_name={file_name}
@@ -98,9 +128,9 @@ def:pub PatientFlow -> JsxElement {
                 on_submit={submit_intake}
             />
         } else {
-            <section className="case-panel" aria-live="polite" aria-label="Your request">
+            <section key="case-panel" className="case-panel" aria-label="Your request">
 
-                <div className="case-header">
+                <div className="case-header" aria-live="polite">
                     <StatusBadge label={status_text} tone={tone}/>
                     {current is not None and current.used_fallback and
                         <span className="fallback-notice" role="note">⚠ Using backup logic</span>
@@ -108,9 +138,13 @@ def:pub PatientFlow -> JsxElement {
                     <button type="button" className="link-button" onClick={reset_click}>Start a new request</button>
                 </div>
 
-                {# Follow-up question from triage agent #}
+                {if case_error != "" {
+                    <p key="case-refresh-error" className="case-error" role="status">{case_error}</p>
+                }}
+
+                {#* Follow-up question from triage agent *#}
                 {if current is not None and current.status == "NEEDS_INFO" {
-                    <div className="followup-box" role="alert">
+                    <div key="follow-up" className="followup-box" role="alert">
                         <p className="followup-question">{current.followup_question}</p>
                         <form className="followup-form" onSubmit={send_followup}>
                             <input
@@ -126,35 +160,28 @@ def:pub PatientFlow -> JsxElement {
                         </form>
                     </div>
                 }}
-                {# Two-column: result and map on left, timeline on right #}
+                {#* Two-column: result and map on left, timeline on right *#}
                 <div className="result-layout">
                     <div className="result-main">
                         {if match_result is None or match_result.best is None {
-                            <div className="result-placeholder">
-                                <span className="result-spinner" aria-hidden="true">⏳</span>
-                                <p>
-                                    {if current is None {
-                                        "Sending your request to the agents…"
-                                    } elif current.status in ["DONE", "MATCHED"] {
-                                        "Loading hospital recommendation…"
-                                    } else {
-                                        "Agents are working — hospital recommendation will appear here."
-                                    }}
-                                </p>
+                            <div key="result-placeholder" className="result-placeholder" role="status" aria-live="polite" aria-busy={result_loading}>
+                                <span className="result-spinner" aria-hidden="true">{"⏳" if result_loading else "ℹ️"}</span>
+                                <p>{result_message}</p>
                             </div>
                         } else {
                             if match_result.summary != "" {
-                                <p className="result-summary">{match_result.summary}</p>
+                                <p key="result-summary" className="result-summary">{match_result.summary}</p>
                             }
-                            <HospitalCard pick={match_result.best} unit={unit_label}/>
+                            <HospitalCard key="best-hospital" pick={match_result.best} unit={unit_label}/>
                             <MapPanel
+                                key="hospital-map"
                                 origin_lat={lat}
                                 origin_lon={lon}
                                 best={match_result.best}
                                 alternatives={match_result.alternatives}
                                 ambulance_progress={dispatch.ambulance_progress if dispatch is not None else 0.0}
                             />
-                            <AlternativesList alternatives={match_result.alternatives}/>
+                            <AlternativesList key="hospital-alternatives" alternatives={match_result.alternatives}/>
                         }}
                     </div>
 
@@ -162,17 +189,7 @@ def:pub PatientFlow -> JsxElement {
                         <AgentTimeline events={events}/>
                     </aside>
                 </div>
-                {if dispatch is not None and dispatch.case_status == "DISPATCHING" {
-                    <CountdownBanner seconds_left={dispatch.seconds_left} on_cancel={cancel_countdown}/>
-                }}
-                {if dispatch is not None and dispatch.case_status == "CANCELLED" {
-                    <p className="cancelled-note" role="status">
-                        Dispatch cancelled. Nothing was sent. If this is still an emergency, call 1990 now.
-                    </p>
-                }}
-                {if dispatch is not None and (dispatch.case_status == "DISPATCHED" or dispatch.case_status == "DISPATCHING") {
-                    <DispatchStatus dispatch={dispatch}/>
-                }}
+                <DispatchPanel dispatch={dispatch} on_cancel={cancel_countdown}/>
             </section>
         }}
     </div>;

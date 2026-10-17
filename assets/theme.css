@@ -157,3 +157,11 @@
   .followup-row,.followup-form{flex-direction:column}
   .alt-name-row{flex-direction:column;gap:2px}
 }
+
+/* T26 UI polish: additive patient states, accessible touch targets and motion. */
+.chip{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 14px;line-height:1.35}
+.case-error{margin:0 0 12px;padding:10px 14px;border:1px solid #fcd34d;border-radius:10px;background:#fffbeb;color:#78350f;font-size:13px;line-height:1.5}
+.result-spinner{animation:patient-spin 1.4s ease-in-out infinite}
+@keyframes patient-spin{50%{transform:rotate(18deg) scale(1.08)}}
+@media(max-width:520px){.locate-button{width:100%}}
+@media(prefers-reduced-motion:reduce){.result-spinner{animation:none}}

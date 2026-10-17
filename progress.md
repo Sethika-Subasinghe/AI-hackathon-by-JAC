@@ -88,7 +88,7 @@ Read with `plan.md`, `README.md` and `skill.md`.
 | T23 | Clinic UI: form, reminder card, EmailPreview, in-app notices | B5 | Akeesha | Blocked | T07, T22 | Paused while Akeesha completes user-prioritized T27; existing local UI edits are preserved. Resume after T27. |
 | T24 | Document Agent: pypdf extractor + `summarise_report` | A3 | Dimuth | Done | T10 | `documents.jac`; 5 tests pass; real PDF upload to a running server verified end to end. Summary uses an excerpt backup until the model key works |
 | T25 | Reliability: timeouts, retries, fallbacks, "Using backup logic" banner, canned demo results | A10 | Dimuth | Done | T13, T15 | `reliability.jac` + step shield and backup pipeline in `orchestrator.jac`; 50+ tests pass; verified with the invalid model key (backup path, breaker opens) |
-| T26 | UI polish: loading, empty and error states, responsive check (360/768/1280), accessibility, microcopy | B6 | Sethika | In progress | T16, T18 | Claimed by Sethika. |
+| T26 | UI polish: loading, empty and error states, responsive check (360/768/1280), accessibility, microcopy | B6 | Sethika | Done | T16, T18 | Clear address lookup, upload, submission and polling feedback; terminal empty states and plain-language status labels; 44px example targets, reduced-motion support, and calmer live announcements. Jac check/lint pass and app rendered in browser; responsive breakpoints reviewed. |
 | T27 | Demo tools: Load demo scenario, Reset demo data, Skip time | B7 | Akeesha | In progress | T22 | Claimed by Akeesha. |
 | T28 | Jac share check at midday and 4:00 PM; fix if under 80% | plan 10 | Akeesha | Blocked | T01 | 10:39 baseline passes: 89.75% Jac by tracked source bytes, 99.95% by raw source lines, and GitHub Languages reports 100% Jac. Waiting for the required 4:00 PM recheck. |
 | T29 | Deploy to Jac Hammer + local fallback | plan 6 | Akeesha | Not started | T26 | |
@@ -101,8 +101,9 @@ Keep this to 3 to 6 items and refresh it whenever a task is Done.
 1. **T32** Dimuth: submit (after T30 video and T31 README)
 2. **T19** Dimuth: hospital alert cards with Accept and Decline (in progress)
 3. **T21** Akeesha: check moving ambulance marker and police panel (T16 map is implemented)
-4. **T26** Sethika: UI polish (T16 and T18 done)
-5. **T29** Akeesha: deploy (after T26)
+4. **T29** Akeesha: deploy (T26 is done)
+5. **T30** Sethika: record both demo scenarios (after T29)
+6. **T31** Akeesha: finalize README and Jac/Jaseci description (after T29)
 
 
 ## 6. Shared notes (blockers, interface changes, decisions)
@@ -134,6 +135,7 @@ Add one entry per completed piece of work: date and time, who, what changed, fil
 
 | Date | Who | What changed | Files |
 |---|---|---|---|
+| 2026-10-17 | Sethika | Completed T26: added patient loading, empty, search and recoverable error states; improved status microcopy, accessible announcements, touch targets and reduced-motion behavior; checked Jac and rendered the app in browser | components/PatientFlow.cl.jac, components/PatientFlow.impl.jac, components/IntakeForm.cl.jac, components/DispatchStatus.cl.jac, assets/theme.css, progress.md |
 | 2026-10-17 | Sethika | Resolved the T16 ownership conflict: confirmed T16 remains assigned to Sethika, corrected the hand-over references and Next up owner for T18 | progress.md |
 | 2026-10-17 | Akeesha | Completed T14: added cached Sri Lanka geocoding and autocomplete plus map-ready driving routes and ETA, with a labelled straight-line fallback; verified Jac tests, MCP validation/lint, and live Geoapify calls | geoapify.jac, geoapify.test.jac, main.jac, progress.md |
 | 2026-10-17 10:30 | Sethika | Completed T07: replaced the guestbook with a responsive, stateful CareRoute shell; added persistent medical safety messaging, Patient/Hospital/Clinic navigation, reusable UI primitives, accessible design tokens, documentation, and verified 360/768/1280 layouts plus navigation interactions | frontend.cl.jac, frontend.impl.jac, components/AppHeader.cl.jac, components/SafetyBanner.cl.jac, components/UiKit.cl.jac, assets/theme.css, PLAN.md, README.md, CHANGELOG.md, progress.md |
