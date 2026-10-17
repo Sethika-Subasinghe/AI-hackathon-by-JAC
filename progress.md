@@ -65,7 +65,7 @@ Read with `plan.md`, `README.md` and `skill.md`.
 | T12 | AgentTimeline UI: expandable steps, polls events | B4 | Sethika | Not started | T09 | Build early, it makes every agent visible |
 | T13 | Orchestrator Agent: `decide_next` by llm(), guard rules, follow-up question flow | A1 | Dimuth | Done | T10 | `orchestrator.jac`; 7 MockLLM tests pass. Match, dispatch, re-plan and document steps are placeholders until T15, T17, T20, T24 |
 | T14 | Geoapify: geocode and autocomplete, routing and ETA, caching | plan F5 | Akeesha | Done | T03 | Sri Lanka geocoding/autocomplete and driving route/ETA endpoints use in-memory caches; live provider calls and labelled straight-line fallback verified. |
-| T15 | Hospital Matcher Agent with tools and deterministic fallback | A4 | Dimuth | Not started | T04, T05, T14 | |
+| T15 | Hospital Matcher Agent with tools and deterministic fallback | A4 | Dimuth | In progress | T04, T05, T14 | |
 | T16 | Result UI: HospitalCard, AlternativesList with reasons, MapPanel with route | B3 | Sethika | Not started | T14, T15 | |
 | T17 | Dispatch Agent + simulated ambulance, police and hospital requests + accept/decline endpoints | A5 | Dimuth | Not started | T15 | |
 | T18 | CountdownBanner (10 s, Cancel) + live dispatch status panel | B5 | Sethika | Not started | T17 | |
