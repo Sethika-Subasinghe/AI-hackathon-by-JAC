@@ -45,7 +45,7 @@ Read with `plan.md`, `README.md` and `skill.md`.
 | ID | Task | Ref | Owner | Status | Depends | Note |
 |---|---|---|---|---|---|---|
 | T00 | Register and check in (every member, 8:00 AM) | rules | All | Not started | | Tick names here: |
-| T01 | Repo skeleton: `pip install jaseci`, Jac app runs, folders, `.gitignore`, `.env.example` | plan 6 | Dimuth | Not started | | |
+| T01 | Repo skeleton: `pip install jaseci`, Jac app runs, folders, `.gitignore`, `.env.example` | plan 6 | Dimuth | In progress | | |
 | T02 | Jac MCP + Jac skills on each machine (`codex mcp add jac -- jac mcp`, `claude mcp add jac -- jac mcp`, `jac guide --export .claude/skills`) | skill | All | Not started | T01 | Tick names here: |
 | T03 | API keys: free LLM key (Gemini or Groq) and Geoapify key, local `.env` only | plan 6 | Akeesha | Not started | | Share keys privately, never in git |
 | T04 | Fake Sri Lanka hospital dataset (public and private, units, beds, coordinates) | plan F1 | Akeesha | Not started | T01 | |
