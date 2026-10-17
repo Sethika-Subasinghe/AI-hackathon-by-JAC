@@ -100,6 +100,8 @@ impl PatientFlow.submit_intake(e: FormEvent) -> None {
         use_lat = found.lat;
         use_lon = found.lon;
     }
+    lat = use_lat;
+    lon = use_lon;
     new_id = await create_case(description.strip(), use_lat, use_lon, address, picked_file is not None);
     if picked_file is not None {
         form_class: any = FormData;
@@ -134,6 +136,12 @@ impl PatientFlow.refresh_case() -> None {
         }
     }
     events = await case_events(case_id);
+    if latest is not None and latest.hospital_id != "" {
+        shown_id = match_result.best.hospital_id if match_result is not None and match_result.best is not None else "";
+        if shown_id != latest.hospital_id {
+            match_result = await get_match(case_id);
+        }
+    }
     if latest is not None and latest.severity == "CRITICAL" {
         dispatch = await get_dispatch(case_id);
     }
@@ -165,6 +173,7 @@ impl PatientFlow.start_over() {
     current = None;
     events = [];
     dispatch = None;
+    match_result = None;
     description = "";
     address = "";
     location_ready = False;

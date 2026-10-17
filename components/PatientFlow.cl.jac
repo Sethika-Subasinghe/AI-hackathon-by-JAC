@@ -8,14 +8,15 @@ MapPanel) and T18 (countdown) plug into the `current` branch.
 import from react { useEffect }
 import from .IntakeForm { IntakeForm }
 import from .AgentTimeline { AgentTimeline }
-import from .ResultPanel { HospitalCard, AlternativesList, MapPanel }
+import from .ResultCards { HospitalCard, AlternativesList }
+import from .MapPanel { MapPanel }
 import from .UiKit { StatusBadge }
 import from .DispatchStatus { CountdownBanner, DispatchStatus }
 sv import from orchestrator { CaseView, create_case, run_case_by_id, get_case, answer_followup }
 sv import from dispatch { DispatchView, get_dispatch, cancel_dispatch }
 sv import from agent_log { EventView, case_events }
 sv import from geoapify { AddressSuggestion, GeocodeResult, autocomplete, geocode }
-sv import from matcher { MatchResult, HospitalPick, get_match }
+sv import from matcher { MatchResult, get_match }
 
 
 def:pub PatientFlow -> JsxElement {
@@ -73,33 +74,7 @@ def:pub PatientFlow -> JsxElement {
         }
     }
 
-    has_result: bool = match_result is not None and match_result.best is not None;
     unit_label: str = current.unit if current is not None else "GENERAL";
-
-    def _pick_to_dict(p: HospitalPick) -> dict {
-        return {
-            "hospital_id": p.hospital_id,
-            "name": p.name,
-            "city": p.city,
-            "sector": p.sector,
-            "eta_minutes": p.eta_minutes,
-            "distance_km": p.distance_km,
-            "free_beds": p.free_beds,
-            "total_beds": p.total_beds,
-            "unit_type": unit_label,
-            "reason": p.reason,
-            "estimated": p.estimated,
-        };
-    }
-
-    alts_dicts: list[dict] = [];
-    if match_result is not None {
-        for alt in match_result.alternatives {
-            alts_dicts.append(_pick_to_dict(alt));
-        }
-    }
-
-    is_done: bool = current is not None and current.status in ["DONE", "MATCHED", "DISPATCHING", "DISPATCHED", "CANCELLED"];
 
     return <div className="patient-flow">
         {if case_id == "" {
@@ -151,38 +126,10 @@ def:pub PatientFlow -> JsxElement {
                         </form>
                     </div>
                 }}
-                {# Two-column: result + map on left, timeline on right #}
+                {# Two-column: result and map on left, timeline on right #}
                 <div className="result-layout">
                     <div className="result-main">
-                        {if has_result and match_result is not None and match_result.best is not None {
-                            <div className="result-cards">
-                                {match_result.summary and <p className="result-summary">{match_result.summary}</p>}
-                                <HospitalCard
-                                    name={match_result.best.name}
-                                    city={match_result.best.city}
-                                    sector={match_result.best.sector}
-                                    eta_minutes={match_result.best.eta_minutes}
-                                    distance_km={match_result.best.distance_km}
-                                    free_beds={match_result.best.free_beds}
-                                    total_beds={match_result.best.total_beds}
-                                    unit_type={unit_label}
-                                    reason={match_result.best.reason}
-                                    estimated={match_result.best.estimated}
-                                    is_best={True}
-                                />
-                                {len(alts_dicts) > 0 and
-                                    <AlternativesList picks={alts_dicts} unit_type={unit_label}/>
-                                }
-                                <MapPanel
-                                    origin_lat={lat}
-                                    origin_lon={lon}
-                                    hospital_lat={match_result.best.lat}
-                                    hospital_lon={match_result.best.lon}
-                                    hospital_name={match_result.best.name}
-                                    route_coords={match_result.best.route}
-                                />
-                            </div>
-                        } else {
+                        {if match_result is None or match_result.best is None {
                             <div className="result-placeholder">
                                 <span className="result-spinner" aria-hidden="true">⏳</span>
                                 <p>
@@ -195,6 +142,19 @@ def:pub PatientFlow -> JsxElement {
                                     }}
                                 </p>
                             </div>
+                        } else {
+                            if match_result.summary != "" {
+                                <p className="result-summary">{match_result.summary}</p>
+                            }
+                            <HospitalCard pick={match_result.best} unit={unit_label}/>
+                            <MapPanel
+                                origin_lat={lat}
+                                origin_lon={lon}
+                                best={match_result.best}
+                                alternatives={match_result.alternatives}
+                                ambulance_progress={dispatch.ambulance_progress if dispatch is not None else 0.0}
+                            />
+                            <AlternativesList alternatives={match_result.alternatives}/>
                         }}
                     </div>
 

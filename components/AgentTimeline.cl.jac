@@ -60,6 +60,56 @@ def _clock(ts: float) -> str {
     return when.toLocaleTimeString() as str;
 }
 
+def:pub TimelineStep(
+    ev: EventView,
+    prev_agent: str,
+    is_open: bool,
+    is_raw: bool,
+    on_toggle: Callable[[str], None],
+    on_raw: Callable[[str], None],
+) -> JsxElement {
+    def toggle(_e: MouseEvent) { on_toggle(ev.id); }
+    def toggle_raw_click(_e: MouseEvent) { on_raw(ev.id); }
+
+    highlight: str = " highlight" if ev.agent == "replan" or ev.step == "hospital_declined" else "";
+    return <li className={"at-step " + ev.status.lower() + highlight}>
+        {if prev_agent != "" and prev_agent != ev.agent {
+            <p className="at-handoff">{"Hand-off to " + _label(ev.agent)}</p>
+        }}
+        <div className="at-row">
+            <span className="at-badge" aria-hidden="true">{AGENT_BADGES.get(ev.agent, "AG")}</span>
+            <span className={"at-state " + ev.status.lower()} aria-hidden="true">{_marker(ev.status)}</span>
+            <div className="at-main">
+                <p className="at-title">{ev.title}</p>
+                <p className="at-meta">
+                    {_label(ev.agent) + " · " + _status_word(ev.status) + " · " + _clock(ev.timestamp)}
+                    {if "simulated" in ev.title.lower() or ev.agent == "dispatch" {
+                        <span className="at-sim">Simulated</span>
+                    }}
+                </p>
+            </div>
+            {if ev.detail != "" {
+                <button
+                    type="button"
+                    className="at-more"
+                    aria-expanded={is_open}
+                    aria-label={"Details for " + ev.title}
+                    onClick={toggle}
+                >{"Less" if is_open else "Details"}</button>
+            }}
+        </div>
+        {if is_open {
+            <div className="at-detail">
+                <p>{ev.detail}</p>
+                <button type="button" className="at-link" onClick={toggle_raw_click}>{"Hide raw" if is_raw else "Show raw"}</button>
+                {if is_raw {
+                    <pre className="at-raw">{JSON.stringify(ev, None, 2)}</pre>
+                }}
+            </div>
+        }}
+    </li>;
+}
+
 def:pub AgentTimeline(events: list[EventView]) -> JsxElement {
     has open_ids: list[str] = [],
         raw_ids: list[str] = [],
@@ -109,49 +159,15 @@ def:pub AgentTimeline(events: list[EventView]) -> JsxElement {
                     <li className="at-empty">The agents will appear here as soon as they start.</li>
                 }}
                 {for (i, ev) in enumerate(events) {
-                    <li
+                    <TimelineStep
                         key={ev.id}
-                        className={"at-step " + ev.status.lower() + (" highlight" if ev.agent == "replan" or ev.step == "hospital_declined" else "")}
-                    >
-                        {if i > 0 and events[i - 1].agent != ev.agent {
-                            <p className="at-handoff">{"Hand-off to " + _label(ev.agent)}</p>
-                        }}
-                        <div className="at-row">
-                            <span className="at-badge" aria-hidden="true">{AGENT_BADGES.get(ev.agent, "AG")}</span>
-                            <span className={"at-state " + ev.status.lower()} aria-hidden="true">{_marker(ev.status)}</span>
-                            <div className="at-main">
-                                <p className="at-title">{ev.title}</p>
-                                <p className="at-meta">
-                                    {_label(ev.agent) + " · " + _status_word(ev.status) + " · " + _clock(ev.timestamp)}
-                                    {if "simulated" in ev.title.lower() or ev.agent == "dispatch" {
-                                        <span className="at-sim">Simulated</span>
-                                    }}
-                                </p>
-                            </div>
-                            {if ev.detail != "" {
-                                <button
-                                    type="button"
-                                    className="at-more"
-                                    aria-expanded={ev.id in open_ids}
-                                    aria-label={"Details for " + ev.title}
-                                    onClick={lambda (e: MouseEvent) { toggle_step(ev.id); }}
-                                >{"Less" if ev.id in open_ids else "Details"}</button>
-                            }}
-                        </div>
-                        {if ev.id in open_ids {
-                            <div className="at-detail">
-                                <p>{ev.detail}</p>
-                                <button
-                                    type="button"
-                                    className="at-link"
-                                    onClick={lambda (e: MouseEvent) { toggle_raw(ev.id); }}
-                                >{"Hide raw" if ev.id in raw_ids else "Show raw"}</button>
-                                {if ev.id in raw_ids {
-                                    <pre className="at-raw">{JSON.stringify(ev, None, 2)}</pre>
-                                }}
-                            </div>
-                        }}
-                    </li>
+                        ev={ev}
+                        prev_agent={events[i - 1].agent if i > 0 else ""}
+                        is_open={ev.id in open_ids}
+                        is_raw={ev.id in raw_ids}
+                        on_toggle={toggle_step}
+                        on_raw={toggle_raw}
+                    />
                 }}
             </ol>
         }}

@@ -104,7 +104,8 @@ def score_hospital(
 
 def _template_reason(p: HospitalPick, unit_name: str, best: bool) -> str {
     how = "estimated" if p.estimated else "by road";
-    text = f"About {round(p.eta_minutes)} min away ({how}), {p.free_beds} free {unit_name.lower()} beds, {p.sector.lower()} hospital";
+    bed_word = "bed" if p.free_beds == 1 else "beds";
+    text = f"About {round(p.eta_minutes)} min away ({how}), {p.free_beds} free {unit_name.lower()} {bed_word}, {p.sector.lower()} hospital";
     if best {
         return "Best match: " + text;
     }

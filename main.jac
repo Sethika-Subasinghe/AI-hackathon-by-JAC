@@ -18,6 +18,7 @@ import from dispatch {
 }
 import from documents { ReportSummary, UploadResult, upload_report }
 import from reliability { SystemStatus, get_system_status }
+import from mapconfig { MapConfig, get_map_config }
 import from clinic {
     EmailDraft, ClinicView, ClinicResult, MailView,
     save_clinic_patient, get_clinic_patient, clinic_inbox, skip_time
