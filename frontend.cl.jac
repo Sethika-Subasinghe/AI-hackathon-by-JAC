@@ -4,7 +4,7 @@ import "./assets/theme.css";
 import from .components.AppHeader { AppHeader }
 import from .components.SafetyBanner { SafetyBanner }
 import from .components.UiKit { AppButton, EmptyState, StatusBadge, SurfaceCard }
-sv import from hospitals { HospitalView, hospital_login, hospital_logout, my_hospital, change_free_beds }
+sv import from hospitals { HospitalView, list_hospitals, hospital_login, hospital_logout, my_hospital, change_free_beds }
 
 
 def:pub app -> JsxElement {

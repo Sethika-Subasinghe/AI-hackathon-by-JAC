@@ -24,6 +24,8 @@ impl app.submit_hospital_login(e: FormEvent) -> None {
         return;
     }
     hospital_loading = True;
+    # T06 creates fictional demo hospitals lazily on this read endpoint.
+    await list_hospitals();
     result = await hospital_login(hospital_username.strip(), hospital_password);
     hospital_loading = False;
     if result.ok {
