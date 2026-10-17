@@ -6,6 +6,7 @@ import sys;
 import from byllm.lib { Model, MockLLM }
 import from agent_log { case_events }
 import from matcher { LIVE_SERVICES }
+import from dispatch { LIVE_MODEL }
 
 """Mock model only while `jac test` runs; normal runs keep the real model."""
 glob llm = MockLLM(model_name="mockllm", config={"outputs": [
@@ -53,12 +54,13 @@ test "replan stops after three tries" {
 
 test "critical case runs triage, match, dispatch and finish" {
     LIVE_SERVICES["on"] = False;
+    LIVE_MODEL["on"] = False;
     cs = _case("My father has chest pain");
     steps = run_case(cs);
     assert steps == 4;
     assert cs.hospital_id != "";
     assert cs.severity == Severity.CRITICAL;
-    assert cs.status == CaseStatus.DONE;
+    assert cs.status == CaseStatus.DISPATCHING;
     events = case_events(jid(cs));
     agents = [e.agent for e in events];
     assert "orchestrator" in agents;
@@ -81,9 +83,10 @@ test "vague case asks a follow-up then waits" {
 
 test "backup logic when the model fails" {
     LIVE_SERVICES["on"] = False;
+    LIVE_MODEL["on"] = False;
     cs = _case("He is unconscious");
     run_case(cs);
-    assert cs.status == CaseStatus.DONE;
+    assert cs.status == CaseStatus.DISPATCHING;
     assert cs.severity == Severity.CRITICAL;
     details = [e.detail for e in case_events(jid(cs)) if e.step == "decide"];
     assert any(["Using backup logic" in d for d in details]);

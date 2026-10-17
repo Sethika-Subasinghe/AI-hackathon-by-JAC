@@ -12,6 +12,10 @@ import from hospitals {
 import from agent_log { EventView, case_events }
 import from orchestrator { CaseView, create_case, run_case_by_id, get_case, answer_followup }
 import from matcher { HospitalPick, MatchResult, get_match }
+import from dispatch {
+    RequestView, DispatchView, AlertView,
+    get_dispatch, cancel_dispatch, hospital_alerts, respond_alert
+}
 import from geoapify {
     AddressSuggestion, GeocodeResult, RouteResult,
     geocode, autocomplete, get_route, get_eta

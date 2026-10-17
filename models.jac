@@ -82,6 +82,7 @@ node CaseState {
         excluded_hospital_ids: list[str] = [],
         replan_count: int = 0,
         used_fallback: bool = False,
+        countdown_ends_at: float = 0.0,
         created_at: float = 0.0;
 }
 
@@ -105,7 +106,10 @@ node Request {
         status: RequestStatus = RequestStatus.PENDING,
         priority: str = "high",
         simulated: bool = True,
-        created_at: float = 0.0;
+        created_at: float = 0.0,
+        sent_at: float = 0.0,
+        target_id: str = "",
+        route: list[list[float]] = [];
 }
 
 """Saved profile for a clinic patient. Emergency users get no profile."""
