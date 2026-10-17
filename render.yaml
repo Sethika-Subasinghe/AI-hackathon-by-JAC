@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: careroute-jac-hackathon
+    runtime: python
+    plan: free
+    region: singapore
+    branch: main
+    buildCommand: pip install -r requirements.txt && jac install
+    startCommand: jac start main.jac --port $PORT
+    healthCheckPath: /functions
+    autoDeployTrigger: commit
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.3
+      - key: PYTHONUTF8
+        value: "1"
+      - key: LLM_MODEL
+        value: gemini/gemini-2.0-flash
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEOAPIFY_API_KEY
+        sync: false

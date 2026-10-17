@@ -224,6 +224,14 @@ Skeletons while loading · streamed timeline steps · success confirmation · in
 
 Build **A8 + AgentTimeline early** (right after the Triage Agent): it makes every later agent visible for free.
 
+## C1. Free Render deployment
+
+- Keep deployment reproducible through the root `render.yaml`, `.python-version`, and `requirements.txt` files.
+- Build with `pip install -r requirements.txt && jac install`; run with `jac start main.jac --port $PORT` so Render's assigned port is used.
+- Store `GEMINI_API_KEY` and `GEOAPIFY_API_KEY` only as Render secret environment variables. Never copy `.env` into a commit or deployment image.
+- Use `/functions` for the health check. Treat the free filesystem as disposable: demo graph data may reset after a restart or redeploy.
+- Confirm both the public page and `/functions` endpoint before marking deployment Done.
+
 **Judge checklist (from the hackathon PDF):**
 - [ ] Agentic depth: Orchestrator decisions, tool calls, re-planning, follow-up questions are all visible in the timeline
 - [ ] Jac/Jaseci use: `by llm()` with typed outputs and tools, graph nodes, walkers/persistence, 80%+ Jac, all code validated with the Jac MCP

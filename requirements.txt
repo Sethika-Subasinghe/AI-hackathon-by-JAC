@@ -1,0 +1,6 @@
+jaclang==0.16.7
+byllm==0.6.19
+fastapi==0.143.3
+uvicorn==0.54.0
+python-multipart==0.0.32
+pypdf>=6.18,<7

@@ -11,7 +11,7 @@ In an emergency, families don't know which hospital has free beds or the right u
 
 ## Demo
 - Demo video: _TODO: add link_
-- Live app (Jac Hammer): _TODO: add link_
+- Live app: _Render deployment in progress (T36)_
 - The responsive CareRoute shell is ready with Patient, Hospital and Clinic workspaces; the workflow screens are being added task by task.
 
 ## What it does
@@ -45,7 +45,7 @@ A patient or family describes the condition (and can upload a medical PDF), shar
 - **LLM:** free-tier API (Gemini or Groq)
 - **Geoapify:** geocoding, routing and maps
 - **Messages:** simulated phone-message preview in the app; no external SMS is sent in the demo
-- **Hosting:** Jac Hammer sandbox
+- **Hosting:** Jac Hammer sandbox plus a reproducible Render free-tier deployment
 
 ## Setup
 **Requirements:** Python 3.13, Jaseci (`jaseci`), a free LLM API key, and a Geoapify API key.
@@ -69,6 +69,12 @@ jac start main.jac
 ```
 
 Open `http://localhost:8000`. Use the Patient, Hospital and Clinic tabs to switch between the current workspace placeholders. The medical safety banner remains visible throughout the app.
+
+## Deploy to Render
+
+The repository includes `render.yaml`, `.python-version`, and `requirements.txt` for a free Render web service. Create a Blueprint from this repository, enter `GEMINI_API_KEY` and `GEOAPIFY_API_KEY` as secret environment variables, and deploy. Render runs `jac install` during the build and starts the full-stack app with `jac start main.jac --port $PORT`.
+
+The free service sleeps after 15 minutes without traffic and uses an ephemeral filesystem, so demo graph data resets when the service restarts or redeploys. Do not enter real patient data.
 
 0. **Emergency (no typing):** on the Patient tab tap the big red **Emergency: get help now** button and allow location access. CareRoute finds the nearest hospital with a free bed, asks for an ambulance and police route clearance, and shows the live status. You have 3 seconds to cancel if you tapped by mistake. If location is blocked it tells you to allow it, type an address, or call 1990.
 1. **Patient:** open the app, describe the condition, share your location (optional PDF), and view the recommended hospital and alternatives. For a critical case, a 10-second countdown starts and you can tap Cancel to stop the dispatch.

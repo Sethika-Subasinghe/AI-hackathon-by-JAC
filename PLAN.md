@@ -50,7 +50,7 @@ An Orchestrator agent decides which agent runs next. Each agent has a clear job,
 - **Location:** Geoapify (geocoding, routing, places, map tiles).
 - **Phone messages:** simulate and preview them in the app; connect a real SMS provider only as a stretch.
 - **PDF text:** a small Python extractor (pypdf) called from Jac.
-- **Hosting:** Jac Hammer sandbox for judges, local fallback for the video.
+- **Hosting:** Jac Hammer sandbox for judges, a Render free-tier fallback defined by `render.yaml`, and a local fallback for the video.
 - **Jac tooling:** `pip install jaseci`. Coding agents use the Jac MCP server (`codex mcp add jac -- jac mcp` or `claude mcp add jac -- jac mcp`) to validate Jac code. See `skill.md`.
 - **UI:** medical theme, responsive on phone, tablet and PC, English only (see `skill.md` Part B).
 
@@ -90,6 +90,7 @@ Coordination runs through `progress.md`, which holds the agent rules, task track
 | Under 80% Jac | Check the language split on GitHub at midday and at 4:00 |
 | Medical safety / misuse | Disclaimer, no diagnosis, cancellable countdown before dispatch, fake data only |
 | Demo fails live | Pre-recorded video, seeded demo data, one-click reset |
+| Free Render service sleeps or restarts | Allow about a minute for cold start; keep demo data seeded and disposable because the free filesystem is ephemeral |
 
 ## 11. T07 execution plan: design system and app shell
 
