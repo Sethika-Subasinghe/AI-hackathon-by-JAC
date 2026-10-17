@@ -12,6 +12,7 @@ Model setup lives in jac.toml under [plugins.byllm.model]; agents pass a low
 """
 
 import time;
+import from jaclang { JacRuntime as Jac }
 import from models { CaseState, AgentEvent, CaseEvent, EventStatus }
 
 """One timeline step as sent to the UI."""
@@ -66,6 +67,8 @@ def log_event(
         detail=detail,
         timestamp=time.time()
     ))[0];
+    # Save now, so the UI timeline (another request) sees this step while the case is still running.
+    Jac.commit();
     return ev;
 }
 
@@ -95,6 +98,7 @@ def finish_event(
         ev.detail = detail;
     }
     ev.timestamp = time.time();
+    Jac.commit();
 }
 
 """Short text of the latest case facts for LLM prompts (never the whole history)."""
