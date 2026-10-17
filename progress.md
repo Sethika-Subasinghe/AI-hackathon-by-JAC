@@ -89,6 +89,7 @@ Keep this to 3 to 6 items and refresh it whenever a task is Done.
 
 ## 6. Shared notes (blockers, interface changes, decisions)
 Add a dated line when an API shape, data model or decision changes. Newest first.
+- 2026-10-17: T01 is Done, `git pull` to get the skeleton. Run the app with `jac start --dev main.jac` (open http://localhost:8000). `main.jac`, `endpoints.jac`, `frontend.cl.jac`, `frontend.impl.jac` and `components/MessageCard.cl.jac` are generated guestbook placeholders, replace them. Keep `[plugins.scale.microservices] enabled = false` in `jac.toml` or jac-scale auto-switches to microservice mode and the page 404s. Unblocked now: T02, T04, T05, T07 (all depend only on T01).
 - 2026-10-17: Dispatch uses a 10-second cancellable countdown. Orchestrator, re-plan, hospital Accept/Decline and clinic-patient profile are in scope (see `skill.md`).
 
 ## 7. Change log (newest first)
