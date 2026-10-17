@@ -1,6 +1,6 @@
 # progress.md: CareRoute shared tracker
 
-**Last updated:** 2026-10-17 by Dimuth
+**Last updated:** 2026-10-17 by Sethika
 **Deadline:** hacking 9:00 AM to 5:30 PM, Sat 17 Oct 2026. **Feature freeze 4:45 PM.** Submit (GitHub link, demo video, description) before 5:30 PM.
 Read with `plan.md`, `README.md` and `skill.md`.
 
@@ -44,7 +44,7 @@ Read with `plan.md`, `README.md` and `skill.md`.
 ## 4. Task tracker
 | ID | Task | Ref | Owner | Status | Depends | Note |
 |---|---|---|---|---|---|---|
-| T00 | Register and check in (every member, 8:00 AM) | rules | All | In progress | | Tick names here: Sethika (claimed) |
+| T00 | Register and check in (every member, 8:00 AM) | rules | All | In progress | | Tick names here: Sethika ✅ |
 | T01 | Repo skeleton: `pip install jaseci`, Jac app runs, folders, `.gitignore`, `.env.example` | plan 6 | Dimuth | In progress | | |
 | T02 | Jac MCP + Jac skills on each machine (`codex mcp add jac -- jac mcp`, `claude mcp add jac -- jac mcp`, `jac guide --export .claude/skills`) | skill | All | Not started | T01 | Tick names here: |
 | T03 | API keys: free LLM key (Gemini or Groq) and Geoapify key, local `.env` only | plan 6 | Akeesha | Not started | | Share keys privately, never in git |
@@ -96,6 +96,7 @@ Add one entry per completed piece of work: date and time, who, what changed, fil
 
 | Date | Who | What changed | Files |
 |---|---|---|---|
+| 2026-10-17 09:39 | Sethika | Completed Sethika's T00 registration check-in; shared task remains in progress for the other team members | progress.md |
 | 2026-10-17 | Dimuth | Created this tracker with rules, team, workflow, 33 tasks, next up. Updated plan and README to match skill.md: 10-second countdown, Orchestrator and Re-plan agents, hospital Accept/Decline, clinic profile, `pip install jaseci`, Jac MCP, team agents | progress.md, plan.md, README.md |
 | 2026-10-17 | Dimuth | Added Jac-first rules (80%+) and Jac MCP setup for Codex and Claude Code | skill.md |
 | 2026-10-17 | Dimuth | Created skill.md: agent skills (by llm(), Orchestrator, re-plan, event log) and UI/UX guide | skill.md |
