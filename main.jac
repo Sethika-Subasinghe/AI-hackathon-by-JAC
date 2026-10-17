@@ -10,6 +10,7 @@ import from hospitals {
     my_hospital, set_free_beds, change_free_beds
 }
 import from agent_log { EventView, case_events }
+import from orchestrator { CaseView, create_case, run_case_by_id, get_case, answer_followup }
 
 # Client-side UI
 cl {

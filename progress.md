@@ -32,6 +32,7 @@ Read with `plan.md`, `README.md` and `skill.md`.
 ## 3. Workflow (phases in order)
 | Phase | Time | Tasks | Gate: what must work before moving on |
 |---|---|---|---|
+| 2026-10-17 | Dimuth | T13 done: Orchestrator (decide_next by llm, guard rules, rule fallback, follow-up flow, case endpoints create/run/get/answer), 7 tests | orchestrator.jac, orchestrator.test.jac, main.jac, progress.md |
 | 2026-10-17 | Dimuth | T10 done: Triage Agent (by llm with retry, keyword red-flag rules, rule fallback, safety override, timeline events), 5 MockLLM tests | triage.jac, triage.test.jac, progress.md |
 | 2026-10-17 | Dimuth | T09 done: AgentEvent log helpers (start/finish/log_event, compact_case, case_events endpoint), byllm model config in jac.toml, MockLLM convention test | agent_log.jac, agent_log.test.jac, main.jac, jac.toml, .env.example, progress.md |
 | 2026-10-17 | Dimuth | T06 done: hospital login (token sessions), list/get hospitals, set and change free beds, `add_hospital` seeding helper, unit test, endpoints registered in main.jac | hospitals.jac, hospitals.test.jac, models.jac, main.jac, progress.md |
@@ -62,7 +63,7 @@ Read with `plan.md`, `README.md` and `skill.md`.
 | T10 | Triage Agent: `by llm()`, red-flag override, fallback | A2 | Dimuth | Done | T09 | `triage.jac`; 5 tests pass with MockLLM, not yet tried with a real model (needs T03 key) |
 | T11 | Patient form UI: description with example chips, location, optional PDF drop zone | B5 | Sethika | Not started | T07 | |
 | T12 | AgentTimeline UI: expandable steps, polls events | B4 | Sethika | Not started | T09 | Build early, it makes every agent visible |
-| T13 | Orchestrator Agent: `decide_next` by llm(), guard rules, follow-up question flow | A1 | Dimuth | In progress | T10 | |
+| T13 | Orchestrator Agent: `decide_next` by llm(), guard rules, follow-up question flow | A1 | Dimuth | Done | T10 | `orchestrator.jac`; 7 MockLLM tests pass. Match, dispatch, re-plan and document steps are placeholders until T15, T17, T20, T24 |
 | T14 | Geoapify: geocode and autocomplete, routing and ETA, caching | plan F5 | Akeesha | In progress | T03 | Claimed by Akeesha. |
 | T15 | Hospital Matcher Agent with tools and deterministic fallback | A4 | Dimuth | Not started | T04, T05, T14 | |
 | T16 | Result UI: HospitalCard, AlternativesList with reasons, MapPanel with route | B3 | Sethika | Not started | T14, T15 | |
@@ -85,15 +86,16 @@ Read with `plan.md`, `README.md` and `skill.md`.
 
 ## 5. Next up
 Keep this to 3 to 6 items and refresh it whenever a task is Done.
-1. **T08** Sethika: hospital dashboard UI
-2. **T13** Dimuth: Orchestrator Agent (`decide_next`, guard rules, follow-up flow)
+1. **T15** Dimuth: Hospital Matcher Agent (needs T14 Geoapify from Akeesha, can start with the fallback ranking)
+2. **T08** Sethika: hospital dashboard UI
 3. **T11** Sethika: patient form UI
 4. **T14** Akeesha: Geoapify geocoding, routing, ETA and caching
 5. **T12** Sethika: live agent timeline UI
-6. **T28** Akeesha: Jac share check
+6. **T22** Dimuth: Clinic Reminder Agent
 
 ## 6. Shared notes (blockers, interface changes, decisions)
 Add a dated line when an API shape, data model or decision changes. Newest first.
+- 2026-10-17: **Orchestrator (T13)** in `orchestrator.jac`. UI flow for T11/T12/T16: `create_case(description, lat, lon, address, has_pdf) -> case_id`, then call `run_case_by_id(case_id)` (do not wait on it) and poll `case_events(case_id)` once a second; when it returns, read `CaseView{id, description, status, severity, unit, red_flags, confidence, followup_question, hospital_id, eta_minutes, replan_count, used_fallback}`. If `status == "NEEDS_INFO"`, show `followup_question`, send the answer with `answer_followup(case_id, answer)`, then call `run_case_by_id` again. `get_case(case_id)` re-reads a case. **Hooks for teammates:** the placeholders `_do_read_document` (T24), `_do_match` (T15), `_do_dispatch` (T17) and `_do_replan` (T20) in `orchestrator.jac` log "not connected yet" and end the case; the owner replaces each with the real agent call. Guard rules are in `allowed_steps`.
 - 2026-10-17: **Triage Agent (T10)** in `triage.jac`. `triage_case(cs: CaseState) -> TriageResult` rates a case: model first (retried once), keyword rules as backup, and a safety override so the model can never go below the rules. It writes severity, unit_needed, red_flags, confidence, followup_question and status (TRIAGED, or NEEDS_INFO when it needs a follow-up) onto the CaseState, sets `used_fallback`, and logs one timeline step ("Using backup logic" in the detail when the fallback ran). Reusable pieces: `red_flag_check`, `rule_triage`, `apply_override`. T13 (Orchestrator) calls `triage_case`.
 - 2026-10-17: **Frontend shell (T07)** exports `AppHeader`, `SafetyBanner`, and `UiKit` primitives (`StatusBadge`, `SurfaceCard`, `AppButton`, `EmptyState`) from `components/*.cl.jac`. Global tokens and responsive layout live in `assets/theme.css`; extend these rather than adding one-off inline styles. The shell's Patient/Hospital/Clinic buttons currently select clearly labelled placeholders for T11, T08, and T23.
 - 2026-10-17: **Agent conventions (T09)** in `agent_log.jac`. Pattern: `ev = start_event(cs, agent, step, title)` then run the typed `by llm(temperature=0.2)` function with `compact_case(cs)`, then `finish_event(ev, EventStatus.DONE|FAILED|WAITING, title, detail)`; or `log_event(...)` in one call. **Timeline API (T12): `case_events(case_id) -> list[EventView{id, case_id, agent, step, status, title, detail, timestamp}]`, oldest first, status is "RUNNING"|"DONE"|"FAILED"|"WAITING".** Model is set in `jac.toml` `[plugins.byllm.model] default_model` (env `LLM_MODEL`, default `gemini/gemini-2.0-flash`); key goes in `.env` (T03). `case` is a reserved word in Jac, do not use it as a variable name. Tests use `MockLLM` so no key is needed.
