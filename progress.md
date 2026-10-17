@@ -80,12 +80,12 @@ Read with `plan.md`, `README.md` and `skill.md`.
 
 ## 5. Next up
 Keep this to 3 to 6 items and refresh it whenever a task is Done.
-1. **T00** All: register and check in
-2. **T01** Dimuth: repo skeleton and Jac app running
-3. **T03** Akeesha: LLM and Geoapify keys
-4. **T02** All: Jac MCP on every machine (after T01)
+1. **T01** Dimuth: finish repo skeleton and Jac app (in progress)
+2. **T03** Akeesha: add LLM and Geoapify keys after credentials and T01 environment files are available (blocked)
+3. **T02** All: finish Jac MCP setup on every machine (after T01)
+4. **T04** Akeesha: fake hospital dataset (after T01)
 5. **T07** Sethika: design system and app shell (after T01)
-6. **T04** Akeesha: fake hospital dataset (after T01)
+6. **T05** Dimuth: graph model and shared types (after T01)
 
 ## 6. Shared notes (blockers, interface changes, decisions)
 Add a dated line when an API shape, data model or decision changes. Newest first.
