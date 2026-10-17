@@ -5,11 +5,13 @@ import os;
 import sys;
 import from byllm.lib { Model, MockLLM }
 import from agent_log { case_events }
+import from matcher { LIVE_SERVICES }
 
 """Mock model only while `jac test` runs; normal runs keep the real model."""
 glob llm = MockLLM(model_name="mockllm", config={"outputs": [
     NextAction(step=Step.TRIAGE, reason="new case"),
     NextAction(step=Step.MATCH, reason="triaged"),
+    NextAction(step=Step.DISPATCH, reason="critical"),
     NextAction(step=Step.FINISH, reason="done"),
     NextAction(step=Step.TRIAGE, reason="new case"),
     NextAction(step=Step.ASK_FOLLOWUP, reason="vague")
@@ -49,10 +51,12 @@ test "replan stops after three tries" {
     assert allowed_steps(cs) == [Step.FINISH];
 }
 
-test "critical case runs triage, match and finish" {
+test "critical case runs triage, match, dispatch and finish" {
+    LIVE_SERVICES["on"] = False;
     cs = _case("My father has chest pain");
     steps = run_case(cs);
-    assert steps == 3;
+    assert steps == 4;
+    assert cs.hospital_id != "";
     assert cs.severity == Severity.CRITICAL;
     assert cs.status == CaseStatus.DONE;
     events = case_events(jid(cs));
@@ -76,6 +80,7 @@ test "vague case asks a follow-up then waits" {
 }
 
 test "backup logic when the model fails" {
+    LIVE_SERVICES["on"] = False;
     cs = _case("He is unconscious");
     run_case(cs);
     assert cs.status == CaseStatus.DONE;

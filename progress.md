@@ -32,6 +32,7 @@ Read with `plan.md`, `README.md` and `skill.md`.
 ## 3. Workflow (phases in order)
 | Phase | Time | Tasks | Gate: what must work before moving on |
 |---|---|---|---|
+| 2026-10-17 | Dimuth | T15 done: Hospital Matcher (find, Geoapify ETA for the 5 nearest, deterministic scoring by severity, alternatives with reasons, optional model-written reasons, exclusions for re-plan), wired into the orchestrator, 4 tests | matcher.jac, matcher.test.jac, orchestrator.jac, orchestrator.test.jac, main.jac, progress.md |
 | 2026-10-17 | Dimuth | T13 done: Orchestrator (decide_next by llm, guard rules, rule fallback, follow-up flow, case endpoints create/run/get/answer), 7 tests | orchestrator.jac, orchestrator.test.jac, main.jac, progress.md |
 | 2026-10-17 | Dimuth | T10 done: Triage Agent (by llm with retry, keyword red-flag rules, rule fallback, safety override, timeline events), 5 MockLLM tests | triage.jac, triage.test.jac, progress.md |
 | 2026-10-17 | Dimuth | T09 done: AgentEvent log helpers (start/finish/log_event, compact_case, case_events endpoint), byllm model config in jac.toml, MockLLM convention test | agent_log.jac, agent_log.test.jac, main.jac, jac.toml, .env.example, progress.md |
@@ -65,7 +66,7 @@ Read with `plan.md`, `README.md` and `skill.md`.
 | T12 | AgentTimeline UI: expandable steps, polls events | B4 | Sethika | Not started | T09 | Build early, it makes every agent visible |
 | T13 | Orchestrator Agent: `decide_next` by llm(), guard rules, follow-up question flow | A1 | Dimuth | Done | T10 | `orchestrator.jac`; 7 MockLLM tests pass. Match, dispatch, re-plan and document steps are placeholders until T15, T17, T20, T24 |
 | T14 | Geoapify: geocode and autocomplete, routing and ETA, caching | plan F5 | Akeesha | Done | T03 | Sri Lanka geocoding/autocomplete and driving route/ETA endpoints use in-memory caches; live provider calls and labelled straight-line fallback verified. |
-| T15 | Hospital Matcher Agent with tools and deterministic fallback | A4 | Dimuth | In progress | T04, T05, T14 | |
+| T15 | Hospital Matcher Agent with tools and deterministic fallback | A4 | Dimuth | Done | T04, T05, T14 | `matcher.jac`; 4 tests pass offline; live Geoapify routes checked end to end. Model-written reasons fall back to templates (Gemini key invalid) |
 | T16 | Result UI: HospitalCard, AlternativesList with reasons, MapPanel with route | B3 | Sethika | Not started | T14, T15 | |
 | T17 | Dispatch Agent + simulated ambulance, police and hospital requests + accept/decline endpoints | A5 | Dimuth | Not started | T15 | |
 | T18 | CountdownBanner (10 s, Cancel) + live dispatch status panel | B5 | Sethika | Not started | T17 | |
@@ -86,8 +87,8 @@ Read with `plan.md`, `README.md` and `skill.md`.
 
 ## 5. Next up
 Keep this to 3 to 6 items and refresh it whenever a task is Done.
-1. **T15** Dimuth: Hospital Matcher Agent (unblocked by T14)
-2. **T08** Sethika: hospital dashboard UI
+1. **T17** Dimuth: Dispatch Agent + simulated ambulance, police and hospital requests
+2. **T16** Sethika: result UI (HospitalCard, AlternativesList, MapPanel), matcher is ready
 3. **T11** Sethika: patient form UI
 4. **T12** Sethika: live agent timeline UI
 5. **T22** Dimuth: Clinic Reminder Agent
@@ -95,6 +96,7 @@ Keep this to 3 to 6 items and refresh it whenever a task is Done.
 
 ## 6. Shared notes (blockers, interface changes, decisions)
 Add a dated line when an API shape, data model or decision changes. Newest first.
+- 2026-10-17: **Matcher (T15)** in `matcher.jac`, runs inside the orchestrator MATCH step. Read the result with `get_match(case_id) -> MatchResult{best, alternatives, summary, used_fallback}`; `HospitalPick{hospital_id, name, sector, city, lat, lon, eta_minutes, distance_km, free_beds, total_beds, score, estimated, reason, route: list[[lat, lon]]}` (T16: HospitalCard, AlternativesList, MapPanel; `estimated` true means a straight-line ETA, show "Estimated"). `best` is None only when no hospital exists at all; when nobody has a free bed the nearest hospital comes back with `free_beds` 0. The CaseState gets `hospital_id`, `eta_minutes` and status MATCHED. **T20 (re-plan):** add the declined hospital id to `cs.excluded_hospital_ids`, then call `match_case(cs)` again. Tests switch live services off with `LIVE_SERVICES["on"] = False` (matcher module).
 - 2026-10-17: **Orchestrator (T13)** in `orchestrator.jac`. UI flow for T11/T12/T16: `create_case(description, lat, lon, address, has_pdf) -> case_id`, then call `run_case_by_id(case_id)` (do not wait on it) and poll `case_events(case_id)` once a second; when it returns, read `CaseView{id, description, status, severity, unit, red_flags, confidence, followup_question, hospital_id, eta_minutes, replan_count, used_fallback}`. If `status == "NEEDS_INFO"`, show `followup_question`, send the answer with `answer_followup(case_id, answer)`, then call `run_case_by_id` again. `get_case(case_id)` re-reads a case. **Hooks for teammates:** the placeholders `_do_read_document` (T24), `_do_match` (T15), `_do_dispatch` (T17) and `_do_replan` (T20) in `orchestrator.jac` log "not connected yet" and end the case; the owner replaces each with the real agent call. Guard rules are in `allowed_steps`.
 - 2026-10-17: **Triage Agent (T10)** in `triage.jac`. `triage_case(cs: CaseState) -> TriageResult` rates a case: model first (retried once), keyword rules as backup, and a safety override so the model can never go below the rules. It writes severity, unit_needed, red_flags, confidence, followup_question and status (TRIAGED, or NEEDS_INFO when it needs a follow-up) onto the CaseState, sets `used_fallback`, and logs one timeline step ("Using backup logic" in the detail when the fallback ran). Reusable pieces: `red_flag_check`, `rule_triage`, `apply_override`. T13 (Orchestrator) calls `triage_case`.
 - 2026-10-17: **Frontend shell (T07)** exports `AppHeader`, `SafetyBanner`, and `UiKit` primitives (`StatusBadge`, `SurfaceCard`, `AppButton`, `EmptyState`) from `components/*.cl.jac`. Global tokens and responsive layout live in `assets/theme.css`; extend these rather than adding one-off inline styles. The shell's Patient/Hospital/Clinic buttons currently select clearly labelled placeholders for T11, T08, and T23.
