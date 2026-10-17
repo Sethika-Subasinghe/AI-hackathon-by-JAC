@@ -98,6 +98,7 @@ Read with `plan.md`, `README.md` and `skill.md`.
 | T30 | Record demo video (both scenarios) | plan 9 | Sethika | Not started | T29 | Due 5:30 PM |
 | T31 | Final README (setup, usage, structure, links, screenshots) + written description of how Jac/Jaseci was used | README | Akeesha | Not started | T29 | |
 | T32 | Submit via the shared link (GitHub link, video, description) and star the Jac repo | plan 9 | Dimuth | Not started | T30, T31 | Before 5:30 PM, late entries can't win |
+| T33 | Emergency SOS button: one tap, auto-detect location, skip typing, nearest hospital with free beds (public or private), immediate simulated ambulance and police route clearance | plan 5 | Sethika | In progress | T21 | Claimed by Sethika (new feature requested 2026-10-17). Will update plan.md, README.md and SKILL.md in the same commit as the code (rule 10). |
 | T33 | Surgery waiting lists: hospital side keeps the number of patients waiting per surgery, patient side picks a surgery and sees the best hospital by wait and distance | user request | Dimuth | In progress | T06 | New feature added at 3:10 PM at the user's request, before the 4:45 freeze. Sri Lanka has long waits for planned surgery such as cataract. |
 
 ## 5. Next up
