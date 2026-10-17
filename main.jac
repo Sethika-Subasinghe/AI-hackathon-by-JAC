@@ -21,8 +21,10 @@ import from reliability { SystemStatus, get_system_status }
 import from mapconfig { MapConfig, get_map_config }
 import from clinic {
     EmailDraft, ClinicView, ClinicResult, MailView,
-    save_clinic_patient, get_clinic_patient, clinic_inbox, skip_time
+    save_clinic_patient, get_clinic_patient, clinic_inbox, skip_time,
+    demo_clinic_date
 }
+import from demo { DemoResetResult, reset_demo_data }
 import from geoapify {
     AddressSuggestion, GeocodeResult, RouteResult,
     geocode, autocomplete, get_route, get_eta

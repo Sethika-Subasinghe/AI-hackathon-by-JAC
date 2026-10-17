@@ -11,7 +11,7 @@ clock and delivers whatever became due. Emails are mock only, nothing leaves the
 """
 
 import time;
-import from datetime { datetime }
+import from datetime { datetime, timedelta }
 import from models { ClinicPatient, MailItem, ReminderTask }
 import from graph_lock { GRAPH_LOCK }
 import from hospitals { get_hospital }
@@ -219,6 +219,17 @@ def _deliver_due() -> int {
 def:pub skip_time(hours: float) -> int {
     SIM["offset_hours"] += hours;
     return _deliver_due();
+}
+
+"""The next calendar day on the simulated clock, for a repeatable clinic demo."""
+def:pub demo_clinic_date -> str {
+    tomorrow = datetime.fromtimestamp(_now()) + timedelta(days=1);
+    return tomorrow.strftime("%Y-%m-%d");
+}
+
+"""Reset the simulated clock to real time for a fresh demo."""
+def reset_simulated_clock {
+    SIM["offset_hours"] = 0.0;
 }
 
 """A clinic patient's saved profile, or None."""

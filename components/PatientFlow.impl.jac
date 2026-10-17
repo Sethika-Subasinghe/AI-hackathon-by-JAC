@@ -8,6 +8,19 @@ impl PatientFlow.pick_example(text: str) {
     description = text;
 }
 
+impl PatientFlow.load_demo_scenario {
+    description = "My father has sudden chest pain and is sweating. We are near central Colombo.";
+    address = "Colombo, Sri Lanka";
+    lat = 6.9271;
+    lon = 79.8612;
+    location_ready = True;
+    locating = False;
+    suggestions = [];
+    picked_file = None;
+    file_name = "";
+    error = "";
+}
+
 impl PatientFlow.update_address(e: ChangeEvent) -> None {
     value = e.target.value;
     address = value;

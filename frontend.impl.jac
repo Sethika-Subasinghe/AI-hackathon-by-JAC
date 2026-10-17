@@ -96,3 +96,37 @@ impl app.answer_alert(request_id: str, accept: bool) -> None {
         hospital_notice = "Declined. CareRoute is finding another hospital.";
     }
 }
+
+
+impl app.request_demo_reset(_e: MouseEvent) {
+    confirming_demo_reset = True;
+    demo_reset_message = "";
+    demo_reset_error = "";
+}
+
+
+impl app.cancel_demo_reset(_e: MouseEvent) {
+    confirming_demo_reset = False;
+}
+
+
+impl app.confirm_demo_reset(_e: MouseEvent) -> None {
+    resetting_demo = True;
+    demo_reset_error = "";
+    demo_reset_message = "";
+    try {
+        result: DemoResetResult = await reset_demo_data();
+        demo_reset_version += 1;
+        hospital = None;
+        hospital_token = "";
+        hospital_username = "";
+        hospital_password = "";
+        hospital_notice = "";
+        hospital_error = "";
+        confirming_demo_reset = False;
+        demo_reset_message = result.message + " Removed " + str(result.cases_removed) + " cases and " + str(result.clinic_profiles_removed) + " clinic profiles; restored " + str(result.hospitals_restored) + " hospitals.";
+    } except Exception as err {
+        demo_reset_error = "Could not reset demo data: " + str(err);
+    }
+    resetting_demo = False;
+}

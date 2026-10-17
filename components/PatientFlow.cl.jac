@@ -43,6 +43,7 @@ def:pub PatientFlow -> JsxElement {
 
     def update_description(e: ChangeEvent);
     def pick_example(text: str);
+    def load_demo_scenario;
     async def update_address(e: ChangeEvent) -> None;
     def pick_suggestion(label: str, s_lat: float, s_lon: float);
     def use_my_location();
@@ -96,7 +97,7 @@ def:pub PatientFlow -> JsxElement {
 
     unit_label: str = current.unit if current is not None else "GENERAL";
     result_loading: bool = current is None or current.status not in ["DONE", "CANCELLED"];
-    result_message: str = "Sending your request to the agents…" if current is None else "Agents are working — your hospital recommendation will appear here.";
+    result_message: str = "Sending your request to the agents..." if current is None else "Agents are working - your hospital recommendation will appear here.";
     if current is not None and current.status == "DONE" {
         result_message = "No hospital recommendation is available right now. If this is an emergency, call 1990.";
     } elif current is not None and current.status == "CANCELLED" {
@@ -119,6 +120,7 @@ def:pub PatientFlow -> JsxElement {
                 error={error}
                 on_description={update_description}
                 on_example={pick_example}
+                on_load_demo={load_demo_scenario}
                 on_address={update_address}
                 on_suggestion={pick_suggestion}
                 on_locate={use_my_location}
@@ -133,7 +135,7 @@ def:pub PatientFlow -> JsxElement {
                 <div className="case-header" aria-live="polite">
                     <StatusBadge label={status_text} tone={tone}/>
                     {current is not None and current.used_fallback and
-                        <span className="fallback-notice" role="note">⚠ Using backup logic</span>
+                        <span className="fallback-notice" role="note">Using backup logic</span>
                     }
                     <button type="button" className="link-button" onClick={reset_click}>Start a new request</button>
                 </div>
@@ -165,7 +167,7 @@ def:pub PatientFlow -> JsxElement {
                     <div className="result-main">
                         {if match_result is None or match_result.best is None {
                             <div key="result-placeholder" className="result-placeholder" role="status" aria-live="polite" aria-busy={result_loading}>
-                                <span className="result-spinner" aria-hidden="true">{"⏳" if result_loading else "ℹ️"}</span>
+                                <span className="result-spinner" aria-hidden="true">{"..." if result_loading else "i"}</span>
                                 <p>{result_message}</p>
                             </div>
                         } else {

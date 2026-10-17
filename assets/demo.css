@@ -1,0 +1,20 @@
+.demo-tools{align-items:center;background:#f0fdfa;border:1px solid #bcebe1;border-radius:12px;display:flex;flex-wrap:wrap;gap:14px;justify-content:space-between;margin:0 0 24px;padding:14px 18px}
+.demo-tools>div:first-child{min-width:220px}
+.demo-tools>div:first-child strong{color:#115e59;font-size:14px}
+.demo-tools>div:first-child p{color:#475569;font-size:12px;line-height:1.45;margin:4px 0 0}
+.demo-tool-actions{align-items:center;display:flex;flex-wrap:wrap;gap:8px}
+.demo-tool-actions>span{color:#475569;font-size:12px}
+.demo-reset-button,.demo-reset-confirm,.demo-reset-cancel{border-radius:8px;cursor:pointer;font:inherit;font-size:12px;font-weight:800;min-height:42px;padding:0 13px}
+.demo-reset-button,.demo-reset-cancel{background:#fff;border:1px solid #bed2d3;color:#0f766e}
+.demo-reset-confirm{background:#0f766e;border:1px solid #0f766e;color:#fff}
+.demo-reset-button:focus-visible,.demo-reset-confirm:focus-visible,.demo-reset-cancel:focus-visible,.demo-tools button:focus-visible{outline:3px solid #14b8a6;outline-offset:2px}
+.demo-reset-message,.demo-reset-error{flex-basis:100%;font-size:12px;font-weight:700;margin:0}
+.demo-reset-message{color:#166534}
+.demo-reset-error{color:#9f1239}
+.patient-flow .demo-scenario-button,.clinic-demo-button{background:#effcf8;border:1px solid #99d8cb;border-radius:9px;color:#0f766e;cursor:pointer;font:inherit;font-size:13px;font-weight:800;justify-self:start;min-height:44px;padding:0 14px}
+.patient-flow .demo-scenario-button:hover,.clinic-demo-button:hover{background:#dff7ef}
+.patient-flow .demo-scenario-button:focus-visible,.clinic-demo-button:focus-visible,.clinic-time-button:focus-visible{outline:3px solid #14b8a6;outline-offset:2px}
+.clinic-actions{align-items:center;display:flex;flex-wrap:wrap;gap:8px}
+.clinic-time-button{background:#0f766e;border:1px solid #0f766e;border-radius:9px;color:#fff;cursor:pointer;font:inherit;font-size:12px;font-weight:800;min-height:42px;padding:0 13px}
+.clinic-demo-button:disabled,.clinic-time-button:disabled{cursor:wait;opacity:.65}
+@media(max-width:640px){.demo-tools{align-items:stretch;flex-direction:column}.demo-reset-button,.demo-tool-actions button{flex:1}.demo-tool-actions{align-items:stretch;flex-direction:column}.demo-tool-actions>span{line-height:1.4}}

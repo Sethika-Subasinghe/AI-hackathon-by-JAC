@@ -1,6 +1,7 @@
 """CareRoute client shell and responsive landing workspace."""
 
 import "./assets/theme.css";
+import "./assets/demo.css";
 import from .components.AppHeader { AppHeader }
 import from .components.SafetyBanner { SafetyBanner }
 import from .components.UiKit { AppButton, EmptyState, StatusBadge, SurfaceCard }
@@ -9,7 +10,9 @@ import from .components.BedCard { BedCard }
 import from .components.AlertCard { AlertCard }
 import from react { useEffect }
 sv import from dispatch { AlertView, hospital_alerts, respond_alert }
+import from .components.ClinicWorkspace { ClinicWorkspace }
 sv import from hospitals { HospitalView, list_hospitals, hospital_login, hospital_logout, my_hospital, change_free_beds }
+sv import from demo { DemoResetResult, reset_demo_data }
 
 
 def:pub app -> JsxElement {
@@ -23,7 +26,12 @@ def:pub app -> JsxElement {
         hospital_notice: str = "",
         updating_unit: str = "",
         alerts: list[AlertView] = [],
-        responding: bool = False;
+        responding: bool = False,
+        demo_reset_version: int = 0,
+        resetting_demo: bool = False,
+        confirming_demo_reset: bool = False,
+        demo_reset_error: str = "",
+        demo_reset_message: str = "";
 
     def select_view(view: str);
     async def submit_hospital_login(e: FormEvent) -> None;
@@ -33,6 +41,9 @@ def:pub app -> JsxElement {
     async def answer_alert(request_id: str, accept: bool) -> None;
     def update_hospital_username(e: ChangeEvent);
     def update_hospital_password(e: ChangeEvent);
+    def request_demo_reset(_e: MouseEvent);
+    def cancel_demo_reset(_e: MouseEvent);
+    async def confirm_demo_reset(_e: MouseEvent) -> None;
 
     # Look for incoming patients every 2 seconds while a hospital is signed in.
     useEffect(lambda {
@@ -56,6 +67,26 @@ def:pub app -> JsxElement {
         <SafetyBanner/>
 
         <main className="main-shell">
+            <section className="demo-tools" aria-label="Demo controls">
+                <div>
+                    <strong>Demo tools</strong>
+                    <p>Try the pre-filled scenarios, or clear fictional cases and restore demo capacity.</p>
+                </div>
+                {if confirming_demo_reset {
+                    <div className="demo-tool-actions">
+                        <span>Clear cases and clinic profiles, reset beds and simulated time?</span>
+                        <button type="button" className="demo-reset-confirm" onClick={confirm_demo_reset} disabled={resetting_demo}>
+                            {"Resetting..." if resetting_demo else "Confirm reset"}
+                        </button>
+                        <button type="button" className="demo-reset-cancel" onClick={cancel_demo_reset} disabled={resetting_demo}>Keep data</button>
+                    </div>
+                } else {
+                    <button type="button" className="demo-reset-button" onClick={request_demo_reset}>Reset demo data</button>
+                }}
+                {demo_reset_message and <p className="demo-reset-message" role="status">{demo_reset_message}</p>}
+                {demo_reset_error and <p className="demo-reset-error" role="alert">{demo_reset_error}</p>}
+            </section>
+
             <section className="hero" aria-labelledby="care-route-title">
                 <div className="hero-copy">
                     <StatusBadge label="Agent-assisted care routing" tone="teal"/>
@@ -85,7 +116,7 @@ def:pub app -> JsxElement {
                     <SurfaceCard eyebrow="Your workspace" title={view_title} accent={True}>
                         <p className="workspace-detail">{view_detail}</p>
                         {if active_view == "patient" {
-                            <PatientFlow/>
+                            <PatientFlow key={str(demo_reset_version)}/>
                         } elif active_view == "hospital" {
                             <section className="hospital-ops" aria-label="Hospital operations dashboard">
                                 {if hospital is None {
@@ -142,13 +173,7 @@ def:pub app -> JsxElement {
                                 }}
                             </section>
                         } else {
-                            <EmptyState
-                                icon="C"
-                                title="Never miss a clinic date"
-                                detail="Clinic profiles and reminder previews arrive in T23."
-                            >
-                                <AppButton label="Clinic reminders planned" disabled={True}/>
-                            </EmptyState>
+                            <ClinicWorkspace key={str(demo_reset_version)}/>
                         }}
                     </SurfaceCard>
                 </div>

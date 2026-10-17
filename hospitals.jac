@@ -151,6 +151,26 @@ def _seed_demo_hospitals -> int {
     }
 }
 
+"""Restore the fictional demo hospitals to their original bed counts and clear staff sessions."""
+def reset_demo_hospitals -> int {
+    _seed_demo_hospitals();
+    seeds = hospital_seed_data();
+    restored = 0;
+    for h in [root.shared -->][?:Hospital] {
+        for seed in seeds {
+            if h.name == seed.name {
+                for unit in seed.units {
+                    _set_free(h, unit.unit_type.name, unit.free_beds);
+                }
+                restored += 1;
+                break;
+            }
+        }
+    }
+    sessions.clear();
+    return restored;
+}
+
 def _set_free(h: Hospital, unit_type: str, free: int) {
     for u in [h ->:HasUnit:->] {
         if u.unit_type.name == unit_type {

@@ -37,6 +37,7 @@ def:pub IntakeForm(
     error: str,
     on_description: Callable[[ChangeEvent], None],
     on_example: Callable[[str], None],
+    on_load_demo: Callable[[], None],
     on_address: Callable[[ChangeEvent], None],
     on_suggestion: Callable[[str, float, float], None],
     on_locate: Callable[[], None],
@@ -48,6 +49,7 @@ def:pub IntakeForm(
     def stop_default(e: Event) { e.preventDefault(); }
     def locate_click(_e: MouseEvent) { on_locate(); }
     def remove_click(_e: MouseEvent) { on_remove_file(); }
+    def load_demo_click(_e: MouseEvent) { on_load_demo(); }
 
     can_submit: bool = description.strip() != "" and not submitting;
     location_note: str = "Location set" if location_ready else "Choose a suggestion or use your location";
@@ -63,6 +65,9 @@ def:pub IntakeForm(
                 placeholder="Describe the symptoms in everyday words. Do not worry about medical terms."
                 required={True}
             ></textarea>
+            <button type="button" className="demo-scenario-button" onClick={load_demo_click} disabled={submitting}>
+                Load chest pain demo
+            </button>
             <div className="chips" role="group" aria-label="Example situations">
                 {for ex in EXAMPLES {
                     <ExampleChip key={ex} text={ex} on_pick={on_example}/>
