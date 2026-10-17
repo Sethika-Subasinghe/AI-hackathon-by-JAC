@@ -5,6 +5,7 @@ import from .components.AppHeader { AppHeader }
 import from .components.SafetyBanner { SafetyBanner }
 import from .components.UiKit { AppButton, EmptyState, StatusBadge, SurfaceCard }
 import from .components.PatientFlow { PatientFlow }
+import from .components.BedCard { BedCard }
 sv import from hospitals { HospitalView, list_hospitals, hospital_login, hospital_logout, my_hospital, change_free_beds }
 
 
@@ -109,16 +110,7 @@ def:pub app -> JsxElement {
                                         {hospital_notice and <p className="ops-success" aria-live="polite">{hospital_notice}</p>}
                                         <div className="bed-grid" aria-live="polite">
                                             {for unit in hospital.units {
-                                                <article className="bed-card" key={unit.unit_type}>
-                                                    <div className="bed-card-top"><span className="bed-unit">{unit.unit_type}</span><span className="bed-total">{str(unit.total) + " total"}</span></div>
-                                                    <strong className="bed-count">{str(unit.free)}<small> free beds</small></strong>
-                                                    <div className="bed-meter" aria-label={unit.unit_type + ": " + str(unit.free) + " free of " + str(unit.total)}><span style={{"width": str((unit.free * 100) // unit.total) + "%"}}></span></div>
-                                                    <div className="bed-stepper" aria-label={"Change " + unit.unit_type + " free beds"}>
-                                                        <button type="button" aria-label={"Decrease " + unit.unit_type + " free beds"} disabled={updating_unit != "" or unit.free == 0} onClick={lambda (e: MouseEvent) { adjust_beds(unit.unit_type, -1); }}>-</button>
-                                                        <span>{str(unit.free) + " / " + str(unit.total)}</span>
-                                                        <button type="button" aria-label={"Increase " + unit.unit_type + " free beds"} disabled={updating_unit != "" or unit.free == unit.total} onClick={lambda (e: MouseEvent) { adjust_beds(unit.unit_type, 1); }}>+</button>
-                                                    </div>
-                                                </article>
+                                                <BedCard key={unit.unit_type} unit={unit} busy={updating_unit != ""} on_adjust={adjust_beds}/>
                                             }}
                                         </div>
                                     </div>

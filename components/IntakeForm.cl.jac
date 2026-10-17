@@ -9,6 +9,21 @@ glob EXAMPLES: list[str] = [
     "My child has a high fever and a mild cough"
 ];
 
+def:pub ExampleChip(text: str, on_pick: Callable[[str], None]) -> JsxElement {
+    def pick(_e: MouseEvent) { on_pick(text); }
+    return <button type="button" className="chip" onClick={pick}>{text}</button>;
+}
+
+def:pub SuggestionItem(
+    s: AddressSuggestion,
+    on_pick: Callable[[str, float, float], None],
+) -> JsxElement {
+    def pick(_e: MouseEvent) { on_pick(s.label, s.lat, s.lon); }
+    return <li>
+        <button type="button" role="option" onClick={pick}>{s.label}</button>
+    </li>;
+}
+
 def:pub IntakeForm(
     description: str,
     address: str,
@@ -48,12 +63,7 @@ def:pub IntakeForm(
             ></textarea>
             <div className="chips" role="group" aria-label="Example situations">
                 {for ex in EXAMPLES {
-                    <button
-                        type="button"
-                        key={ex}
-                        className="chip"
-                        onClick={lambda (e: MouseEvent) { on_example(ex); }}
-                    >{ex}</button>
+                    <ExampleChip key={ex} text={ex} on_pick={on_example}/>
                 }}
             </div>
         </div>
@@ -77,13 +87,7 @@ def:pub IntakeForm(
             {if len(suggestions) > 0 {
                 <ul className="suggestions" role="listbox" aria-label="Address suggestions">
                     {for s in suggestions {
-                        <li key={s.label + str(s.lat)}>
-                            <button
-                                type="button"
-                                role="option"
-                                onClick={lambda (e: MouseEvent) { on_suggestion(s.label, s.lat, s.lon); }}
-                            >{s.label}</button>
-                        </li>
+                        <SuggestionItem key={s.label + str(s.lat)} s={s} on_pick={on_suggestion}/>
                     }}
                 </ul>
             }}
