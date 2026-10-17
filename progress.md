@@ -47,7 +47,7 @@ Read with `plan.md`, `README.md` and `skill.md`.
 | T00 | Register and check in (every member, 8:00 AM) | rules | All | In progress | | Tick names here: Sethika ✅ |
 | T01 | Repo skeleton: `pip install jaseci`, Jac app runs, folders, `.gitignore`, `.env.example` | plan 6 | Dimuth | In progress | | |
 | T02 | Jac MCP + Jac skills on each machine (`codex mcp add jac -- jac mcp`, `claude mcp add jac -- jac mcp`, `jac guide --export .claude/skills`) | skill | All | Not started | T01 | Tick names here: |
-| T03 | API keys: free LLM key (Gemini or Groq) and Geoapify key, local `.env` only | plan 6 | Akeesha | In progress | | Share keys privately, never in git |
+| T03 | API keys: free LLM key (Gemini or Groq) and Geoapify key, local `.env` only | plan 6 | Akeesha | Blocked | | Need Akeesha's Gemini/Groq and Geoapify keys; no browser session is available, and T01 has not yet added `.gitignore` / `.env.example`. Never put keys in git. |
 | T04 | Fake Sri Lanka hospital dataset (public and private, units, beds, coordinates) | plan F1 | Akeesha | Not started | T01 | |
 | T05 | Graph model and shared types: Hospital, Unit, BedStatus, CaseState, AgentEvent, ClinicPatient, Request | A9 | Dimuth | Not started | T01 | Post data model in Shared notes |
 | T06 | Hospital login + bed-update backend | plan F2 | Dimuth | Not started | T05 | Post API shape in Shared notes |
