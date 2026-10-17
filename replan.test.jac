@@ -4,7 +4,7 @@ import from models { Hospital, Location, Severity, UnitType }
 import from data.hospital_seed { DEMO_HOSPITAL_PASSWORD }
 import from agent_log { case_events }
 import from hospitals { hospital_login, list_hospitals, set_free_beds }
-import from matcher { LIVE_SERVICES, match_case }
+import from matcher { LIVE_SERVICES, match_case, get_match }
 import from dispatch { AUTO_ACCEPT, LIVE_MODEL, start_dispatch, get_dispatch, hospital_alerts, respond_alert }
 
 def _login_as(hospital_id: str) -> str {
@@ -125,4 +125,17 @@ test "three declines in a row end at the limit" {
     token = _login_as(cs.hospital_id);
     respond_alert(token, _alert_for(cs), False);
     assert cs.status == CaseStatus.DONE;
+}
+
+test "the stored match follows the case after a re-plan" {
+    cs = _dispatched_case();
+    first = cs.hospital_id;
+    assert get_match(jid(cs)).best.hospital_id == first;
+    token = _login_as(first);
+    respond_alert(token, _alert_for(cs), False);
+    assert cs.hospital_id != first;
+    stored = get_match(jid(cs));
+    assert stored is not None;
+    assert stored.best.hospital_id == cs.hospital_id;
+    assert first not in [a.hospital_id for a in stored.alternatives];
 }

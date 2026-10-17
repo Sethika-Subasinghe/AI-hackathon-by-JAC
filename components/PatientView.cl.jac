@@ -215,7 +215,7 @@ def:pub PatientView(geoapify_key: str = "") -> JsxElement {
     # -----------------------------------------------------------------------
     return <div className="patient-view">
 
-        {# ---- Intake form ---- #}
+        {#* ---- Intake form ---- *#}
         {not has_case and <section className="intake-form" aria-labelledby="intake-heading">
             <h2 id="intake-heading" className="intake-heading">Describe the situation</h2>
             <p className="intake-hint">Be as specific as you can. CareRoute will coordinate the next safe step.</p>
@@ -285,7 +285,7 @@ def:pub PatientView(geoapify_key: str = "") -> JsxElement {
             />
         </section>}
 
-        {# ---- Running case: timeline + follow-up ---- #}
+        {#* ---- Running case: timeline + follow-up ---- *#}
         {has_case and <div className="case-panel">
 
             <div className="case-meta">
@@ -310,7 +310,7 @@ def:pub PatientView(geoapify_key: str = "") -> JsxElement {
                 >Start a new case</button>
             </div>
 
-            {# Follow-up question from triage agent #}
+            {#* Follow-up question from triage agent *#}
             {waiting_for_followup and case_view is not None and <div className="followup-box" role="alert">
                 <p className="followup-question">{case_view.followup_question}</p>
                 <div className="followup-row">
@@ -329,7 +329,7 @@ def:pub PatientView(geoapify_key: str = "") -> JsxElement {
                 </div>
             </div>}
 
-            {# Two-column layout: left = result, right = timeline #}
+            {#* Two-column layout: left = result, right = timeline *#}
             <div className="result-layout">
                 <div className="result-main">
                     {has_result and match_result is not None and match_result.best is not None and

@@ -11,6 +11,13 @@ glob UNIT_NAMES: dict[str, str] = {
     "GENERAL": "general"
 };
 
+def _km(distance: float) -> str {
+    if distance < 10.0 {
+        return f"{distance:.1f} km";
+    }
+    return str(int(distance + 0.5)) + " km";
+}
+
 def _minutes(eta: float) -> str {
     if eta < 1.0 {
         return "under 1 min";
@@ -41,7 +48,7 @@ def:pub HospitalCard(pick: HospitalPick, unit: str) -> JsxElement {
                 <p className="hc-label">{beds_text}</p>
             </div>
             <div>
-                <p className="hc-number">{str(round(pick.distance_km)) + " km"}</p>
+                <p className="hc-number">{_km(pick.distance_km)}</p>
                 <p className="hc-label">Distance</p>
             </div>
         </div>
