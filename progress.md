@@ -79,11 +79,11 @@ Read with `plan.md`, `README.md` and `skill.md`.
 | T20 | Re-plan Agent: decline, full or timeout → re-match and re-dispatch | A6 | Dimuth | Done | T17, T19 | `replan.jac`; 6 tests pass; decline over HTTP verified live (new hospital alerted, old requests cancelled). Started before T19 with the user\'s OK |
 | T21 | Map: moving ambulance marker and police clearance panel | B3 | Akeesha | Not started | T16, T17 | |
 | T22 | Clinic Reminder Agent + ClinicPatient profile + mock email inbox | A7 | Dimuth | Done | T05 | `clinic.jac`; 5 tests pass offline. Reminder emails use the template until the model key works |
-| T23 | Clinic UI: form, reminder card, EmailPreview, in-app notices | B5 | Akeesha | In progress | T07, T22 | Claimed by Akeesha. |
+| T23 | Clinic UI: form, reminder card, EmailPreview, in-app notices | B5 | Akeesha | Blocked | T07, T22 | Paused while Akeesha completes user-prioritized T27; existing local UI edits are preserved. Resume after T27. |
 | T24 | Document Agent: pypdf extractor + `summarise_report` | A3 | Dimuth | Done | T10 | `documents.jac`; 5 tests pass; real PDF upload to a running server verified end to end. Summary uses an excerpt backup until the model key works |
 | T25 | Reliability: timeouts, retries, fallbacks, "Using backup logic" banner, canned demo results | A10 | Dimuth | Done | T13, T15 | `reliability.jac` + step shield and backup pipeline in `orchestrator.jac`; 50+ tests pass; verified with the invalid model key (backup path, breaker opens) |
 | T26 | UI polish: loading, empty and error states, responsive check (360/768/1280), accessibility, microcopy | B6 | Sethika | Not started | T16, T18 | |
-| T27 | Demo tools: Load demo scenario, Reset demo data, Skip time | B7 | Akeesha | Not started | T22 | |
+| T27 | Demo tools: Load demo scenario, Reset demo data, Skip time | B7 | Akeesha | In progress | T22 | Claimed by Akeesha. |
 | T28 | Jac share check at midday and 4:00 PM; fix if under 80% | plan 10 | Akeesha | Blocked | T01 | 10:39 baseline passes: 89.75% Jac by tracked source bytes, 99.95% by raw source lines, and GitHub Languages reports 100% Jac. Waiting for the required 4:00 PM recheck. |
 | T29 | Deploy to Jac Hammer + local fallback | plan 6 | Akeesha | Not started | T26 | |
 | T30 | Record demo video (both scenarios) | plan 9 | Sethika | Not started | T29 | Due 5:30 PM |
