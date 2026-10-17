@@ -1,6 +1,7 @@
 """Critical-case dispatch UI: the 10 second Cancel countdown and the live status panel."""
 
 import "../assets/dispatch.css";
+import from .PoliceClearance { PoliceClearance }
 sv import from dispatch { DispatchView, RequestView }
 
 glob COUNTDOWN_TOTAL: float = 10.0;
@@ -122,6 +123,7 @@ def:pub DispatchStatus(dispatch: DispatchView) -> JsxElement {
 def:pub DispatchPanel(
     dispatch: DispatchView | None,
     on_cancel: Callable[[], None],
+    route_km: float = 0.0,
 ) -> JsxElement {
     return <div className="dispatch-panel-slot">
         {if dispatch is not None and dispatch.case_status == "DISPATCHING" {
@@ -134,6 +136,9 @@ def:pub DispatchPanel(
         }}
         {if dispatch is not None and (dispatch.case_status == "DISPATCHED" or dispatch.case_status == "DISPATCHING") {
             <DispatchStatus key="dispatch-status" dispatch={dispatch}/>
+        }}
+        {if dispatch is not None and dispatch.case_status == "DISPATCHED" {
+            <PoliceClearance key="police-clearance" dispatch={dispatch} distance_km={route_km}/>
         }}
     </div>;
 }

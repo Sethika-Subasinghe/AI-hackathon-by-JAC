@@ -9,10 +9,10 @@ impl PatientFlow.pick_example(text: str) {
 }
 
 impl PatientFlow.load_demo_scenario {
-    description = "My father has sudden chest pain and is sweating. We are near central Colombo.";
-    address = "Colombo, Sri Lanka";
-    lat = 6.9271;
-    lon = 79.8612;
+    description = "My father has sudden chest pain and is sweating. We are in Nugegoda, about 20 minutes from the city centre.";
+    address = "Nugegoda, Sri Lanka";
+    lat = 6.8649;
+    lon = 79.8997;
     location_ready = True;
     locating = False;
     suggestions = [];
@@ -170,6 +170,10 @@ impl PatientFlow.refresh_case() -> None {
     }
     try {
         latest = await get_case(case_id);
+        # Dispatch first: a slow or dropped match request must never freeze the countdown or the ambulance.
+        if latest is not None and latest.severity == "CRITICAL" {
+            dispatch = await get_dispatch(case_id);
+        }
         if latest is not None {
             current = latest;
             # Fetch match result when the case is matched or done.
@@ -186,9 +190,6 @@ impl PatientFlow.refresh_case() -> None {
             if shown_id != latest.hospital_id {
                 match_result = await get_match(case_id);
             }
-        }
-        if latest is not None and latest.severity == "CRITICAL" {
-            dispatch = await get_dispatch(case_id);
         }
         case_error = "";
     } except Exception {

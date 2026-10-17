@@ -45,6 +45,7 @@ def:pub MapPanel(
         map_ref: Ref[any] = Ref(),
         layers_ref: Ref[any] = Ref(),
         ambulance_ref: Ref[any] = Ref(),
+        cleared_ref: Ref[any] = Ref(),
         me_ref: Ref[any] = Ref(),
         config: MapConfig | None = None,
         following: bool = False,
@@ -91,6 +92,10 @@ def:pub MapPanel(
             if ambulance_ref.current {
                 m.removeLayer(ambulance_ref.current);
                 ambulance_ref.current = None;  # jac:ignore[E1001]
+            }
+            if cleared_ref.current {
+                m.removeLayer(cleared_ref.current);
+                cleared_ref.current = None;  # jac:ignore[E1001]
             }
             origin_marker: any = marker([origin_lat, origin_lon], {"icon": _dot("patient", "P"), "title": "Patient"});
             best_marker: any = marker([best.lat, best.lon], {"icon": _dot("best", "H"), "title": best.name});
@@ -165,6 +170,16 @@ def:pub MapPanel(
         m: any = map_ref.current;
         if m and best is not None and len(best.route) > 1 and ambulance_progress > 0.0 {
             spot: list[float] = _along(best.route, ambulance_progress);
+            # Blue line = the part of the route police have cleared so far (simulated).
+            done: int = max(1, int(ambulance_progress * float(len(best.route) - 1)) + 1);
+            cleared_path: list[list[float]] = best.route[0:done];
+            if cleared_ref.current {
+                cleared_ref.current.setLatLngs(cleared_path);
+            } else {
+                cleared: any = polyline(cleared_path, {"color": "#2563eb", "weight": 7, "opacity": 0.9});
+                cleared.addTo(m);
+                cleared_ref.current = cleared;  # jac:ignore[E1001]
+            }
             if ambulance_ref.current {
                 ambulance_ref.current.setLatLng(spot);
             } else {
