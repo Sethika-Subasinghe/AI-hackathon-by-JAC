@@ -86,7 +86,7 @@ Read with `plan.md`, `README.md` and `skill.md`.
 ## 5. Next up
 Keep this to 3 to 6 items and refresh it whenever a task is Done.
 1. **T08** Sethika: hospital dashboard UI
-2. **T10** Dimuth: Triage Agent (`by llm()`, red-flag override, fallback)
+2. **T13** Dimuth: Orchestrator Agent (`decide_next`, guard rules, follow-up flow)
 3. **T11** Sethika: patient form UI
 4. **T14** Akeesha: Geoapify geocoding, routing, ETA and caching
 5. **T12** Sethika: live agent timeline UI
