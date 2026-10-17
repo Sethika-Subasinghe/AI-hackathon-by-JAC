@@ -32,6 +32,7 @@ Read with `plan.md`, `README.md` and `skill.md`.
 ## 3. Workflow (phases in order)
 | Phase | Time | Tasks | Gate: what must work before moving on |
 |---|---|---|---|
+| 2026-10-17 | Dimuth | T06 done: hospital login (token sessions), list/get hospitals, set and change free beds, `add_hospital` seeding helper, unit test, endpoints registered in main.jac | hospitals.jac, hospitals.test.jac, models.jac, main.jac, progress.md |
 | 2026-10-17 | Dimuth | T05 done: graph model and shared types (7 nodes, 4 edges, 7 enums, Location obj), validated with `jac check` and a runtime smoke test | models.jac, progress.md |
 | 2026-10-17 | Dimuth | T01 done: Jac fullstack scaffold (main.jac, endpoints.jac, frontend.cl.jac, components/), jac.toml with microservice auto-detect disabled, .gitignore, .env.example, data/ | jac.toml, main.jac, endpoints.jac, frontend.cl.jac, frontend.impl.jac, components/, .gitignore, .env.example, AGENTS.md, progress.md |
 | P0 Setup | 9:00 to 9:45 | T00-T03 | Jac app runs, Jac MCP works for everyone, keys in place |
@@ -52,7 +53,7 @@ Read with `plan.md`, `README.md` and `skill.md`.
 | T03 | API keys: free LLM key (Gemini or Groq) and Geoapify key, local `.env` only | plan 6 | Akeesha | Done | | Gemini and Geoapify credentials are stored only in ignored `.env`; both were validated against their provider APIs without exposing values. |
 | T04 | Fake Sri Lanka hospital dataset (public and private, units, beds, coordinates) | plan F1 | Akeesha | In progress | T01 | Claimed by Akeesha. |
 | T05 | Graph model and shared types: Hospital, Unit, BedStatus, CaseState, AgentEvent, ClinicPatient, Request | A9 | Dimuth | Done | T01 | Model in `models.jac` (checked, smoke-tested); summary in Shared notes |
-| T06 | Hospital login + bed-update backend | plan F2 | Dimuth | In progress | T05 | Post API shape in Shared notes |
+| T06 | Hospital login + bed-update backend | plan F2 | Dimuth | Done | T05 | API in `hospitals.jac`, shape in Shared notes; unit test passes (`jac test hospitals.jac`) |
 | T07 | Design system and app shell: tokens, fonts, layout, SafetyBanner, base components, responsive | B1-B3 | Sethika | In progress | T01 | Claimed by Sethika. |
 | T08 | Hospital dashboard UI: login page, bed cards, BedStepper | B5 | Sethika | Not started | T06, T07 | |
 | T09 | Agent conventions: `llm` setup, typed outputs, AgentEvent logging helper | A0, A8 | Dimuth | Not started | T05 | |
@@ -82,8 +83,8 @@ Read with `plan.md`, `README.md` and `skill.md`.
 
 ## 5. Next up
 Keep this to 3 to 6 items and refresh it whenever a task is Done.
-1. **T06** Dimuth: hospital login and bed-update backend
-2. **T09** Dimuth: agent conventions (`llm` setup, AgentEvent helper)
+1. **T09** Dimuth: agent conventions (`llm` setup, AgentEvent helper)
+2. **T08** Sethika: hospital dashboard UI (T06 and T07 needed)
 3. **T07** Sethika: design system and app shell
 4. **T04** Akeesha: fake hospital dataset
 5. **T14** Akeesha: Geoapify geocoding, routing, ETA and caching
@@ -91,6 +92,7 @@ Keep this to 3 to 6 items and refresh it whenever a task is Done.
 
 ## 6. Shared notes (blockers, interface changes, decisions)
 Add a dated line when an API shape, data model or decision changes. Newest first.
+- 2026-10-17: **Hospital API (T06)** in `hospitals.jac`, all `def:pub`, call as `POST /function/<name>` (or `sv import` in a `.cl.jac`). `list_hospitals() -> list[HospitalView]`, `get_hospital(hospital_id)`, `hospital_login(username, password) -> LoginResult{ok, token, hospital_id, message}`, `hospital_logout(token)`, `my_hospital(token)`, `set_free_beds(token, unit_type, free)`, `change_free_beds(token, unit_type, delta)` (BedStepper +/-). `HospitalView{id, name, sector, city, lat, lon, units: list[UnitView{unit_type, total, free}]}`; unit_type/sector are enum names like "ICU", "PUBLIC". Write endpoints return the updated HospitalView, or None when the token is missing or expired (treat as logged out). Sessions are in memory, so a server restart signs everyone out. **Akeesha (T04):** seed with `add_hospital(name, Sector.X, city, lat, lon, username, password, {"ICU": 10, "CARDIAC": 6})` from `hospitals.jac`. Added `password_hash` to Hospital in `models.jac`.
 - 2026-10-17: **Data model (T05) is in `models.jac`**, import with `import from models { Hospital, ... }`. Graph: `root --> Hospital --HasUnit--> Unit --HasBeds--> BedStatus(total, free)`; `root --> CaseState --CaseEvent--> AgentEvent`, `--CaseRequest--> Request`; `root --> ClinicPatient`. Enums: Severity (CRITICAL/URGENT/STABLE), Sector (PUBLIC/PRIVATE), UnitType (CARDIAC/TRAUMA/ICU/NEURO/GENERAL), CaseStatus, EventStatus (RUNNING/DONE/FAILED/WAITING), RequestKind (AMBULANCE/POLICE/HOSPITAL_ALERT), RequestStatus. `Location(lat, lon, address)` is a plain obj. Seed data (T04) must create Hospital -> Unit -> BedStatus with these fields. Ask Dimuth before changing a field.
 - 2026-10-17: T01 is Done, `git pull` to get the skeleton. Run the app with `jac start --dev main.jac` (open http://localhost:8000). `main.jac`, `endpoints.jac`, `frontend.cl.jac`, `frontend.impl.jac` and `components/MessageCard.cl.jac` are generated guestbook placeholders, replace them. Keep `[plugins.scale.microservices] enabled = false` in `jac.toml` or jac-scale auto-switches to microservice mode and the page 404s. Unblocked now: T02, T04, T05, T07 (all depend only on T01).
 - 2026-10-17: Dispatch uses a 10-second cancellable countdown. Orchestrator, re-plan, hospital Accept/Decline and clinic-patient profile are in scope (see `skill.md`).

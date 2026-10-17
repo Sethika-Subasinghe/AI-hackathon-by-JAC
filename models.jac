@@ -49,7 +49,8 @@ node Hospital {
         lat: float,
         lon: float,
         phone: str = "",
-        username: str = "";
+        username: str = "",
+        password_hash: str = "";
 }
 
 """A care unit inside a hospital, for example its ICU."""
