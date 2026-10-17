@@ -32,3 +32,19 @@ test "login, list and bed updates" {
     assert hospital_logout(good.token);
     assert my_hospital(good.token) is None;
 }
+
+test "demo hospitals seed once with initial free beds" {
+    first = list_hospitals();
+    second = list_hospitals();
+    seeded = [hospital for hospital in second if hospital.name.endswith("(Demo)")];
+    assert len(seeded) == 10;
+    assert len(first) == len(second);
+    colombo = [
+        hospital
+        for hospital in seeded
+        if hospital.name == "Colombo Central Care Hospital (Demo)"
+    ][0];
+    icu = [unit for unit in colombo.units if unit.unit_type == "ICU"][0];
+    assert icu.total == 18;
+    assert icu.free == 3;
+}

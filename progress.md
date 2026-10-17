@@ -52,7 +52,7 @@ Read with `plan.md`, `README.md` and `skill.md`.
 | T01 | Repo skeleton: `pip install jaseci`, Jac app runs, folders, `.gitignore`, `.env.example` | plan 6 | Dimuth | Done | | Fullstack scaffold runs (`jac start --dev main.jac`, page + walkers verified). `[plugins.scale.microservices] enabled = false` in jac.toml stops jac-scale auto-microservice mode; server module is plain `endpoints.jac`. |
 | T02 | Jac MCP + Jac skills on each machine (`codex mcp add jac -- jac mcp`, `claude mcp add jac -- jac mcp`, `jac guide --export .claude/skills`) | skill | All | Done | T01 | Tick names here: Akeesha ✅ (Jac 0.16.7 and Jac MCP verified); Sethika ✅ (Jac 0.16.7; Jac MCP registered and verified); Dimuth ✅ (skills exported; MCP registration unavailable because `claude` CLI is not on PATH). Team confirmed complete. |
 | T03 | API keys: free LLM key (Gemini or Groq) and Geoapify key, local `.env` only | plan 6 | Akeesha | Done | | Gemini and Geoapify credentials are stored only in ignored `.env`; both were validated against their provider APIs without exposing values. |
-| T04 | Fake Sri Lanka hospital dataset (public and private, units, beds, coordinates) | plan F1 | Akeesha | In progress | T01 | Claimed by Akeesha. |
+| T04 | Fake Sri Lanka hospital dataset (public and private, units, beds, coordinates) | plan F1 | Akeesha | Done | T01 | 10 fictional hospitals across Sri Lanka (6 public, 4 private), 46 unit/bed records, idempotent lazy graph seeding; Jac MCP/CLI validation, tests and live endpoint verified. |
 | T05 | Graph model and shared types: Hospital, Unit, BedStatus, CaseState, AgentEvent, ClinicPatient, Request | A9 | Dimuth | Done | T01 | Model in `models.jac` (checked, smoke-tested); summary in Shared notes |
 | T06 | Hospital login + bed-update backend | plan F2 | Dimuth | Done | T05 | API in `hospitals.jac`, shape in Shared notes; unit test passes (`jac test hospitals.jac`) |
 | T07 | Design system and app shell: tokens, fonts, layout, SafetyBanner, base components, responsive | B1-B3 | Sethika | In progress | T01 | Claimed by Sethika. |
@@ -85,11 +85,11 @@ Read with `plan.md`, `README.md` and `skill.md`.
 ## 5. Next up
 Keep this to 3 to 6 items and refresh it whenever a task is Done.
 1. **T10** Dimuth: Triage Agent (`by llm()`, red-flag override, fallback)
-2. **T08** Sethika: hospital dashboard UI (T06 and T07 needed)
-3. **T07** Sethika: design system and app shell
-4. **T04** Akeesha: fake hospital dataset
-5. **T14** Akeesha: Geoapify geocoding, routing, ETA and caching
-6. **T28** Akeesha: Jac share check
+2. **T07** Sethika: design system and app shell
+3. **T08** Sethika: hospital dashboard UI (after T07)
+4. **T14** Akeesha: Geoapify geocoding, routing, ETA and caching
+5. **T28** Akeesha: Jac share check
+6. **T22** Dimuth: Clinic Reminder Agent and clinic profile
 
 ## 6. Shared notes (blockers, interface changes, decisions)
 Add a dated line when an API shape, data model or decision changes. Newest first.
@@ -104,6 +104,7 @@ Add one entry per completed piece of work: date and time, who, what changed, fil
 
 | Date | Who | What changed | Files |
 |---|---|---|---|
+| 2026-10-17 | Akeesha | Completed T04: added a typed Jac dataset of 10 fictional Sri Lankan hospitals with 46 unit/bed records, integrated idempotent lazy graph seeding with the hospital API, and verified data integrity plus the live list endpoint | data/hospital_seed.jac, data/hospital_seed.test.jac, hospitals.jac, hospitals.test.jac, progress.md |
 | 2026-10-17 | Akeesha | Completed T03: moved uploaded credentials out of tracked `.env.example` into ignored `.env`, restored the blank template, and validated Gemini and Geoapify API access without exposing keys | progress.md (credentials remain local in `.env`) |
 | 2026-10-17 10:05 | Sethika | Marked shared T02 Done after team confirmation, refreshed Next up, and cleared T07's resolved T01 blocker | progress.md |
 | 2026-10-17 09:52 | Sethika | Completed Sethika's T02 setup: verified Jac 0.16.7 and jac-mcp 0.1.24, registered the Jac MCP in Codex, and confirmed it is enabled | progress.md |

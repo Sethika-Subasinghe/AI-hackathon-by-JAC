@@ -11,6 +11,7 @@ import hashlib;
 import secrets;
 import time;
 import from models { Hospital, Unit, BedStatus, HasUnit, HasBeds, Sector, UnitType }
+import from data.hospital_seed { DEMO_HOSPITAL_PASSWORD, hospital_seed_data }
 
 """Beds for one unit, as sent to the UI."""
 obj UnitView {
@@ -86,6 +87,7 @@ def _session_hospital(token: str) -> Hospital | None {
 """Create a hospital with units. `units` maps a UnitType name to its bed
 count, e.g. {"ICU": 10, "CARDIAC": 6}; every bed starts free. T04 (seed
 data) calls this."""
+# jac:ignore[W3030] Public seed API mirrors all required Hospital fields.
 def add_hospital(
     name: str,
     sector: Sector,
@@ -115,6 +117,37 @@ def add_hospital(
     return h;
 }
 
+"""Create missing fictional hospitals and their initial free-bed counts."""
+def _seed_demo_hospitals -> int {
+    existing_names = {h.name for h in [root.shared -->][?:Hospital]};
+    created = 0;
+    for seed in hospital_seed_data() {
+        if seed.name not in existing_names {
+            totals = {
+                unit.unit_type.name: unit.total_beds
+                for unit in seed.units
+            };
+            hospital = add_hospital(
+                name=seed.name,
+                sector=seed.sector,
+                city=seed.city,
+                lat=seed.lat,
+                lon=seed.lon,
+                username=seed.username,
+                password=DEMO_HOSPITAL_PASSWORD,
+                units=totals,
+            );
+            hospital.phone = seed.phone;
+            for unit in seed.units {
+                _set_free(hospital, unit.unit_type.name, unit.free_beds);
+            }
+            existing_names.add(seed.name);
+            created += 1;
+        }
+    }
+    return created;
+}
+
 def _set_free(h: Hospital, unit_type: str, free: int) {
     for u in [h ->:HasUnit:->] {
         if u.unit_type.name == unit_type {
@@ -138,7 +171,8 @@ def _current_free(h: Hospital, unit_type: str) -> int {
 }
 
 """All hospitals with their bed counts (patients and the matcher read this)."""
-def:pub list_hospitals() -> list[HospitalView] {
+def:pub list_hospitals -> list[HospitalView] {
+    _seed_demo_hospitals();
     return [_view(h) for h in [root.shared -->][?:Hospital]];
 }
 
