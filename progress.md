@@ -80,7 +80,7 @@ Read with `plan.md`, `README.md` and `skill.md`.
 | T22 | Clinic Reminder Agent + ClinicPatient profile + mock email inbox | A7 | Dimuth | Done | T05 | `clinic.jac`; 5 tests pass offline. Reminder emails use the template until the model key works |
 | T23 | Clinic UI: form, reminder card, EmailPreview, in-app notices | B5 | Akeesha | Not started | T07, T22 | |
 | T24 | Document Agent: pypdf extractor + `summarise_report` | A3 | Dimuth | Done | T10 | `documents.jac`; 5 tests pass; real PDF upload to a running server verified end to end. Summary uses an excerpt backup until the model key works |
-| T25 | Reliability: timeouts, retries, fallbacks, "Using backup logic" banner, canned demo results | A10 | Dimuth | Not started | T13, T15 | |
+| T25 | Reliability: timeouts, retries, fallbacks, "Using backup logic" banner, canned demo results | A10 | Dimuth | In progress | T13, T15 | |
 | T26 | UI polish: loading, empty and error states, responsive check (360/768/1280), accessibility, microcopy | B6 | Sethika | Not started | T16, T18 | |
 | T27 | Demo tools: Load demo scenario, Reset demo data, Skip time | B7 | Akeesha | Not started | T22 | |
 | T28 | Jac share check at midday and 4:00 PM; fix if under 80% | plan 10 | Akeesha | In progress | T01 | 10:39 baseline passes: 89.75% Jac by tracked source bytes, 99.95% by raw source lines, and GitHub Languages reports 100% Jac. Recheck at 4:00 PM before marking Done. |
