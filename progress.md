@@ -68,7 +68,7 @@ Read with `plan.md`, `README.md` and `skill.md`.
 | T14 | Geoapify: geocode and autocomplete, routing and ETA, caching | plan F5 | Akeesha | Done | T03 | Sri Lanka geocoding/autocomplete and driving route/ETA endpoints use in-memory caches; live provider calls and labelled straight-line fallback verified. |
 | T15 | Hospital Matcher Agent with tools and deterministic fallback | A4 | Dimuth | Done | T04, T05, T14 | `matcher.jac`; 4 tests pass offline; live Geoapify routes checked end to end. Model-written reasons fall back to templates (Gemini key invalid) |
 | T16 | Result UI: HospitalCard, AlternativesList with reasons, MapPanel with route | B3 | Sethika | Not started | T14, T15 | |
-| T17 | Dispatch Agent + simulated ambulance, police and hospital requests + accept/decline endpoints | A5 | Dimuth | Not started | T15 | |
+| T17 | Dispatch Agent + simulated ambulance, police and hospital requests + accept/decline endpoints | A5 | Dimuth | In progress | T15 | |
 | T18 | CountdownBanner (10 s, Cancel) + live dispatch status panel | B5 | Sethika | Not started | T17 | |
 | T19 | Hospital incoming alerts: AlertCard with Accept and Decline in the dashboard | B3, B5 | Sethika | Not started | T08, T17 | |
 | T20 | Re-plan Agent: decline, full or timeout → re-match and re-dispatch | A6 | Dimuth | Not started | T17, T19 | |
