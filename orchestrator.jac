@@ -10,8 +10,9 @@ Every step now calls its real agent (document, triage, matcher, dispatch, re-pla
 """
 
 import from models { CaseState, CaseStatus, EventStatus, Severity, Location }
-import from agent_log { start_event, finish_event, log_event, compact_case, find_case }
-import from triage { triage_case }
+import from agent_log { start_event, finish_event, log_event, compact_case, find_case, case_events }
+import from triage { triage_case, rule_triage }
+import from reliability { model_available, record_model_success, record_model_failure }
 import from matcher { match_case }
 import from dispatch { start_dispatch }
 import from documents { read_report }
@@ -47,9 +48,12 @@ obj CaseView {
         hospital_id: str,
         eta_minutes: float,
         replan_count: int,
-        used_fallback: bool;
+        used_fallback: bool,
+        backup_notes: list[str] = [];
 }
 
+# Failure injection for tests and the demo: set to a step name such as "MATCH" to make that step crash.
+glob FAIL_STEP: dict[str, str] = {"step": ""};
 glob MAX_STEPS: int = 8;
 glob MAX_REPLANS: int = 3;
 
@@ -131,6 +135,31 @@ def _do_replan(cs: CaseState) {
     replan_case(cs);
 }
 
+"""Last resort when a step crashes: rule triage, then the offline-safe matcher and dispatch.
+Keeps the demo scenarios working without the model."""
+def run_backup(cs: CaseState) {
+    try {
+        if cs.status == CaseStatus.NEW or cs.status == CaseStatus.NEEDS_INFO {
+            r = rule_triage(cs.description + " " + cs.report_summary);
+            cs.severity = r.severity;
+            cs.unit_needed = r.unit;
+            cs.red_flags = r.red_flags;
+            cs.confidence = r.confidence;
+            cs.status = CaseStatus.TRIAGED;
+            log_event(cs, "triage", "backup_triage", EventStatus.DONE, f"Rated {r.severity.name} by built-in rules", "Using backup logic.");
+        }
+        if cs.status == CaseStatus.TRIAGED {
+            _do_match(cs);
+        }
+        if cs.status == CaseStatus.MATCHED and cs.severity == Severity.CRITICAL {
+            _do_dispatch(cs);
+        }
+    } except Exception {
+        cs.status = CaseStatus.DONE;
+        log_event(cs, "orchestrator", "backup_failed", EventStatus.FAILED, "Something went wrong. Please call 1990.", "");
+    }
+}
+
 """Run the orchestrator loop for a case. Returns the number of steps taken.
 Stops early when it must wait for the patient (follow-up) or the case is finished."""
 def run_case(cs: CaseState) -> int {
@@ -138,39 +167,67 @@ def run_case(cs: CaseState) -> int {
     for _i in range(MAX_STEPS) {
         steps += 1;
         ev = start_event(cs, "orchestrator", "decide", "Choosing the next step");
-        try {
-            action = decide_next(_state_text(cs));
-        } except Exception {
-            action = rule_next(cs);
-            action.reason = "Using backup logic: " + action.reason;
+        action = rule_next(cs);
+        action.reason = "Using backup logic: " + action.reason;
+        if model_available() {
+            try {
+                action = decide_next(_state_text(cs));
+                record_model_success();
+            } except Exception {
+                record_model_failure();
+                cs.used_fallback = True;
+            }
+        } else {
+            cs.used_fallback = True;
         }
         action = guard(action, cs);
         finish_event(ev, EventStatus.DONE, f"Next: {action.step.name}", action.reason);
 
-        if action.step == Step.TRIAGE {
-            triage_case(cs);
-        } elif action.step == Step.READ_DOCUMENT {
-            _do_read_document(cs);
-        } elif action.step == Step.ASK_FOLLOWUP {
-            log_event(cs, "orchestrator", "ask_followup", EventStatus.WAITING, cs.followup_question, "Waiting for your answer");
-            return steps;
-        } elif action.step == Step.MATCH {
-            _do_match(cs);
-        } elif action.step == Step.DISPATCH {
-            _do_dispatch(cs);
-        } elif action.step == Step.REPLAN {
-            _do_replan(cs);
-        } else {
-            # Dispatching, dispatched, replanning and cancelled cases keep their status.
-            if cs.status in [CaseStatus.NEW, CaseStatus.TRIAGED, CaseStatus.MATCHED] {
-                cs.status = CaseStatus.DONE;
+        try {
+            if FAIL_STEP["step"] == action.step.name {
+                raise RuntimeError("simulated failure");
             }
-            log_event(cs, "orchestrator", "finish", EventStatus.DONE, "All steps finished");
+            if action.step == Step.TRIAGE {
+                triage_case(cs);
+            } elif action.step == Step.READ_DOCUMENT {
+                _do_read_document(cs);
+            } elif action.step == Step.ASK_FOLLOWUP {
+                log_event(cs, "orchestrator", "ask_followup", EventStatus.WAITING, cs.followup_question, "Waiting for your answer");
+                return steps;
+            } elif action.step == Step.MATCH {
+                _do_match(cs);
+            } elif action.step == Step.DISPATCH {
+                _do_dispatch(cs);
+            } elif action.step == Step.REPLAN {
+                _do_replan(cs);
+            } else {
+                # Dispatching, dispatched, replanning and cancelled cases keep their status.
+                if cs.status in [CaseStatus.NEW, CaseStatus.TRIAGED, CaseStatus.MATCHED] {
+                    cs.status = CaseStatus.DONE;
+                }
+                log_event(cs, "orchestrator", "finish", EventStatus.DONE, "All steps finished");
+                return steps;
+            }
+        } except Exception {
+            log_event(cs, "orchestrator", "step_failed", EventStatus.FAILED, f"{action.step.name} failed, using backup logic", "The built-in rules finish the job");
+            cs.used_fallback = True;
+            run_backup(cs);
             return steps;
         }
     }
     log_event(cs, "orchestrator", "step_limit", EventStatus.DONE, "Stopped at the step limit, showing the best result so far");
     return steps;
+}
+
+"""Timeline steps that used backup logic, for the "Using backup logic" banner."""
+def _backup_notes(cs: CaseState) -> list[str] {
+    notes: list[str] = [];
+    for e in case_events(jid(cs)) {
+        if "backup logic" in (e.detail + " " + e.title).lower() and e.title not in notes {
+            notes.append(e.title);
+        }
+    }
+    return notes;
 }
 
 def _case_view(cs: CaseState) -> CaseView {
@@ -186,7 +243,8 @@ def _case_view(cs: CaseState) -> CaseView {
         hospital_id=cs.hospital_id,
         eta_minutes=cs.eta_minutes,
         replan_count=cs.replan_count,
-        used_fallback=cs.used_fallback
+        used_fallback=cs.used_fallback,
+        backup_notes=_backup_notes(cs)
     );
 }
 

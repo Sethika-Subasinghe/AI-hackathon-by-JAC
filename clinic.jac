@@ -14,6 +14,7 @@ import time;
 import from datetime { datetime }
 import from models { ClinicPatient, MailItem, ReminderTask }
 import from hospitals { get_hospital }
+import from reliability { model_available, record_model_success, record_model_failure }
 
 glob SIM: dict[str, float] = {"offset_hours": 0.0};
 glob LIVE_MODEL: dict[str, bool] = {"on": True};
@@ -162,12 +163,14 @@ def _deliver(task: ReminderTask, p: ClinicPatient) {
     arrival = suggest_arrival(get_hospital_load(p.hospital_id));
     when = "tomorrow" if task.kind == "DAY_BEFORE" else "today";
     draft = _template_email(p.name, p.clinic, p.clinic_date, arrival, when);
-    if LIVE_MODEL["on"] {
+    if LIVE_MODEL["on"] and model_available() {
         try {
             draft = compose_reminder(
                 f"Patient {p.name}. Clinic {p.clinic} on {p.clinic_date}, which is {when}. Suggested arrival {arrival}."
             );
+            record_model_success();
         } except Exception {
+            record_model_failure();
             draft = _template_email(p.name, p.clinic, p.clinic_date, arrival, when);
         }
     }

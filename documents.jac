@@ -15,6 +15,7 @@ import from pypdf { PdfReader }
 import from fastapi { UploadFile }
 import from models { CaseState, EventStatus }
 import from agent_log { start_event, finish_event, find_case }
+import from reliability { model_available, record_model_success, record_model_failure }
 
 glob MAX_CHARS: int = 8000;
 glob LIVE_MODEL: dict[str, bool] = {"on": True};
@@ -86,10 +87,12 @@ def read_report(cs: CaseState) -> bool {
     }
     summary = "";
     used_fallback = False;
-    if LIVE_MODEL["on"] {
+    if LIVE_MODEL["on"] and model_available() {
         try {
             summary = _flatten(summarise_report(text));
+            record_model_success();
         } except Exception {
+            record_model_failure();
             used_fallback = True;
         }
     } else {

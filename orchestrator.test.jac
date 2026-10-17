@@ -7,6 +7,7 @@ import from byllm.lib { Model, MockLLM }
 import from agent_log { case_events }
 import from matcher { LIVE_SERVICES }
 import from dispatch { LIVE_MODEL }
+import from reliability { reset_breaker }
 
 """Mock model only while `jac test` runs; normal runs keep the real model."""
 glob llm = MockLLM(model_name="mockllm", config={"outputs": [
@@ -20,6 +21,8 @@ glob llm = MockLLM(model_name="mockllm", config={"outputs": [
     if sys.argv[1:2] == ["test"] else Model(model_name=os.environ.get("LLM_MODEL", "gemini/gemini-2.0-flash"));
 
 def _case(text: str) -> CaseState {
+    reset_breaker();
+    FAIL_STEP["step"] = "";
     r = create_case(text, 6.9, 79.8);
     return find_case(r);
 }
@@ -95,4 +98,31 @@ test "backup logic when the model fails" {
 test "unknown case ids are handled" {
     assert run_case_by_id("nope") is None;
     assert get_case("nope") is None;
+}
+
+test "a crashing step falls back to the built-in rules" {
+    LIVE_SERVICES["on"] = False;
+    LIVE_MODEL["on"] = False;
+    cs = _case("My father has chest pain");
+    FAIL_STEP["step"] = "TRIAGE";
+    run_case(cs);
+    FAIL_STEP["step"] = "";
+    assert cs.used_fallback;
+    assert cs.severity == Severity.CRITICAL;
+    assert cs.hospital_id != "";
+    assert cs.status == CaseStatus.DISPATCHING;
+    view = get_case(jid(cs));
+    assert view.used_fallback;
+    assert len(view.backup_notes) > 0;
+    steps = [e.step for e in case_events(jid(cs))];
+    assert "step_failed" in steps and "backup_triage" in steps;
+}
+
+test "backup pipeline gives a stable case a hospital but no dispatch" {
+    LIVE_SERVICES["on"] = False;
+    cs = _case("mild cough for two days");
+    run_backup(cs);
+    assert cs.severity == Severity.STABLE;
+    assert cs.status == CaseStatus.MATCHED;
+    assert len([e for e in case_events(jid(cs)) if e.agent == "dispatch"]) == 0;
 }

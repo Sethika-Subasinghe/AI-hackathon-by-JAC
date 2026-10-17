@@ -19,6 +19,7 @@ import from models { CaseState, CaseStatus, CaseRequest, EventStatus, Hospital, 
 import from agent_log { start_event, finish_event, log_event, find_case, compact_case }
 import from hospitals { my_hospital }
 import from geoapify { get_route }
+import from reliability { model_available, record_model_success, record_model_failure }
 
 glob COUNTDOWN_SECONDS: float = 10.0;
 # Demo speed: the ambulance covers the route this many times faster than real time.
@@ -143,12 +144,14 @@ def _make_requests(cs: CaseState) -> list[Request] {
     }
     unit = cs.unit_needed.name;
     plan = _template_plan(hospital_name, unit, eta, km);
-    if LIVE_MODEL["on"] {
+    if LIVE_MODEL["on"] and model_available() {
         try {
             plan = draft_dispatch_messages(
                 compact_case(cs) + f"{chr(10)}Hospital: {hospital_name}, ETA {round(eta)} min, route {km:.1f} km"
             );
+            record_model_success();
         } except Exception {
+            record_model_failure();
             cs.used_fallback = True;
         }
     }

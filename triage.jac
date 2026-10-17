@@ -11,6 +11,7 @@ Rates urgency and the care needed. It never diagnoses. Flow:
 
 import from models { CaseState, CaseStatus, EventStatus, Severity, UnitType }
 import from agent_log { start_event, finish_event }
+import from reliability { model_available, record_model_success, record_model_failure }
 
 """What the triage agent decides. `used_fallback` is set by code, not the model."""
 obj TriageResult {
@@ -151,10 +152,12 @@ def triage_case(cs: CaseState) -> TriageResult {
     ev = start_event(cs, "triage", "rate_urgency", "Rating how urgent this is");
     result: TriageResult | None = None;
     for _attempt in range(2) {
-        if result is None {
+        if result is None and model_available() {
             try {
                 result = triage_llm(cs.description, cs.report_summary);
+                record_model_success();
             } except Exception {
+                record_model_failure();
                 result = None;
             }
         }

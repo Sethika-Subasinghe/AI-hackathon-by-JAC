@@ -14,6 +14,7 @@ why. The ranking is deterministic so the demo never breaks:
 
 import from models { CaseState, CaseStatus, EventStatus, Severity, UnitType }
 import from agent_log { start_event, finish_event }
+import from reliability { model_available, record_model_success, record_model_failure }
 import from hospitals { list_hospitals, HospitalView }
 import from geoapify { get_route, haversine_km, DEFAULT_DRIVE_SPEED_KMH }
 
@@ -206,7 +207,7 @@ def match_case(cs: CaseState) -> MatchResult {
         finish_event(ev, EventStatus.FAILED, "No hospital found", result.summary);
         return result;
     }
-    if LIVE_SERVICES["on"] and len(result.alternatives) > 0 and best.free_beds > 0 {
+    if LIVE_SERVICES["on"] and model_available() and len(result.alternatives) > 0 and best.free_beds > 0 {
         shown = [best] + result.alternatives;
         facts = [
             f"{p.name}: {round(p.eta_minutes)} min, {p.free_beds} free beds, {p.sector.lower()}"
@@ -214,12 +215,14 @@ def match_case(cs: CaseState) -> MatchResult {
         ];
         try {
             sentences = explain_picks(cs.severity.name, unit_name, facts);
+            record_model_success();
             if len(sentences) == len(shown) {
                 for i in range(len(shown)) {
                     shown[i].reason = sentences[i];
                 }
             }
         } except Exception {
+            record_model_failure();
             result.used_fallback = True;
         }
     }
