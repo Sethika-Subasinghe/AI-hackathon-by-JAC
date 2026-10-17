@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "jac": {
+      "type": "stdio",
+      "command": "jac",
+      "args": ["mcp"]
+    }
+  }
+}
