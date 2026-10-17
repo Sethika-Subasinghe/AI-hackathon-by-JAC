@@ -90,12 +90,12 @@ Read with `plan.md`, `README.md` and `skill.md`.
 
 ## 5. Next up
 Keep this to 3 to 6 items and refresh it whenever a task is Done.
-2. **T20** Dimuth: Re-plan Agent (waits for T19, Sethika's hospital alert UI)
+1. **T20** Dimuth: Re-plan Agent (needs T19, Sethika's hospital alert UI, or an OK to start early)
+2. **T25** Dimuth: reliability (timeouts, retries, backup banner, canned demo results)
 3. **T18** Sethika: countdown banner and live dispatch status (backend ready)
 4. **T19** Sethika: hospital alert cards with Accept and Decline (backend ready)
 5. **T16** Sethika: result UI (backend ready)
 6. **T23** Akeesha: clinic UI (backend ready)
-
 
 ## 6. Shared notes (blockers, interface changes, decisions)
 Add a dated line when an API shape, data model or decision changes. Newest first.
