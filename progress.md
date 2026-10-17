@@ -83,7 +83,7 @@ Read with `plan.md`, `README.md` and `skill.md`.
 | T24 | Document Agent: pypdf extractor + `summarise_report` | A3 | Dimuth | Done | T10 | `documents.jac`; 5 tests pass; real PDF upload to a running server verified end to end. Summary uses an excerpt backup until the model key works |
 | T25 | Reliability: timeouts, retries, fallbacks, "Using backup logic" banner, canned demo results | A10 | Dimuth | Done | T13, T15 | `reliability.jac` + step shield and backup pipeline in `orchestrator.jac`; 50+ tests pass; verified with the invalid model key (backup path, breaker opens) |
 | T26 | UI polish: loading, empty and error states, responsive check (360/768/1280), accessibility, microcopy | B6 | Sethika | Not started | T16, T18 | |
-| T27 | Demo tools: Load demo scenario, Reset demo data, Skip time | B7 | Akeesha | In progress | T22 | Claimed by Akeesha. |
+| T27 | Demo tools: Load demo scenario, Reset demo data, Skip time | B7 | Akeesha | Blocked | T22 | Jac MCP validate/lint tools are unavailable in this session; installed Jac 0.16.7 has no `jac mcp` command. Unblock by enabling Jac MCP or authorizing CLI validation as a fallback. |
 | T28 | Jac share check at midday and 4:00 PM; fix if under 80% | plan 10 | Akeesha | Blocked | T01 | 10:39 baseline passes: 89.75% Jac by tracked source bytes, 99.95% by raw source lines, and GitHub Languages reports 100% Jac. Waiting for the required 4:00 PM recheck. |
 | T29 | Deploy to Jac Hammer + local fallback | plan 6 | Akeesha | Not started | T26 | |
 | T30 | Record demo video (both scenarios) | plan 9 | Sethika | Not started | T29 | Due 5:30 PM |
