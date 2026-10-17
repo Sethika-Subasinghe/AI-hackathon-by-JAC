@@ -84,7 +84,7 @@ Read with `plan.md`, `README.md` and `skill.md`.
 | T18 | CountdownBanner (10 s, Cancel) + live dispatch status panel | B5 | Dimuth | Done | T17 | `components/DispatchStatus.cl.jac` + `assets/dispatch.css`, wired into the Patient tab: red CountdownBanner with ring and big Cancel (10 s), live status of ambulance, police and hospital with "Simulated" tags, ambulance progress bar, earlier attempts after a re-plan. Verified live over HTTP (countdown 10 to 0, send, cancel, auto-accept); modules compile and serve; verified in headless Chrome |
 | T19 | Hospital incoming alerts: AlertCard with Accept and Decline in the dashboard | B3, B5 | Dimuth | Done | T08, T17 | `components/AlertCard.cl.jac` + `assets/alerts.css`; "Incoming patients" section in the hospital dashboard (polls `hospital_alerts` every 2 s), red waiting card with Accept / Decline, handled cards go grey, count badge. Verified in headless Chrome: alert appears, Decline re-plans the case to another hospital and the card shows "You declined" |
 | T20 | Re-plan Agent: decline, full or timeout → re-match and re-dispatch | A6 | Dimuth | Done | T17, T19 | `replan.jac`; 6 tests pass; decline over HTTP verified live (new hospital alerted, old requests cancelled). Started before T19 with the user\'s OK |
-| T21 | Map: moving ambulance marker and police clearance panel | B3 | Akeesha | In progress | T16, T17 | Claimed (Claude Code, 2026-10-17): checking the T16 ambulance marker, adding what is missing for the police clearance panel. |
+| T21 | Map: moving ambulance marker and police clearance panel | B3 | Sethika | In progress | T16, T17 | Reassigned to Sethika (Akeesha unavailable). Step 1: audit what T16/T17 already cover (ambulance marker, police panel), then add what is missing. |
 | T22 | Clinic Reminder Agent + ClinicPatient profile + mock email inbox | A7 | Dimuth | Done | T05 | `clinic.jac`; 5 tests pass offline. Reminder emails use the template until the model key works |
 | T23 | Clinic UI: form, reminder card, EmailPreview, in-app notices | B5 | Akeesha | Done | T07, T22 | Clinic form, suggested-arrival card, in-app reminder inbox, and mock EmailPreview work end to end with T22/T27; error states and reusable Jac components added. Live browser flow and 360/768/1280 widths verified; MCP client transpile/lint, `jac check main.jac`, and 5 clinic tests pass. |
 | T24 | Document Agent: pypdf extractor + `summarise_report` | A3 | Dimuth | Done | T10 | `documents.jac`; 5 tests pass; real PDF upload to a running server verified end to end. Summary uses an excerpt backup until the model key works |
@@ -99,7 +99,7 @@ Read with `plan.md`, `README.md` and `skill.md`.
 
 ## 5. Next up
 Keep this to 3 to 6 items and refresh it whenever a task is Done.
-1. **T21** Akeesha: check moving ambulance marker and police panel (T16 map is implemented)
+1. **T21** Sethika (taken over from Akeesha): check moving ambulance marker and police panel (T16 map is implemented)
 2. **T29** Akeesha: deploy (T26 is done)
 3. **T30** Sethika: record both demo scenarios (after T29)
 4. **T31** Akeesha: finalize README and Jac/Jaseci description (after T29)
