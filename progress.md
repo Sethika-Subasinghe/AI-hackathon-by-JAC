@@ -74,7 +74,7 @@ Read with `plan.md`, `README.md` and `skill.md`.
 | T17 | Dispatch Agent + simulated ambulance, police and hospital requests + accept/decline endpoints | A5 | Dimuth | Done | T15 | `dispatch.jac`; 8 tests pass offline (countdown, cancel, send once, accept, decline). Model-drafted messages use templates while the key is invalid |
 | T18 | CountdownBanner (10 s, Cancel) + live dispatch status panel | B5 | Sethika | Not started | T17 | |
 | T19 | Hospital incoming alerts: AlertCard with Accept and Decline in the dashboard | B3, B5 | Sethika | Not started | T08, T17 | |
-| T20 | Re-plan Agent: decline, full or timeout → re-match and re-dispatch | A6 | Dimuth | Not started | T17, T19 | |
+| T20 | Re-plan Agent: decline, full or timeout → re-match and re-dispatch | A6 | Dimuth | In progress | T17, T19 | Started before T19 with the user's OK: the backend does not need the dashboard UI. |
 | T21 | Map: moving ambulance marker and police clearance panel | B3 | Akeesha | Not started | T16, T17 | |
 | T22 | Clinic Reminder Agent + ClinicPatient profile + mock email inbox | A7 | Dimuth | Done | T05 | `clinic.jac`; 5 tests pass offline. Reminder emails use the template until the model key works |
 | T23 | Clinic UI: form, reminder card, EmailPreview, in-app notices | B5 | Akeesha | Not started | T07, T22 | |
