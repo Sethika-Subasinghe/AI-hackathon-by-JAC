@@ -101,10 +101,10 @@ Read with `plan.md`, `README.md` and `skill.md`.
 
 ## 5. Next up
 Keep this to 3 to 6 items and refresh it whenever a task is Done.
-2. **T29** Akeesha: deploy (T26 is done)
-3. **T30** Sethika: record both demo scenarios (after T29)
-4. **T31** Akeesha: finalize README and Jac/Jaseci description (after T29)
-5. **T32** Dimuth: submit (after T30 video and T31 README)
+1. **T29** Dimuth (in progress): deploy, then the local fallback
+2. **T30** Sethika: record both demo scenarios (after T29)
+3. **T31** Akeesha: finalize README and Jac/Jaseci description (after T29)
+4. **T32** Dimuth: submit (after T30 video and T31 README)
 
 
 ## 6. Shared notes (blockers, interface changes, decisions)
