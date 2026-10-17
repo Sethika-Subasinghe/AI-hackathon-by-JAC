@@ -85,11 +85,11 @@ Read with `plan.md`, `README.md` and `skill.md`.
 | T20 | Re-plan Agent: decline, full or timeout → re-match and re-dispatch | A6 | Dimuth | Done | T17, T19 | `replan.jac`; 6 tests pass; decline over HTTP verified live (new hospital alerted, old requests cancelled). Started before T19 with the user\'s OK |
 | T21 | Map: moving ambulance marker and police clearance panel | B3 | Akeesha | Not started | T16, T17 | |
 | T22 | Clinic Reminder Agent + ClinicPatient profile + mock email inbox | A7 | Dimuth | Done | T05 | `clinic.jac`; 5 tests pass offline. Reminder emails use the template until the model key works |
-| T23 | Clinic UI: form, reminder card, EmailPreview, in-app notices | B5 | Akeesha | Blocked | T07, T22 | Paused while Akeesha completes user-prioritized T27; existing local UI edits are preserved. Resume after T27. |
+| T23 | Clinic UI: form, reminder card, EmailPreview, in-app notices | B5 | Akeesha | Not started | T07, T22 | Unblocked after T27. The clinic workspace foundation is now integrated; finish T23-specific browser QA and polish. |
 | T24 | Document Agent: pypdf extractor + `summarise_report` | A3 | Dimuth | Done | T10 | `documents.jac`; 5 tests pass; real PDF upload to a running server verified end to end. Summary uses an excerpt backup until the model key works |
 | T25 | Reliability: timeouts, retries, fallbacks, "Using backup logic" banner, canned demo results | A10 | Dimuth | Done | T13, T15 | `reliability.jac` + step shield and backup pipeline in `orchestrator.jac`; 50+ tests pass; verified with the invalid model key (backup path, breaker opens) |
 | T26 | UI polish: loading, empty and error states, responsive check (360/768/1280), accessibility, microcopy | B6 | Sethika | Done | T16, T18 | Clear address lookup, upload, submission and polling feedback; terminal empty states and plain-language status labels; 44px example targets, reduced-motion support, and calmer live announcements. Jac check/lint pass and app rendered in browser; responsive breakpoints reviewed. |
-| T27 | Demo tools: Load demo scenario, Reset demo data, Skip time | B7 | Akeesha | In progress | T22 | Claimed by Akeesha. |
+| T27 | Demo tools: Load demo scenario, Reset demo data, Skip time | B7 | Akeesha | Done | T22 | Chest-pain and clinic loaders, confirmed reset, and 24-hour clock advance are wired end to end; MCP transpile/lint, Jac check/test, generated client bundle, and live HTTP reset/reminder flow verified. |
 | T28 | Jac share check at midday and 4:00 PM; fix if under 80% | plan 10 | Akeesha | Blocked | T01 | 10:39 baseline passes: 89.75% Jac by tracked source bytes, 99.95% by raw source lines, and GitHub Languages reports 100% Jac. Waiting for the required 4:00 PM recheck. |
 | T29 | Deploy to Jac Hammer + local fallback | plan 6 | Akeesha | Not started | T26 | |
 | T30 | Record demo video (both scenarios) | plan 9 | Sethika | Not started | T29 | Due 5:30 PM |
@@ -98,16 +98,17 @@ Read with `plan.md`, `README.md` and `skill.md`.
 
 ## 5. Next up
 Keep this to 3 to 6 items and refresh it whenever a task is Done.
-1. **T32** Dimuth: submit (after T30 video and T31 README)
-2. **T19** Dimuth: hospital alert cards with Accept and Decline (in progress)
-3. **T21** Akeesha: check moving ambulance marker and police panel (T16 map is implemented)
-4. **T29** Akeesha: deploy (T26 is done)
-5. **T30** Sethika: record both demo scenarios (after T29)
-6. **T31** Akeesha: finalize README and Jac/Jaseci description (after T29)
+1. **T21** Akeesha: check moving ambulance marker and police panel (T16 map is implemented)
+2. **T23** Akeesha: finish clinic UI browser QA and polish on the integrated workspace
+3. **T29** Akeesha: deploy (T26 is done)
+4. **T30** Sethika: record both demo scenarios (after T29)
+5. **T31** Akeesha: finalize README and Jac/Jaseci description (after T29)
+6. **T32** Dimuth: submit (after T30 video and T31 README)
 
 
 ## 6. Shared notes (blockers, interface changes, decisions)
 Add a dated line when an API shape, data model or decision changes. Newest first.
+- 2026-10-17: **T27 demo controls:** Patient has a "Load chest pain demo" action; Clinic has "Load clinic demo" and "Skip 24 hours" actions. `reset_demo_data() -> DemoResetResult` clears fictional cases, clinic profiles, reminders and mock mail, restores seed bed counts, clears sessions/caches and resets simulated time. The global reset requires an explicit confirmation in the UI.
 - 2026-10-17: **Concurrency fix (important for the demo):** the server writes back state from overlapping requests, so a case or clinic patient created while another request was running could vanish for good (reproduced, not caused by the UI). New `graph_lock.jac` (`GRAPH_LOCK`) is now taken by `create_case`, `run_case_by_id`, `save_clinic_patient` and the demo-hospital seeding, so those queue instead of racing; reads and polling are not blocked. **If you add another endpoint that creates nodes under `root.shared`, wrap it in `with GRAPH_LOCK { ... }`.** **Dev tips:** do NOT run `jac clean --all` while `jac start` is running (it deletes the compiled UI and npm packages, the page then 404s; use `jac clean --data` or stop the server first). If a port will not bind, use another with `--port`. The decline demo: sign in as `colombo_central_demo` / `care-route-demo` on the Hospital tab, start a critical case, wait ~12 s for the red alert card, tap Decline, watch the Patient tab re-plan.
 - 2026-10-17: **T16 result screen** is in the Patient tab after matching: `HospitalCard`, `MapPanel` and `AlternativesList` (`get_match`), then the dispatch panel and the timeline. `MapPanel` already draws the **moving ambulance marker** (from `DispatchView.ambulance_progress` along the route) and `DispatchStatus` already shows the **police route-clearance request** with its message, so **Akeesha: T21 is largely covered, please check it in the browser and only add what is still missing** (for example a dedicated police panel with the route length) instead of rebuilding the map. New npm dependency `leaflet` (run `jac install`); map tiles come from `get_map_config()` (Geoapify when a key exists, OpenStreetMap otherwise).
 - 2026-10-17: **Live timeline fix:** graph writes made inside one request are only visible to other requests after it ends, so the timeline stayed empty until the whole run finished. `log_event` and `finish_event` in `agent_log.jac` now call `Jac.commit()`, so `case_events` shows each step while the case is still running (verified: 1 step at 0.6 s, 4 at 1.8 s, 9 at 6.8 s). If you write other long-running agent code that the UI polls, commit after each visible write.
@@ -135,6 +136,7 @@ Add one entry per completed piece of work: date and time, who, what changed, fil
 
 | Date | Who | What changed | Files |
 |---|---|---|---|
+| 2026-10-17 13:32 | Akeesha | Completed T27: added patient and clinic demo loaders, confirmed global reset, demo hospital restoration, and simulated 24-hour reminder delivery; verified Jac checks/tests, MCP validation/lint/transpilation, generated client controls, and live reset/reminder endpoints | demo.jac, demo.test.jac, clinic.jac, hospitals.jac, main.jac, frontend.cl.jac, frontend.impl.jac, components/IntakeForm.cl.jac, components/PatientFlow.cl.jac, components/PatientFlow.impl.jac, components/ClinicWorkspace.cl.jac, components/ClinicWorkspace.css, assets/demo.css, progress.md |
 | 2026-10-17 | Sethika | Completed T26: added patient loading, empty, search and recoverable error states; improved status microcopy, accessible announcements, touch targets and reduced-motion behavior; checked Jac and rendered the app in browser | components/PatientFlow.cl.jac, components/PatientFlow.impl.jac, components/IntakeForm.cl.jac, components/DispatchStatus.cl.jac, assets/theme.css, progress.md |
 | 2026-10-17 | Sethika | Resolved the T16 ownership conflict: confirmed T16 remains assigned to Sethika, corrected the hand-over references and Next up owner for T18 | progress.md |
 | 2026-10-17 | Akeesha | Completed T14: added cached Sri Lanka geocoding and autocomplete plus map-ready driving routes and ETA, with a labelled straight-line fallback; verified Jac tests, MCP validation/lint, and live Geoapify calls | geoapify.jac, geoapify.test.jac, main.jac, progress.md |
