@@ -46,7 +46,7 @@ Read with `plan.md`, `README.md` and `skill.md`.
 |---|---|---|---|---|---|---|
 | T00 | Register and check in (every member, 8:00 AM) | rules | All | Done | | Tick names here: Sethika ✅, Akeesha ✅, Dimuth ✅ |
 | T01 | Repo skeleton: `pip install jaseci`, Jac app runs, folders, `.gitignore`, `.env.example` | plan 6 | Dimuth | In progress | | |
-| T02 | Jac MCP + Jac skills on each machine (`codex mcp add jac -- jac mcp`, `claude mcp add jac -- jac mcp`, `jac guide --export .claude/skills`) | skill | All | In progress | T01 | Tick names here: Akeesha ✅ (Jac 0.16.7 and Jac MCP verified); Dimuth ✅ (skills exported; MCP not registered, `claude` CLI not on PATH) |
+| T02 | Jac MCP + Jac skills on each machine (`codex mcp add jac -- jac mcp`, `claude mcp add jac -- jac mcp`, `jac guide --export .claude/skills`) | skill | All | In progress | T01 | Tick names here: Akeesha ✅ (Jac 0.16.7 and Jac MCP verified); Sethika ✅ (Jac 0.16.7; Jac MCP registered and verified); Dimuth ✅ (skills exported; MCP not registered, `claude` CLI not on PATH) |
 | T03 | API keys: free LLM key (Gemini or Groq) and Geoapify key, local `.env` only | plan 6 | Akeesha | Blocked | | Need Akeesha's Gemini/Groq and Geoapify keys; no browser session is available, and T01 has not yet added `.gitignore` / `.env.example`. Never put keys in git. |
 | T04 | Fake Sri Lanka hospital dataset (public and private, units, beds, coordinates) | plan F1 | Akeesha | Not started | T01 | |
 | T05 | Graph model and shared types: Hospital, Unit, BedStatus, CaseState, AgentEvent, ClinicPatient, Request | A9 | Dimuth | Not started | T01 | Post data model in Shared notes |
@@ -96,6 +96,7 @@ Add one entry per completed piece of work: date and time, who, what changed, fil
 
 | Date | Who | What changed | Files |
 |---|---|---|---|
+| 2026-10-17 09:52 | Sethika | Completed Sethika's T02 setup: verified Jac 0.16.7 and jac-mcp 0.1.24, registered the Jac MCP in Codex, and confirmed it is enabled | progress.md |
 | 2026-10-17 09:39 | Sethika | Completed Sethika's T00 registration check-in; shared task remains in progress for the other team members | progress.md |
 | 2026-10-17 | Dimuth | Created this tracker with rules, team, workflow, 33 tasks, next up. Updated plan and README to match skill.md: 10-second countdown, Orchestrator and Re-plan agents, hospital Accept/Decline, clinic profile, `pip install jaseci`, Jac MCP, team agents | progress.md, plan.md, README.md |
 | 2026-10-17 | Dimuth | Added Jac-first rules (80%+) and Jac MCP setup for Codex and Claude Code | skill.md |
