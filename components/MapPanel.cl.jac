@@ -197,6 +197,7 @@ def:pub MapPanel(
             {if following {
                 <li><span className="map-pin me"><span>Me</span></span> You (live)</li>
             }}
+            <li><span className="map-line-key"></span> Route cleared by police (simulated)</li>
         </ul>
     </section>;
 }
