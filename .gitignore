@@ -1,0 +1,9 @@
+.jac/
+node_modules/
+.vscode/
+.idea/
+
+.env
+__pycache__/
+*.pyc
+dist/

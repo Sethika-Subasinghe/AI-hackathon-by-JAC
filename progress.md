@@ -32,6 +32,7 @@ Read with `plan.md`, `README.md` and `skill.md`.
 ## 3. Workflow (phases in order)
 | Phase | Time | Tasks | Gate: what must work before moving on |
 |---|---|---|---|
+| 2026-10-17 | Dimuth | T01 done: Jac fullstack scaffold (main.jac, endpoints.jac, frontend.cl.jac, components/), jac.toml with microservice auto-detect disabled, .gitignore, .env.example, data/ | jac.toml, main.jac, endpoints.jac, frontend.cl.jac, frontend.impl.jac, components/, .gitignore, .env.example, AGENTS.md, progress.md |
 | P0 Setup | 9:00 to 9:45 | T00-T03 | Jac app runs, Jac MCP works for everyone, keys in place |
 | P1 Data and hospital side | 9:45 to 11:30 | T04-T08 | Hospital logs in and changes beds on the dashboard |
 | P2 Patient flow and Triage | 11:30 to 1:30 | T09-T13 | Patient describes a case, sees the agent timeline, gets a triage result |
@@ -45,7 +46,7 @@ Read with `plan.md`, `README.md` and `skill.md`.
 | ID | Task | Ref | Owner | Status | Depends | Note |
 |---|---|---|---|---|---|---|
 | T00 | Register and check in (every member, 8:00 AM) | rules | All | Done | | Tick names here: Sethika ✅, Akeesha ✅, Dimuth ✅ |
-| T01 | Repo skeleton: `pip install jaseci`, Jac app runs, folders, `.gitignore`, `.env.example` | plan 6 | Dimuth | In progress | | |
+| T01 | Repo skeleton: `pip install jaseci`, Jac app runs, folders, `.gitignore`, `.env.example` | plan 6 | Dimuth | Done | | Fullstack scaffold runs (`jac start --dev main.jac`, page + walkers verified). `[plugins.scale.microservices] enabled = false` in jac.toml stops jac-scale auto-microservice mode; server module is plain `endpoints.jac`. |
 | T02 | Jac MCP + Jac skills on each machine (`codex mcp add jac -- jac mcp`, `claude mcp add jac -- jac mcp`, `jac guide --export .claude/skills`) | skill | All | In progress | T01 | Tick names here: Akeesha ✅ (Jac 0.16.7 and Jac MCP verified); Sethika ✅ (Jac 0.16.7; Jac MCP registered and verified); Dimuth ✅ (skills exported; MCP not registered, `claude` CLI not on PATH) |
 | T03 | API keys: free LLM key (Gemini or Groq) and Geoapify key, local `.env` only | plan 6 | Akeesha | Blocked | | Need Akeesha's Gemini/Groq and Geoapify keys; no browser session is available, and T01 has not yet added `.gitignore` / `.env.example`. Never put keys in git. |
 | T04 | Fake Sri Lanka hospital dataset (public and private, units, beds, coordinates) | plan F1 | Akeesha | Not started | T01 | |
@@ -80,12 +81,11 @@ Read with `plan.md`, `README.md` and `skill.md`.
 
 ## 5. Next up
 Keep this to 3 to 6 items and refresh it whenever a task is Done.
-1. **T01** Dimuth: finish repo skeleton and Jac app (in progress)
-2. **T03** Akeesha: add LLM and Geoapify keys after credentials and T01 environment files are available (blocked)
-3. **T02** All: finish Jac MCP setup on every machine (after T01)
-4. **T04** Akeesha: fake hospital dataset (after T01)
-5. **T07** Sethika: design system and app shell (after T01)
-6. **T05** Dimuth: graph model and shared types (after T01)
+1. **T05** Dimuth: graph model and shared types
+2. **T07** Sethika: design system and app shell
+3. **T04** Akeesha: fake hospital dataset
+4. **T03** Akeesha: LLM and Geoapify keys (blocked on credentials)
+5. **T02** All: Jac MCP on every machine
 
 ## 6. Shared notes (blockers, interface changes, decisions)
 Add a dated line when an API shape, data model or decision changes. Newest first.
