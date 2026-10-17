@@ -119,9 +119,9 @@ def:pub app -> JsxElement {
                                                     <strong className="bed-count">{str(unit.free)}<small> free beds</small></strong>
                                                     <div className="bed-meter" aria-label={unit.unit_type + ": " + str(unit.free) + " free of " + str(unit.total)}><span style={{"width": str((unit.free * 100) // unit.total) + "%"}}></span></div>
                                                     <div className="bed-stepper" aria-label={"Change " + unit.unit_type + " free beds"}>
-                                                        <button type="button" aria-label={"Decrease " + unit.unit_type + " free beds"} disabled={updating_unit != "" or unit.free == 0} onClick={lambda { adjust_beds(unit.unit_type, -1); }}>-</button>
+                                                        <button type="button" aria-label={"Decrease " + unit.unit_type + " free beds"} disabled={updating_unit != "" or unit.free == 0} onClick={lambda (e: MouseEvent) { adjust_beds(unit.unit_type, -1); }}>-</button>
                                                         <span>{str(unit.free) + " / " + str(unit.total)}</span>
-                                                        <button type="button" aria-label={"Increase " + unit.unit_type + " free beds"} disabled={updating_unit != "" or unit.free == unit.total} onClick={lambda { adjust_beds(unit.unit_type, 1); }}>+</button>
+                                                        <button type="button" aria-label={"Increase " + unit.unit_type + " free beds"} disabled={updating_unit != "" or unit.free == unit.total} onClick={lambda (e: MouseEvent) { adjust_beds(unit.unit_type, 1); }}>+</button>
                                                     </div>
                                                 </article>
                                             }}

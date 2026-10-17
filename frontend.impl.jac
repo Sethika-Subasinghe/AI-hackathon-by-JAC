@@ -30,7 +30,8 @@ impl app.submit_hospital_login(e: FormEvent) -> None {
     hospital_loading = False;
     if result.ok {
         hospital_token = result.token;
-        hospital = await my_hospital(hospital_token);
+        # Use the local response token; reactive state is stale until re-render.
+        hospital = await my_hospital(result.token);
         hospital_password = "";
         if hospital is None {
             hospital_error = "Your session could not be loaded. Please sign in again.";
