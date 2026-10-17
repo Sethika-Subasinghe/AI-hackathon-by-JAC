@@ -100,13 +100,15 @@ Read with `plan.md`, `README.md` and `skill.md`.
 | T32 | Submit via the shared link (GitHub link, video, description) and star the Jac repo | plan 9 | Dimuth | Not started | T30, T31 | Before 5:30 PM, late entries can't win |
 | T33 | Emergency SOS button: one tap, auto-detect location, skip typing, nearest hospital with free beds (public or private), immediate simulated ambulance and police route clearance | plan 5 | Sethika | In progress | T21 | Claimed by Sethika (new feature requested 2026-10-17). Will update plan.md, README.md and SKILL.md in the same commit as the code (rule 10). |
 | T33 | Surgery waiting lists: hospital side keeps the number of patients waiting per surgery, patient side picks a surgery and sees the best hospital by wait and distance | user request | Dimuth | In progress | T06 | New feature added at 3:10 PM at the user's request, before the 4:45 freeze. Sri Lanka has long waits for planned surgery such as cataract. |
+| T34 | Clinic contact update: patient/guardian phone, clinic time, and simulated reminder messages | user request | Akeesha | In progress | T22, T23 | Claimed by Akeesha; replacing clinic email capture/preview with phone ownership, clinic time, and simulated message reminders. |
 
 ## 5. Next up
 Keep this to 3 to 6 items and refresh it whenever a task is Done.
-1. **T29** Dimuth (in progress): deploy, then the local fallback
-2. **T30** Sethika: record both demo scenarios (after T29)
-3. **T31** Akeesha: finalize README and Jac/Jaseci description (after T29)
-4. **T32** Dimuth: submit (after T30 video and T31 README)
+1. **T34** Akeesha: add clinic phone ownership, clinic time, and simulated reminder messages
+2. **T29** Dimuth (in progress): deploy, then the local fallback
+3. **T30** Sethika: record both demo scenarios (after T29)
+4. **T31** Akeesha: finalize README and Jac/Jaseci description (after T29)
+5. **T32** Dimuth: submit (after T30 video and T31 README)
 
 
 ## 6. Shared notes (blockers, interface changes, decisions)
