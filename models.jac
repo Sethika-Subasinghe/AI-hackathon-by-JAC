@@ -122,6 +122,25 @@ node ClinicPatient {
         condition_note: str = "";
 }
 
+"""A scheduled clinic reminder. `due_at` is in simulated time, see clinic.jac."""
+node ReminderTask {
+    has patient_id: str,
+        kind: str,
+        due_at: float,
+        sent: bool = False;
+}
+
+"""One mock email or in-app notice in a clinic patient's inbox."""
+node MailItem {
+    has patient_id: str,
+        channel: str,
+        to: str,
+        subject: str,
+        body: str,
+        sent_at: float = 0.0,
+        simulated: bool = True;
+}
+
 edge HasUnit: Hospital --> Unit {}
 
 edge HasBeds: Unit --> BedStatus {}
