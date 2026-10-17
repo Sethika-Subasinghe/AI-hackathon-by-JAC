@@ -4,6 +4,8 @@ import "./assets/theme.css";
 import "./assets/demo.css";
 import from .components.AppHeader { AppHeader }
 import from .components.SafetyBanner { SafetyBanner }
+import from .components.SystemBanner { SystemBanner }
+import from .components.Skeleton { Skeleton }
 import from .components.UiKit { AppButton, EmptyState, StatusBadge, SurfaceCard }
 import from .components.PatientFlow { PatientFlow }
 import from .components.BedCard { BedCard }
@@ -66,6 +68,7 @@ def:pub app -> JsxElement {
     return <div className={"app-shell view-" + active_view}>
         <AppHeader active_view={active_view} on_select={select_view}/>
         <SafetyBanner/>
+        <SystemBanner/>
 
         <main className="main-shell">
             <section className="demo-tools" aria-label="Demo controls">
@@ -124,6 +127,7 @@ def:pub app -> JsxElement {
                                                 {"Signing in..." if hospital_loading else "Open capacity dashboard"}
                                             </button>
                                         </form>
+                                        {hospital_loading and <Skeleton count={2} height={96}/>}
                                         <p className="ops-help">Demo only: credentials are provided by the event team. No real hospital data is used.</p>
                                     </div>
                                 } else {

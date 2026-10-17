@@ -165,3 +165,14 @@
 @keyframes patient-spin{50%{transform:rotate(18deg) scale(1.08)}}
 @media(max-width:520px){.locate-button{width:100%}}
 @media(prefers-reduced-motion:reduce){.result-spinner{animation:none}}
+
+/* T26: global backup-logic banner and loading skeletons. */
+.system-banner{display:flex;align-items:center;justify-content:center;gap:10px;padding:10px clamp(16px,5vw,72px);background:#fffbeb;border-bottom:1px solid #fde68a;color:#78350f;font-size:13px}
+.system-banner p{margin:0;line-height:1.45}
+.skeleton-grid{display:grid;gap:12px;grid-template-columns:repeat(2,minmax(0,1fr));margin-top:16px}
+.skeleton-block{border-radius:12px;background:linear-gradient(90deg,#1b2a42 25%,#26385a 50%,#1b2a42 75%);background-size:200% 100%;animation:skeleton-shimmer 1.4s linear infinite}
+@keyframes skeleton-shimmer{to{background-position:-200% 0}}
+@media(max-width:520px){.skeleton-grid{grid-template-columns:1fr}.system-banner{justify-content:flex-start}}
+@media(prefers-reduced-motion:reduce){.skeleton-block{animation:none}}
+@media(max-width:520px){.safety-banner{flex-wrap:wrap}.safety-banner p{flex:1 1 calc(100% - 44px)}}
+.safety-banner a{display:inline-flex;align-items:center;gap:.3em;min-height:44px}
