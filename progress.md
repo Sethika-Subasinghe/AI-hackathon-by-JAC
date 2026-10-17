@@ -55,7 +55,7 @@ Read with `plan.md`, `README.md` and `skill.md`.
 | T04 | Fake Sri Lanka hospital dataset (public and private, units, beds, coordinates) | plan F1 | Akeesha | Done | T01 | 10 fictional hospitals across Sri Lanka (6 public, 4 private), 46 unit/bed records, idempotent lazy graph seeding; Jac MCP/CLI validation, tests and live endpoint verified. |
 | T05 | Graph model and shared types: Hospital, Unit, BedStatus, CaseState, AgentEvent, ClinicPatient, Request | A9 | Dimuth | Done | T01 | Model in `models.jac` (checked, smoke-tested); summary in Shared notes |
 | T06 | Hospital login + bed-update backend | plan F2 | Dimuth | Done | T05 | API in `hospitals.jac`, shape in Shared notes; unit test passes (`jac test hospitals.jac`) |
-| T07 | Design system and app shell: tokens, fonts, layout, SafetyBanner, base components, responsive | B1-B3 | Sethika | In progress | T01 | Claimed by Sethika. |
+| T07 | Design system and app shell: tokens, fonts, layout, SafetyBanner, base components, responsive | B1-B3 | Sethika | Done | T01 | Responsive Jac shell, persistent safety banner, Patient/Hospital/Clinic navigation, and reusable UI primitives verified at 360/768/1280 px; Jac MCP validation/lint and live app checks pass. |
 | T08 | Hospital dashboard UI: login page, bed cards, BedStepper | B5 | Sethika | Not started | T06, T07 | |
 | T09 | Agent conventions: `llm` setup, typed outputs, AgentEvent logging helper | A0, A8 | Dimuth | Done | T05 | Helpers in `agent_log.jac`; `by llm()` checked with MockLLM; real model needs T03 keys |
 | T10 | Triage Agent: `by llm()`, red-flag override, fallback | A2 | Dimuth | In progress | T09 | |
@@ -84,15 +84,16 @@ Read with `plan.md`, `README.md` and `skill.md`.
 
 ## 5. Next up
 Keep this to 3 to 6 items and refresh it whenever a task is Done.
-1. **T10** Dimuth: Triage Agent (`by llm()`, red-flag override, fallback)
-2. **T07** Sethika: design system and app shell
-3. **T08** Sethika: hospital dashboard UI (after T07)
+1. **T08** Sethika: hospital dashboard UI
+2. **T10** Dimuth: Triage Agent (`by llm()`, red-flag override, fallback)
+3. **T11** Sethika: patient form UI
 4. **T14** Akeesha: Geoapify geocoding, routing, ETA and caching
-5. **T28** Akeesha: Jac share check
-6. **T22** Dimuth: Clinic Reminder Agent and clinic profile
+5. **T12** Sethika: live agent timeline UI
+6. **T28** Akeesha: Jac share check
 
 ## 6. Shared notes (blockers, interface changes, decisions)
 Add a dated line when an API shape, data model or decision changes. Newest first.
+- 2026-10-17: **Frontend shell (T07)** exports `AppHeader`, `SafetyBanner`, and `UiKit` primitives (`StatusBadge`, `SurfaceCard`, `AppButton`, `EmptyState`) from `components/*.cl.jac`. Global tokens and responsive layout live in `assets/theme.css`; extend these rather than adding one-off inline styles. The shell's Patient/Hospital/Clinic buttons currently select clearly labelled placeholders for T11, T08, and T23.
 - 2026-10-17: **Agent conventions (T09)** in `agent_log.jac`. Pattern: `ev = start_event(cs, agent, step, title)` then run the typed `by llm(temperature=0.2)` function with `compact_case(cs)`, then `finish_event(ev, EventStatus.DONE|FAILED|WAITING, title, detail)`; or `log_event(...)` in one call. **Timeline API (T12): `case_events(case_id) -> list[EventView{id, case_id, agent, step, status, title, detail, timestamp}]`, oldest first, status is "RUNNING"|"DONE"|"FAILED"|"WAITING".** Model is set in `jac.toml` `[plugins.byllm.model] default_model` (env `LLM_MODEL`, default `gemini/gemini-2.0-flash`); key goes in `.env` (T03). `case` is a reserved word in Jac, do not use it as a variable name. Tests use `MockLLM` so no key is needed.
 - 2026-10-17: **Hospital API (T06)** in `hospitals.jac`, all `def:pub`, call as `POST /function/<name>` (or `sv import` in a `.cl.jac`). `list_hospitals() -> list[HospitalView]`, `get_hospital(hospital_id)`, `hospital_login(username, password) -> LoginResult{ok, token, hospital_id, message}`, `hospital_logout(token)`, `my_hospital(token)`, `set_free_beds(token, unit_type, free)`, `change_free_beds(token, unit_type, delta)` (BedStepper +/-). `HospitalView{id, name, sector, city, lat, lon, units: list[UnitView{unit_type, total, free}]}`; unit_type/sector are enum names like "ICU", "PUBLIC". Write endpoints return the updated HospitalView, or None when the token is missing or expired (treat as logged out). Sessions are in memory, so a server restart signs everyone out. **Akeesha (T04):** seed with `add_hospital(name, Sector.X, city, lat, lon, username, password, {"ICU": 10, "CARDIAC": 6})` from `hospitals.jac`. Added `password_hash` to Hospital in `models.jac`.
 - 2026-10-17: **Data model (T05) is in `models.jac`**, import with `import from models { Hospital, ... }`. Graph: `root --> Hospital --HasUnit--> Unit --HasBeds--> BedStatus(total, free)`; `root --> CaseState --CaseEvent--> AgentEvent`, `--CaseRequest--> Request`; `root --> ClinicPatient`. Enums: Severity (CRITICAL/URGENT/STABLE), Sector (PUBLIC/PRIVATE), UnitType (CARDIAC/TRAUMA/ICU/NEURO/GENERAL), CaseStatus, EventStatus (RUNNING/DONE/FAILED/WAITING), RequestKind (AMBULANCE/POLICE/HOSPITAL_ALERT), RequestStatus. `Location(lat, lon, address)` is a plain obj. Seed data (T04) must create Hospital -> Unit -> BedStatus with these fields. Ask Dimuth before changing a field.
@@ -104,6 +105,7 @@ Add one entry per completed piece of work: date and time, who, what changed, fil
 
 | Date | Who | What changed | Files |
 |---|---|---|---|
+| 2026-10-17 10:30 | Sethika | Completed T07: replaced the guestbook with a responsive, stateful CareRoute shell; added persistent medical safety messaging, Patient/Hospital/Clinic navigation, reusable UI primitives, accessible design tokens, documentation, and verified 360/768/1280 layouts plus navigation interactions | frontend.cl.jac, frontend.impl.jac, components/AppHeader.cl.jac, components/SafetyBanner.cl.jac, components/UiKit.cl.jac, assets/theme.css, PLAN.md, README.md, CHANGELOG.md, progress.md |
 | 2026-10-17 | Akeesha | Completed T04: added a typed Jac dataset of 10 fictional Sri Lankan hospitals with 46 unit/bed records, integrated idempotent lazy graph seeding with the hospital API, and verified data integrity plus the live list endpoint | data/hospital_seed.jac, data/hospital_seed.test.jac, hospitals.jac, hospitals.test.jac, progress.md |
 | 2026-10-17 | Akeesha | Completed T03: moved uploaded credentials out of tracked `.env.example` into ignored `.env`, restored the blank template, and validated Gemini and Geoapify API access without exposing keys | progress.md (credentials remain local in `.env`) |
 | 2026-10-17 10:05 | Sethika | Marked shared T02 Done after team confirmation, refreshed Next up, and cleared T07's resolved T01 blocker | progress.md |

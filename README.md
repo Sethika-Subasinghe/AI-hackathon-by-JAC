@@ -12,7 +12,7 @@ In an emergency, families don't know which hospital has free beds or the right u
 ## Demo
 - Demo video: _TODO: add link_
 - Live app (Jac Hammer): _TODO: add link_
-- Screenshots: _TODO: add after the UI is built_
+- The responsive CareRoute shell is ready with Patient, Hospital and Clinic workspaces; the workflow screens are being added task by task.
 
 ## What it does
 A patient or family describes the condition (and can upload a medical PDF), shares their location, and a team of AI agents finds the best hospital with free beds nearby, public or private. If the case is critical, CareRoute also requests an ambulance, asks police to clear the route, and alerts the hospital so the team is ready on arrival. Clinic patients get reminders for their clinic date.
@@ -46,14 +46,12 @@ A patient or family describes the condition (and can upload a medical PDF), shar
 - **Hosting:** Jac Hammer sandbox
 
 ## Setup
-> _TODO: confirm every command below once the project runs._
-
-**Requirements:** Python 3.x, Jaseci (`jaseci`), a free LLM API key, a Geoapify API key.
+**Requirements:** Python 3.13, Jaseci (`jaseci`), a free LLM API key, and a Geoapify API key.
 
 ```bash
 git clone <repo-url>
 cd careroute
-pip install jaseci             # includes jaclang, byllm, jac-client, jac-mcp (TODO: confirm extra dependencies)
+pip install jaseci             # includes jaclang, byllm, jac-client and jac-mcp
 cp .env.example .env           # then add your keys
 ```
 
@@ -64,29 +62,31 @@ GEOAPIFY_API_KEY=your-key
 ```
 
 ## Usage
-> _TODO: confirm the run command and the demo login._
-
 ```bash
-jac start main.jac             # TODO: confirm entry file and command
+jac start main.jac
 ```
+
+Open `http://localhost:8000`. Use the Patient, Hospital and Clinic tabs to switch between the current workspace placeholders. The medical safety banner remains visible throughout the app.
 
 1. **Patient:** open the app, describe the condition, share your location (optional PDF), and view the recommended hospital and alternatives. For a critical case, a 10-second countdown starts and you can tap Cancel to stop the dispatch.
 2. **Hospital staff:** log in with a demo account _(TODO: add credentials)_, update bed availability, and accept or decline incoming-patient alerts.
 3. **Clinic patient:** enter the clinic, date and condition to get a reminder.
 
 ## Project structure
-> _TODO: update to match the real layout._
-
 ```
 careroute/
-├── plan.md          # project plan
-├── progress.md      # shared task board for the team and their agents
-├── skill.md         # agent skills and UI/UX guide for the coding agents
-├── README.md
-├── backend/         # Jac nodes, walkers and agents
-├── frontend/        # Jac client UI
-├── data/            # fake Sri Lanka hospital dataset
-└── .env.example
+├── main.jac                 # full-stack entry point
+├── frontend.cl.jac          # Jac client shell and workspace views
+├── frontend.impl.jac        # client interaction implementation
+├── components/              # reusable Jac client components
+├── assets/theme.css         # design tokens and responsive presentation
+├── models.jac               # shared graph model and types
+├── hospitals.jac            # hospital services
+├── agent_log.jac            # agent event helpers
+├── data/                    # fake Sri Lanka hospital dataset
+├── plan.md                  # project plan
+├── progress.md              # shared task board
+└── skill.md                 # Jac and UI/UX conventions
 ```
 
 ## Next steps

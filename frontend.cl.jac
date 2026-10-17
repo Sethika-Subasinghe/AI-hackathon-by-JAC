@@ -1,79 +1,109 @@
-"""AI-hackathon-by-JAC - Client-Side UI."""
+"""CareRoute client shell and responsive landing workspace."""
 
-import from .components.MessageCard { MessageCard }
+import "./assets/theme.css";
+import from .components.AppHeader { AppHeader }
+import from .components.SafetyBanner { SafetyBanner }
+import from .components.UiKit { AppButton, EmptyState, StatusBadge, SurfaceCard }
 
-sv import from endpoints { Message, PostMessage, ListMessages }
 
 def:pub app -> JsxElement {
-    has messages: list[Message] = [],
-        author: str = "",
-        text: str = "";
+    has active_view: str = "patient";
 
-    # Load existing messages once, when the component first mounts.
-    can with entry {
-        loadMessages();
+    def select_view(view: str);
+
+    view_title: str = "Patient care";
+    view_detail: str = "Describe what is happening and CareRoute will coordinate the next safe step.";
+    if active_view == "hospital" {
+        view_title = "Hospital operations";
+        view_detail = "Update capacity and respond to incoming patient alerts from one calm workspace.";
+    } elif active_view == "clinic" {
+        view_title = "Clinic reminders";
+        view_detail = "Save a clinic visit and preview timely in-app and email reminders.";
     }
 
-    async def loadMessages -> None;
-    async def postMessage(e: FormEvent) -> None;
+    return <div className="app-shell">
+        <AppHeader active_view={active_view} on_select={select_view}/>
+        <SafetyBanner/>
 
-    return
-        <div
-            style={{
-                "maxWidth": "600px",
-                "margin": "2rem auto",
-                "padding": "0 1rem",
-                "fontFamily": "system-ui, -apple-system, sans-serif",
-                "color": "#1a1a2e"
-            }}
-        >
-            <h1>AI-hackathon-by-JAC</h1>
-            <p style={{"color": "#666"}}>A tiny full-stack guestbook in Jac.</p>
-            <form
-                onSubmit={postMessage}
-                style={{"display": "flex", "gap": "0.5rem", "marginBottom": "1.5rem"}}
-            >
-                <input
-                    type="text"
-                    value={author}
-                    onChange={lambda e: ChangeEvent { author = e.target.value; }}
-                    placeholder="Name"
-                    style={{
-                        "flex": "1",
-                        "padding": "0.6rem",
-                        "border": "1px solid #ddd",
-                        "borderRadius": "6px"
-                    }}
-                />
-                <input
-                    type="text"
-                    value={text}
-                    onChange={lambda e: ChangeEvent { text = e.target.value; }}
-                    placeholder="Say something..."
-                    style={{
-                        "flex": "2",
-                        "padding": "0.6rem",
-                        "border": "1px solid #ddd",
-                        "borderRadius": "6px"
-                    }}
-                />
-                <button
-                    type="submit"
-                    style={{
-                        "padding": "0.6rem 1.2rem",
-                        "backgroundColor": "#4CAF50",
-                        "color": "white",
-                        "border": "none",
-                        "borderRadius": "6px",
-                        "cursor": "pointer"
-                    }}
-                >
-                    Post
-                </button>
-            </form>
-            {[
-                <MessageCard key={idx} author={msg.author} text={msg.text}/>
-                for (idx, msg) in enumerate(messages)
-            ]}
-        </div>;
+        <main className="main-shell">
+            <section className="hero" aria-labelledby="care-route-title">
+                <div className="hero-copy">
+                    <StatusBadge label="Agent-assisted care routing" tone="teal"/>
+                    <h1 id="care-route-title">The right care route, when every minute matters.</h1>
+                    <p>
+                        CareRoute helps families find suitable hospitals with available beds,
+                        while keeping the people coordinating care in the loop.
+                    </p>
+                    <div className="trust-row" aria-label="CareRoute capabilities">
+                        <span><strong>24/7</strong> guidance</span>
+                        <span><strong>Live</strong> capacity</span>
+                        <span><strong>Visible</strong> agent steps</span>
+                    </div>
+                </div>
+                <div className="hero-orbit" aria-hidden="true">
+                    <div className="orbit-ring orbit-ring-large"></div>
+                    <div className="orbit-ring orbit-ring-small"></div>
+                    <div className="orbit-core"><span>+</span></div>
+                    <span className="orbit-node node-one">01</span>
+                    <span className="orbit-node node-two">02</span>
+                    <span className="orbit-node node-three">03</span>
+                </div>
+            </section>
+
+            <section className="workspace-grid" aria-label="CareRoute workspace">
+                <div aria-live="polite">
+                    <SurfaceCard eyebrow="Your workspace" title={view_title} accent={True}>
+                        <p className="workspace-detail">{view_detail}</p>
+                        {if active_view == "patient" {
+                            <EmptyState
+                                icon=">"
+                                title="Start with what you know"
+                                detail="The guided patient form and location tools arrive in T11."
+                            >
+                                <AppButton label="Patient intake coming next" disabled={True}/>
+                            </EmptyState>
+                        } elif active_view == "hospital" {
+                            <EmptyState
+                                icon="H"
+                                title="Capacity at a glance"
+                                detail="Hospital login, bed controls, and alerts arrive in T08."
+                            >
+                                <AppButton label="Hospital dashboard planned" disabled={True}/>
+                            </EmptyState>
+                        } else {
+                            <EmptyState
+                                icon="C"
+                                title="Never miss a clinic date"
+                                detail="Clinic profiles and reminder previews arrive in T23."
+                            >
+                                <AppButton label="Clinic reminders planned" disabled={True}/>
+                            </EmptyState>
+                        }}
+                    </SurfaceCard>
+                </div>
+
+                <aside className="side-stack" aria-label="How CareRoute works">
+                    <SurfaceCard eyebrow="What happens next" title="A clear, visible hand-off">
+                        <ol className="step-list">
+                            <li><span>1</span><div><strong>Describe</strong><p>Share the concern in everyday language.</p></div></li>
+                            <li><span>2</span><div><strong>Locate</strong><p>Compare suitable hospitals and live capacity.</p></div></li>
+                            <li><span>3</span><div><strong>Route</strong><p>See the recommendation and every agent step.</p></div></li>
+                        </ol>
+                    </SurfaceCard>
+                    <div className="confidence-card">
+                        <div className="confidence-icon" aria-hidden="true">OK</div>
+                        <div>
+                            <strong>Designed for calm decisions</strong>
+                            <p>Fake demo data only. Simulated actions will always be labelled.</p>
+                        </div>
+                    </div>
+                </aside>
+            </section>
+        </main>
+
+        <footer className="app-footer">
+            <span>CareRoute - Jac AI Hackathon 2026</span>
+            <span>English - Sri Lanka</span>
+        </footer>
+    </div>;
 }

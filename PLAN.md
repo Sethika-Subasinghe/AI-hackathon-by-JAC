@@ -88,3 +88,36 @@ Coordination runs through `progress.md`, which holds the agent rules, task track
 | Under 80% Jac | Check the language split on GitHub at midday and at 4:00 |
 | Medical safety / misuse | Disclaimer, no diagnosis, cancellable countdown before dispatch, fake data only |
 | Demo fails live | Pre-recorded video, seeded demo data, one-click reset |
+
+## 11. T07 execution plan: design system and app shell
+
+**Goal:** replace the starter guestbook UI with a responsive CareRoute shell written in Jac, including shared visual tokens, navigation, a persistent `SafetyBanner`, and reusable base components for later patient and hospital tasks.
+
+**Non-goals:** patient form behavior (T11), hospital login/dashboard data (T08), agent timeline polling (T12), maps/results (T16), and backend/API changes.
+
+**Assumptions and dependencies:** T01 is Done; the existing Jac fullstack entry remains the application mount; T07 uses the compiler-supported stateful-shell pattern and scoped `.style.css` annexes; no new JavaScript or TypeScript is authored.
+
+**Acceptance criteria:**
+
+- T07-AC1: the app identifies itself as CareRoute and provides patient, hospital, and clinic navigation affordances.
+- T07-AC2: the safety message "Not a medical diagnosis" and emergency number 1990 are persistently visible.
+- T07-AC3: design tokens match `skill.md` B1, including teal primary, light surfaces, reserved critical red, 8 px spacing rhythm, accessible focus states, and 44 px minimum controls.
+- T07-AC4: reusable Jac components cover the shell header, safety banner, button, card, badge, and placeholder/empty state.
+- T07-AC5: layouts have no horizontal overflow and remain usable at 360, 768, and 1280 px.
+- T07-AC6: all Jac files pass Jac MCP validation and lint, the app starts, and browser QA confirms the rendered shell and safety content.
+
+**Ordered work:**
+
+1. [x] Add reusable `.cl.jac` components and matching scoped styles.
+2. [x] Replace the guestbook with a small stateful CareRoute shell and responsive overview content.
+3. [x] Add shared app-level tokens/reset styles without introducing a JavaScript bundle source.
+4. [x] Validate, lint, run, and visually inspect the app at required widths.
+5. [x] Update README, CHANGELOG, and `progress.md` only with verified behavior.
+
+**Verification:** completed 2026-10-17 with Jac MCP validation/lint, `jac check main.jac`, a live `jac start main.jac` build, interaction checks for all three workspaces, and rendered QA at 360, 768, and 1280 px.
+
+**Risks and safety checks:** preserve the always-visible emergency disclaimer; do not imply diagnosis or real dispatch; keep navigation placeholders clearly labeled; inspect diffs for secrets, unsafe HTML, external calls, and unrelated teammate changes.
+
+**Validation commands:** Jac MCP `validate_jac` and `lint_jac` for every changed Jac file; `jac check main.jac`; `jac start --dev main.jac`; `jac browse`/browser screenshots at 360, 768, and 1280 px; `git diff --check`.
+
+**Jac research record:** compiler-bundled guides `jac-core-cheatsheet`, `jac-types`, `jac-cl-organization`, `jac-cl-components`, `jac-cl-styling`, and `jac-cl-routing`, Jac 0.16.7, accessed 2026-10-17. Parallel Search was not available, so the installed compiler's authoritative guides were used as the read-only fallback.
