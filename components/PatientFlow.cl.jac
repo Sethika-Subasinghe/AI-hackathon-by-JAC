@@ -162,7 +162,7 @@ def:pub PatientFlow -> JsxElement {
                         </form>
                     </div>
                 }}
-                <DispatchPanel dispatch={dispatch} on_cancel={cancel_countdown}/>
+                <DispatchPanel dispatch={dispatch} on_cancel={cancel_countdown} route_km={match_result.best.distance_km if match_result is not None and match_result.best is not None else 0.0}/>
                 {#* Two-column: result and map on left, timeline on right *#}
                 <div className="result-layout">
                     <div className="result-main">

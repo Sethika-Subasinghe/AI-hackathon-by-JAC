@@ -1,0 +1,14 @@
+.police-clearance { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid #2563eb; border-radius: 16px; padding: 16px 18px; display: grid; gap: 10px; }
+.police-clearance .pc-head { display: flex; align-items: center; gap: 12px; }
+.police-clearance .pc-head h3 { margin: 0; font-size: 18px; }
+.police-clearance .pc-badge { width: 36px; height: 36px; border-radius: 10px; background: #2563eb; color: #fff; display: grid; place-items: center; font-weight: 900; flex: none; }
+.police-clearance .pc-target { margin: 0; font-size: 13px; color: var(--muted); font-weight: 700; }
+.police-clearance .pc-sim { margin-left: auto; font-size: 11px; font-weight: 800; padding: 2px 9px; border-radius: 999px; background: #eef2ff; color: #3730a3; }
+.police-clearance .pc-message { margin: 0; font-size: 13px; line-height: 1.5; color: var(--muted); overflow-wrap: anywhere; }
+.police-clearance .pc-facts { margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.police-clearance .pc-facts dt { font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.police-clearance .pc-facts dd { margin: 2px 0 0; font-size: 14px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.police-clearance .pc-bar { height: 10px; border-radius: 999px; background: #dbeafe; overflow: hidden; }
+.police-clearance .pc-bar span { display: block; height: 100%; background: #2563eb; transition: width .9s linear; }
+@media (max-width: 520px) { .police-clearance .pc-facts { grid-template-columns: 1fr; } .police-clearance .pc-head { flex-wrap: wrap; } }
+@media (prefers-reduced-motion: reduce) { .police-clearance .pc-bar span { transition: none; } }

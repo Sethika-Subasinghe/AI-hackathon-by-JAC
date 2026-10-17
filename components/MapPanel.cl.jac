@@ -112,6 +112,7 @@ def:pub MapPanel(
             <li><span className="map-pin best"><span>H</span></span> Best hospital</li>
             <li><span className="map-pin alt"><span>+</span></span> Alternatives</li>
             <li><span className="map-pin ambulance"><span>A</span></span> Ambulance (simulated)</li>
+            <li><span className="map-line-key"></span> Route cleared by police (simulated)</li>
         </ul>
     </section>;
 }
