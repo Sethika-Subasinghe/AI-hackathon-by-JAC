@@ -33,7 +33,8 @@ obj HospitalPick {
         score: float = 0.0,
         estimated: bool = False,
         reason: str = "",
-        route: list[list[float]] = [];
+        route: list[list[float]] = [],
+        steps: list[str] = [];
 }
 
 """Best hospital plus ranked alternatives."""
@@ -124,12 +125,14 @@ def _make_pick(h: HospitalView, unit_name: str, origin_lat: float, origin_lon: f
     eta = distance / DEFAULT_DRIVE_SPEED_KMH * 60.0;
     estimated = True;
     coords: list[list[float]] = [];
+    directions: list[str] = [];
     if LIVE_SERVICES["on"] {
         route = get_route(origin_lat, origin_lon, h.lat, h.lon);
         distance = route.distance_km;
         eta = route.eta_minutes;
         estimated = route.estimated;
         coords = route.coordinates;
+        directions = route.steps;
     }
     return HospitalPick(
         hospital_id=h.id,
@@ -143,7 +146,8 @@ def _make_pick(h: HospitalView, unit_name: str, origin_lat: float, origin_lon: f
         free_beds=_unit_free(h, unit_name),
         total_beds=_unit_total(h, unit_name),
         estimated=estimated,
-        route=coords
+        route=coords,
+        steps=directions
     );
 }
 

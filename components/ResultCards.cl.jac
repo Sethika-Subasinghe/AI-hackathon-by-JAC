@@ -26,10 +26,21 @@ def _minutes(eta: float) -> str {
 }
 
 """The best match: name, sector, ETA, free beds and why."""
-def:pub HospitalCard(pick: HospitalPick, unit: str) -> JsxElement {
+def:pub HospitalCard(
+    pick: HospitalPick,
+    unit: str,
+    origin_lat: float = 0.0,
+    origin_lon: float = 0.0,
+) -> JsxElement {
     unit_name: str = UNIT_NAMES.get(unit, unit.lower()) as str;
     beds_text: str = str(pick.free_beds) + " of " + str(pick.total_beds) + " " + unit_name + " beds free";
     eta_label: str = "Estimated travel time" if pick.estimated else "Travel time by road";
+    # Opens turn-by-turn navigation (Google Maps app on a phone, the website on a computer).
+    nav_url: str = (
+        "https://www.google.com/maps/dir/?api=1&origin=" + str(origin_lat) + "," + str(origin_lon)
+        + "&destination=" + str(pick.lat) + "," + str(pick.lon) + "&travelmode=driving"
+    );
+    step_count: int = len(pick.steps);
 
     return <article className="hospital-card" aria-label="Best hospital">
         <div className="hc-top">
@@ -52,6 +63,20 @@ def:pub HospitalCard(pick: HospitalPick, unit: str) -> JsxElement {
                 <p className="hc-label">Distance</p>
             </div>
         </div>
+        <div className="hc-nav">
+            <a className="app-button hc-go" href={nav_url} target="_blank" rel="noopener noreferrer">Start navigation</a>
+            <span className="hc-nav-note">Opens turn-by-turn directions on your phone</span>
+        </div>
+        {if step_count > 0 {
+            <details className="hc-steps">
+                <summary>{"Directions (" + str(step_count) + " steps)"}</summary>
+                <ol>
+                    {for step in pick.steps {
+                        <li key={step}>{step}</li>
+                    }}
+                </ol>
+            </details>
+        }}
         <p className="hc-reason">{pick.reason}</p>
         {if pick.estimated {
             <p className="hc-note">Estimated: live road routing was not available.</p>

@@ -175,7 +175,7 @@ def:pub PatientFlow -> JsxElement {
                             if match_result.summary != "" {
                                 <p key="result-summary" className="result-summary">{match_result.summary}</p>
                             }
-                            <HospitalCard key="best-hospital" pick={match_result.best} unit={unit_label}/>
+                            <HospitalCard key="best-hospital" pick={match_result.best} unit={unit_label} origin_lat={lat} origin_lon={lon}/>
                             <MapPanel
                                 key="hospital-map"
                                 origin_lat={lat}

@@ -41,6 +41,7 @@ obj RouteResult {
         distance_km: float,
         eta_minutes: float,
         coordinates: list[list[float]] = [],
+        steps: list[str] = [],
         estimated: bool = False,
         message: str = "";
 }
@@ -106,6 +107,25 @@ def _route_coordinates(geometry: any) -> list[list[float]] {
         }
     }
     return points;
+}
+
+"""Turn-by-turn instructions from a routing response, each with its distance."""
+def _route_steps(properties: any) -> list[str] {
+    lines: list[str] = [];
+    for leg in properties.get("legs", []) {
+        for step in leg.get("steps", []) {
+            text = str(step.get("instruction", {}).get("text", "")).strip();
+            meters = float(step.get("distance", 0.0) as float);
+            if text != "" {
+                if meters >= 1.0 {
+                    lines.append(f"{text} ({round(meters)} m)");
+                } else {
+                    lines.append(text);
+                }
+            }
+        }
+    }
+    return lines;
 }
 
 """Great-circle distance in kilometres."""
@@ -261,7 +281,8 @@ def:pub get_route(
             ok=True,
             distance_km=float(properties.get("distance", 0.0) as float) / 1000.0,
             eta_minutes=float(properties.get("time", 0.0) as float) / 60.0,
-            coordinates=_route_coordinates(feature.get("geometry", {}))
+            coordinates=_route_coordinates(feature.get("geometry", {})),
+            steps=_route_steps(properties)
         );
         route_cache[key] = result;
         return result;

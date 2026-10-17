@@ -28,3 +28,10 @@
   .alternatives .alt-item { flex-direction: column; }
   .alternatives .alt-side { justify-items: start; grid-auto-flow: column; justify-content: start; gap: 10px; align-items: center; }
 }
+
+.hospital-card .hc-nav { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 4px; }
+.hospital-card .hc-go { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; padding: 0 22px; min-height: 52px; }
+.hospital-card .hc-nav-note { font-size: 13px; color: var(--muted); }
+.hospital-card .hc-steps { background: var(--bg); border-radius: 12px; padding: 10px 14px; }
+.hospital-card .hc-steps summary { cursor: pointer; font-weight: 800; min-height: 32px; display: flex; align-items: center; }
+.hospital-card .hc-steps ol { margin: 8px 0 0; padding-left: 22px; display: grid; gap: 6px; font-size: 14px; line-height: 1.4; max-height: 260px; overflow: auto; }
