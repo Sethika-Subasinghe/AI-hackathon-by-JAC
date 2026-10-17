@@ -66,7 +66,33 @@ impl app.sign_out_hospital -> None {
     if hospital_token != "" { await hospital_logout(hospital_token); }
     hospital = None;
     hospital_token = "";
+    alerts = [];
     hospital_password = "";
     hospital_notice = "";
     hospital_error = "";
+}
+
+
+impl app.refresh_alerts() -> None {
+    if hospital_token == "" {
+        return;
+    }
+    latest = await hospital_alerts(hospital_token);
+    alerts = latest;
+}
+
+
+impl app.answer_alert(request_id: str, accept: bool) -> None {
+    if hospital_token == "" {
+        return;
+    }
+    responding = True;
+    await respond_alert(hospital_token, request_id, accept);
+    responding = False;
+    alerts = await hospital_alerts(hospital_token);
+    if accept {
+        hospital_notice = "Patient accepted. The ambulance has been told.";
+    } else {
+        hospital_notice = "Declined. CareRoute is finding another hospital.";
+    }
 }

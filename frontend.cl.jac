@@ -6,6 +6,9 @@ import from .components.SafetyBanner { SafetyBanner }
 import from .components.UiKit { AppButton, EmptyState, StatusBadge, SurfaceCard }
 import from .components.PatientFlow { PatientFlow }
 import from .components.BedCard { BedCard }
+import from .components.AlertCard { AlertCard }
+import from react { useEffect }
+sv import from dispatch { AlertView, hospital_alerts, respond_alert }
 sv import from hospitals { HospitalView, list_hospitals, hospital_login, hospital_logout, my_hospital, change_free_beds }
 
 
@@ -18,15 +21,26 @@ def:pub app -> JsxElement {
         hospital_loading: bool = False,
         hospital_error: str = "",
         hospital_notice: str = "",
-        updating_unit: str = "";
+        updating_unit: str = "",
+        alerts: list[AlertView] = [],
+        responding: bool = False;
 
     def select_view(view: str);
     async def submit_hospital_login(e: FormEvent) -> None;
     async def adjust_beds(unit_type: str, delta: int) -> None;
     async def sign_out_hospital() -> None;
+    async def refresh_alerts() -> None;
+    async def answer_alert(request_id: str, accept: bool) -> None;
     def update_hospital_username(e: ChangeEvent);
     def update_hospital_password(e: ChangeEvent);
 
+    # Look for incoming patients every 2 seconds while a hospital is signed in.
+    useEffect(lambda {
+        interval = setInterval(lambda { refresh_alerts(); }, 2000);
+        return lambda { clearInterval(interval); };
+    }, [hospital_token]);
+
+    waiting_alerts: int = len([a for a in alerts if a.status == "SENT"]);
     view_title: str = "Patient care";
     view_detail: str = "Describe what is happening and CareRoute will coordinate the next safe step.";
     if active_view == "hospital" {
@@ -113,6 +127,17 @@ def:pub app -> JsxElement {
                                                 <BedCard key={unit.unit_type} unit={unit} busy={updating_unit != ""} on_adjust={adjust_beds}/>
                                             }}
                                         </div>
+                                        <section className="ops-alerts" aria-label="Incoming patients" aria-live="assertive">
+                                            <h4>Incoming patients {waiting_alerts > 0 and <span className="alert-count">{str(waiting_alerts)}</span>}</h4>
+                                            {if len(alerts) == 0 {
+                                                <p className="alert-empty">No incoming patients right now. New alerts appear here automatically.</p>
+                                            }}
+                                            <div className="alert-list">
+                                                {for a in alerts[:6] {
+                                                    <AlertCard key={a.request_id} alert={a} busy={responding} on_respond={answer_alert}/>
+                                                }}
+                                            </div>
+                                        </section>
                                     </div>
                                 }}
                             </section>

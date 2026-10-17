@@ -11,6 +11,7 @@ Every step now calls its real agent (document, triage, matcher, dispatch, re-pla
 
 import from models { CaseState, CaseStatus, EventStatus, Severity, Location }
 import from agent_log { start_event, finish_event, log_event, compact_case, find_case, case_events }
+import from graph_lock { GRAPH_LOCK }
 import from triage { triage_case, rule_triage }
 import from reliability { model_available, record_model_success, record_model_failure }
 import from matcher { match_case }
@@ -256,22 +257,26 @@ def:pub create_case(
     address: str = "",
     has_pdf: bool = False
 ) -> str {
-    cs = (root.shared ++> CaseState(
-        description=description,
-        origin=Location(lat=lat, lon=lon, address=address),
-        has_pdf=has_pdf
-    ))[0];
-    return jid(cs);
+    with GRAPH_LOCK {
+        cs = (root.shared ++> CaseState(
+            description=description,
+            origin=Location(lat=lat, lon=lon, address=address),
+            has_pdf=has_pdf
+        ))[0];
+        return jid(cs);
+    }
 }
 
 """Run the orchestrator for a case. Returns the case when it stops, or None if the id is unknown."""
 def:pub run_case_by_id(case_id: str) -> CaseView | None {
-    cs = find_case(case_id);
-    if cs is None {
-        return None;
+    with GRAPH_LOCK {
+        cs = find_case(case_id);
+        if cs is None {
+            return None;
+        }
+        run_case(cs);
+        return _case_view(cs);
     }
-    run_case(cs);
-    return _case_view(cs);
 }
 
 """Current case facts (for the result screen), or None."""

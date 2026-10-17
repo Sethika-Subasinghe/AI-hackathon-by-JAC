@@ -11,9 +11,13 @@ Model setup lives in jac.toml under [plugins.byllm.model]; agents pass a low
 `temperature` per call, for example `by llm(temperature=0.2)`.
 """
 
+import os;
 import time;
 import from jaclang { JacRuntime as Jac }
 import from models { CaseState, AgentEvent, CaseEvent, EventStatus }
+
+# Set CAREROUTE_NO_COMMIT=1 to turn the mid-request saves off (used to compare behaviour).
+glob COMMIT_EVENTS: bool = os.environ.get("CAREROUTE_NO_COMMIT", "") == "";
 
 """One timeline step as sent to the UI."""
 obj EventView {
@@ -68,7 +72,9 @@ def log_event(
         timestamp=time.time()
     ))[0];
     # Save now, so the UI timeline (another request) sees this step while the case is still running.
-    Jac.commit();
+    if COMMIT_EVENTS {
+        Jac.commit();
+    }
     return ev;
 }
 
@@ -98,7 +104,9 @@ def finish_event(
         ev.detail = detail;
     }
     ev.timestamp = time.time();
-    Jac.commit();
+    if COMMIT_EVENTS {
+        Jac.commit();
+    }
 }
 
 """Short text of the latest case facts for LLM prompts (never the whole history)."""

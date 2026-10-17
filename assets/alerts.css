@@ -1,0 +1,25 @@
+.hospital-ops .ops-alerts { display: grid; gap: 12px; }
+.hospital-ops .ops-alerts h4 { margin: 0; font-size: 18px; display: flex; align-items: center; gap: 10px; }
+.hospital-ops .ops-alerts .alert-count { background: #dc2626; color: #fff; border-radius: 999px; padding: 1px 10px; font-size: 13px; font-weight: 900; }
+.hospital-ops .alert-empty { margin: 0; padding: 14px 16px; border: 1px dashed #34465e; border-radius: 12px; color: #aebfce; font-size: 14px; }
+.hospital-ops .alert-list { display: grid; gap: 12px; }
+.hospital-ops .alert-card { background: #111a2e; border: 1px solid #34465e; border-left: 5px solid #64748b; border-radius: 12px; padding: 16px; display: grid; gap: 8px; }
+.hospital-ops .alert-card.sent { border-left-color: #dc2626; background: #1a1424; box-shadow: 0 0 0 1px rgba(220, 38, 38, .35); }
+.hospital-ops .alert-card.accepted { border-left-color: #16a34a; }
+.hospital-ops .alert-card.declined, .hospital-ops .alert-card.timeout { border-left-color: #f59e0b; opacity: .85; }
+.hospital-ops .alert-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.hospital-ops .alert-severity { display: inline-flex; align-items: center; gap: 6px; font-weight: 900; color: #fecaca; font-size: 13px; letter-spacing: .04em; text-transform: uppercase; }
+.hospital-ops .alert-severity span { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: #dc2626; color: #fff; font-size: 12px; }
+.hospital-ops .alert-status { font-size: 12px; font-weight: 800; padding: 3px 10px; border-radius: 999px; background: #1e293b; color: #cbd5e1; }
+.hospital-ops .alert-card.sent .alert-status { background: #7f1d1d; color: #fee2e2; }
+.hospital-ops .alert-card.accepted .alert-status { background: #14532d; color: #bbf7d0; }
+.hospital-ops .alert-line { margin: 0; font-size: 16px; color: #fff; }
+.hospital-ops .alert-message { margin: 0; color: #cbd5e1; line-height: 1.5; font-size: 14px; }
+.hospital-ops .alert-meta { margin: 0; font-size: 12px; color: #94a3b8; }
+.hospital-ops .alert-sim { margin-left: 8px; padding: 1px 8px; border-radius: 999px; background: #312e81; color: #c7d2fe; font-weight: 800; }
+.hospital-ops .alert-actions { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-top: 4px; }
+.hospital-ops .alert-actions button { min-height: 48px; border: 0; border-radius: 10px; font: inherit; font-weight: 900; font-size: 15px; cursor: pointer; }
+.hospital-ops .alert-accept { background: #16a34a; color: #fff; }
+.hospital-ops .alert-decline { background: #1e293b; color: #fecaca; border: 1px solid #7f1d1d !important; }
+.hospital-ops .alert-actions button:disabled { opacity: .55; cursor: wait; }
+@media (max-width: 520px) { .hospital-ops .alert-actions { grid-template-columns: 1fr; } }

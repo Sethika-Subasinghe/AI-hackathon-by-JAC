@@ -11,6 +11,7 @@ import hashlib;
 import secrets;
 import time;
 import from models { Hospital, Unit, BedStatus, HasUnit, HasBeds, Sector, UnitType }
+import from graph_lock { GRAPH_LOCK }
 import from data.hospital_seed { DEMO_HOSPITAL_PASSWORD, hospital_seed_data }
 
 """Beds for one unit, as sent to the UI."""
@@ -119,33 +120,35 @@ def add_hospital(
 
 """Create missing fictional hospitals and their initial free-bed counts."""
 def _seed_demo_hospitals -> int {
-    existing_names = {h.name for h in [root.shared -->][?:Hospital]};
-    created = 0;
-    for seed in hospital_seed_data() {
-        if seed.name not in existing_names {
-            totals = {
-                unit.unit_type.name: unit.total_beds
-                for unit in seed.units
-            };
-            hospital = add_hospital(
-                name=seed.name,
-                sector=seed.sector,
-                city=seed.city,
-                lat=seed.lat,
-                lon=seed.lon,
-                username=seed.username,
-                password=DEMO_HOSPITAL_PASSWORD,
-                units=totals,
-            );
-            hospital.phone = seed.phone;
-            for unit in seed.units {
-                _set_free(hospital, unit.unit_type.name, unit.free_beds);
+    with GRAPH_LOCK {
+        existing_names = {h.name for h in [root.shared -->][?:Hospital]};
+        created = 0;
+        for seed in hospital_seed_data() {
+            if seed.name not in existing_names {
+                totals = {
+                    unit.unit_type.name: unit.total_beds
+                    for unit in seed.units
+                };
+                hospital = add_hospital(
+                    name=seed.name,
+                    sector=seed.sector,
+                    city=seed.city,
+                    lat=seed.lat,
+                    lon=seed.lon,
+                    username=seed.username,
+                    password=DEMO_HOSPITAL_PASSWORD,
+                    units=totals,
+                );
+                hospital.phone = seed.phone;
+                for unit in seed.units {
+                    _set_free(hospital, unit.unit_type.name, unit.free_beds);
+                }
+                existing_names.add(seed.name);
+                created += 1;
             }
-            existing_names.add(seed.name);
-            created += 1;
         }
+        return created;
     }
-    return created;
 }
 
 def _set_free(h: Hospital, unit_type: str, free: int) {

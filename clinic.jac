@@ -13,6 +13,7 @@ clock and delivers whatever became due. Emails are mock only, nothing leaves the
 import time;
 import from datetime { datetime }
 import from models { ClinicPatient, MailItem, ReminderTask }
+import from graph_lock { GRAPH_LOCK }
 import from hospitals { get_hospital }
 import from reliability { model_available, record_model_success, record_model_failure }
 
@@ -144,18 +145,20 @@ def:pub save_clinic_patient(
     } except Exception {
         return ClinicResult(ok=False, message="Please enter the clinic date as YYYY-MM-DD.");
     }
-    p = (root.shared ++> ClinicPatient(
-        name=name.strip(),
-        email=email.strip(),
-        clinic=clinic.strip(),
-        hospital_id=hospital_id,
-        clinic_date=clinic_date,
-        condition_note=condition_note
-    ))[0];
-    # Evening before at 6 PM, morning of at 6:30 AM.
-    root.shared ++> ReminderTask(patient_id=jid(p), kind="DAY_BEFORE", due_at=day - 6.0 * 3600.0);
-    root.shared ++> ReminderTask(patient_id=jid(p), kind="MORNING_OF", due_at=day + 6.5 * 3600.0);
-    _deliver_due();
+    with GRAPH_LOCK {
+        p = (root.shared ++> ClinicPatient(
+            name=name.strip(),
+            email=email.strip(),
+            clinic=clinic.strip(),
+            hospital_id=hospital_id,
+            clinic_date=clinic_date,
+            condition_note=condition_note
+        ))[0];
+        # Evening before at 6 PM, morning of at 6:30 AM.
+        root.shared ++> ReminderTask(patient_id=jid(p), kind="DAY_BEFORE", due_at=day - 6.0 * 3600.0);
+        root.shared ++> ReminderTask(patient_id=jid(p), kind="MORNING_OF", due_at=day + 6.5 * 3600.0);
+        _deliver_due();
+    }
     return ClinicResult(ok=True, message="Saved. We will remind you before your visit.", patient=_view(p));
 }
 
