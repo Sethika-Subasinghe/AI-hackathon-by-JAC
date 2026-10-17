@@ -31,3 +31,6 @@ base_route_app = "app"
 
 [plugins.scale.microservices]
 enabled = false
+
+[plugins.byllm.model]
+default_model = "${LLM_MODEL:-gemini/gemini-2.0-flash}"

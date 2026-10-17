@@ -32,6 +32,7 @@ Read with `plan.md`, `README.md` and `skill.md`.
 ## 3. Workflow (phases in order)
 | Phase | Time | Tasks | Gate: what must work before moving on |
 |---|---|---|---|
+| 2026-10-17 | Dimuth | T09 done: AgentEvent log helpers (start/finish/log_event, compact_case, case_events endpoint), byllm model config in jac.toml, MockLLM convention test | agent_log.jac, agent_log.test.jac, main.jac, jac.toml, .env.example, progress.md |
 | 2026-10-17 | Dimuth | T06 done: hospital login (token sessions), list/get hospitals, set and change free beds, `add_hospital` seeding helper, unit test, endpoints registered in main.jac | hospitals.jac, hospitals.test.jac, models.jac, main.jac, progress.md |
 | 2026-10-17 | Dimuth | T05 done: graph model and shared types (7 nodes, 4 edges, 7 enums, Location obj), validated with `jac check` and a runtime smoke test | models.jac, progress.md |
 | 2026-10-17 | Dimuth | T01 done: Jac fullstack scaffold (main.jac, endpoints.jac, frontend.cl.jac, components/), jac.toml with microservice auto-detect disabled, .gitignore, .env.example, data/ | jac.toml, main.jac, endpoints.jac, frontend.cl.jac, frontend.impl.jac, components/, .gitignore, .env.example, AGENTS.md, progress.md |
@@ -56,7 +57,7 @@ Read with `plan.md`, `README.md` and `skill.md`.
 | T06 | Hospital login + bed-update backend | plan F2 | Dimuth | Done | T05 | API in `hospitals.jac`, shape in Shared notes; unit test passes (`jac test hospitals.jac`) |
 | T07 | Design system and app shell: tokens, fonts, layout, SafetyBanner, base components, responsive | B1-B3 | Sethika | In progress | T01 | Claimed by Sethika. |
 | T08 | Hospital dashboard UI: login page, bed cards, BedStepper | B5 | Sethika | Not started | T06, T07 | |
-| T09 | Agent conventions: `llm` setup, typed outputs, AgentEvent logging helper | A0, A8 | Dimuth | In progress | T05 | |
+| T09 | Agent conventions: `llm` setup, typed outputs, AgentEvent logging helper | A0, A8 | Dimuth | Done | T05 | Helpers in `agent_log.jac`; `by llm()` checked with MockLLM; real model needs T03 keys |
 | T10 | Triage Agent: `by llm()`, red-flag override, fallback | A2 | Dimuth | Not started | T09 | |
 | T11 | Patient form UI: description with example chips, location, optional PDF drop zone | B5 | Sethika | Not started | T07 | |
 | T12 | AgentTimeline UI: expandable steps, polls events | B4 | Sethika | Not started | T09 | Build early, it makes every agent visible |
@@ -83,7 +84,7 @@ Read with `plan.md`, `README.md` and `skill.md`.
 
 ## 5. Next up
 Keep this to 3 to 6 items and refresh it whenever a task is Done.
-1. **T09** Dimuth: agent conventions (`llm` setup, AgentEvent helper)
+1. **T10** Dimuth: Triage Agent (`by llm()`, red-flag override, fallback)
 2. **T08** Sethika: hospital dashboard UI (T06 and T07 needed)
 3. **T07** Sethika: design system and app shell
 4. **T04** Akeesha: fake hospital dataset
@@ -92,6 +93,7 @@ Keep this to 3 to 6 items and refresh it whenever a task is Done.
 
 ## 6. Shared notes (blockers, interface changes, decisions)
 Add a dated line when an API shape, data model or decision changes. Newest first.
+- 2026-10-17: **Agent conventions (T09)** in `agent_log.jac`. Pattern: `ev = start_event(cs, agent, step, title)` then run the typed `by llm(temperature=0.2)` function with `compact_case(cs)`, then `finish_event(ev, EventStatus.DONE|FAILED|WAITING, title, detail)`; or `log_event(...)` in one call. **Timeline API (T12): `case_events(case_id) -> list[EventView{id, case_id, agent, step, status, title, detail, timestamp}]`, oldest first, status is "RUNNING"|"DONE"|"FAILED"|"WAITING".** Model is set in `jac.toml` `[plugins.byllm.model] default_model` (env `LLM_MODEL`, default `gemini/gemini-2.0-flash`); key goes in `.env` (T03). `case` is a reserved word in Jac, do not use it as a variable name. Tests use `MockLLM` so no key is needed.
 - 2026-10-17: **Hospital API (T06)** in `hospitals.jac`, all `def:pub`, call as `POST /function/<name>` (or `sv import` in a `.cl.jac`). `list_hospitals() -> list[HospitalView]`, `get_hospital(hospital_id)`, `hospital_login(username, password) -> LoginResult{ok, token, hospital_id, message}`, `hospital_logout(token)`, `my_hospital(token)`, `set_free_beds(token, unit_type, free)`, `change_free_beds(token, unit_type, delta)` (BedStepper +/-). `HospitalView{id, name, sector, city, lat, lon, units: list[UnitView{unit_type, total, free}]}`; unit_type/sector are enum names like "ICU", "PUBLIC". Write endpoints return the updated HospitalView, or None when the token is missing or expired (treat as logged out). Sessions are in memory, so a server restart signs everyone out. **Akeesha (T04):** seed with `add_hospital(name, Sector.X, city, lat, lon, username, password, {"ICU": 10, "CARDIAC": 6})` from `hospitals.jac`. Added `password_hash` to Hospital in `models.jac`.
 - 2026-10-17: **Data model (T05) is in `models.jac`**, import with `import from models { Hospital, ... }`. Graph: `root --> Hospital --HasUnit--> Unit --HasBeds--> BedStatus(total, free)`; `root --> CaseState --CaseEvent--> AgentEvent`, `--CaseRequest--> Request`; `root --> ClinicPatient`. Enums: Severity (CRITICAL/URGENT/STABLE), Sector (PUBLIC/PRIVATE), UnitType (CARDIAC/TRAUMA/ICU/NEURO/GENERAL), CaseStatus, EventStatus (RUNNING/DONE/FAILED/WAITING), RequestKind (AMBULANCE/POLICE/HOSPITAL_ALERT), RequestStatus. `Location(lat, lon, address)` is a plain obj. Seed data (T04) must create Hospital -> Unit -> BedStatus with these fields. Ask Dimuth before changing a field.
 - 2026-10-17: T01 is Done, `git pull` to get the skeleton. Run the app with `jac start --dev main.jac` (open http://localhost:8000). `main.jac`, `endpoints.jac`, `frontend.cl.jac`, `frontend.impl.jac` and `components/MessageCard.cl.jac` are generated guestbook placeholders, replace them. Keep `[plugins.scale.microservices] enabled = false` in `jac.toml` or jac-scale auto-switches to microservice mode and the page 404s. Unblocked now: T02, T04, T05, T07 (all depend only on T01).

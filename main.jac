@@ -9,6 +9,7 @@ import from hospitals {
     list_hospitals, get_hospital, hospital_login, hospital_logout,
     my_hospital, set_free_beds, change_free_beds
 }
+import from agent_log { EventView, case_events }
 
 # Client-side UI
 cl {
