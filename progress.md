@@ -32,6 +32,8 @@ Read with `plan.md`, `README.md` and `skill.md`.
 ## 3. Workflow (phases in order)
 | Phase | Time | Tasks | Gate: what must work before moving on |
 |---|---|---|---|
+| 2026-10-17 | Dimuth | T22 done: Clinic Reminder Agent (profile, arrival tip from hospital load, two scheduled reminders, mock email and in-app notice inbox, simulated clock with skip_time), 5 tests | clinic.jac, clinic.test.jac, models.jac, main.jac, progress.md |
+| 2026-10-17 | Dimuth | T17 done: Dispatch Agent (3 simulated requests, 10 s cancellable countdown, send-once, hospital alerts with accept and decline, ambulance progress for the map), wired into the orchestrator, 8 tests | dispatch.jac, dispatch.test.jac, orchestrator.jac, orchestrator.test.jac, models.jac, main.jac, progress.md |
 | 2026-10-17 | Dimuth | T15 done: Hospital Matcher (find, Geoapify ETA for the 5 nearest, deterministic scoring by severity, alternatives with reasons, optional model-written reasons, exclusions for re-plan), wired into the orchestrator, 4 tests | matcher.jac, matcher.test.jac, orchestrator.jac, orchestrator.test.jac, main.jac, progress.md |
 | 2026-10-17 | Dimuth | T13 done: Orchestrator (decide_next by llm, guard rules, rule fallback, follow-up flow, case endpoints create/run/get/answer), 7 tests | orchestrator.jac, orchestrator.test.jac, main.jac, progress.md |
 | 2026-10-17 | Dimuth | T10 done: Triage Agent (by llm with retry, keyword red-flag rules, rule fallback, safety override, timeline events), 5 MockLLM tests | triage.jac, triage.test.jac, progress.md |
@@ -68,12 +70,12 @@ Read with `plan.md`, `README.md` and `skill.md`.
 | T14 | Geoapify: geocode and autocomplete, routing and ETA, caching | plan F5 | Akeesha | Done | T03 | Sri Lanka geocoding/autocomplete and driving route/ETA endpoints use in-memory caches; live provider calls and labelled straight-line fallback verified. |
 | T15 | Hospital Matcher Agent with tools and deterministic fallback | A4 | Dimuth | Done | T04, T05, T14 | `matcher.jac`; 4 tests pass offline; live Geoapify routes checked end to end. Model-written reasons fall back to templates (Gemini key invalid) |
 | T16 | Result UI: HospitalCard, AlternativesList with reasons, MapPanel with route | B3 | Sethika | Not started | T14, T15 | |
-| T17 | Dispatch Agent + simulated ambulance, police and hospital requests + accept/decline endpoints | A5 | Dimuth | In progress | T15 | |
+| T17 | Dispatch Agent + simulated ambulance, police and hospital requests + accept/decline endpoints | A5 | Dimuth | Done | T15 | `dispatch.jac`; 8 tests pass offline (countdown, cancel, send once, accept, decline). Model-drafted messages use templates while the key is invalid |
 | T18 | CountdownBanner (10 s, Cancel) + live dispatch status panel | B5 | Sethika | Not started | T17 | |
 | T19 | Hospital incoming alerts: AlertCard with Accept and Decline in the dashboard | B3, B5 | Sethika | Not started | T08, T17 | |
 | T20 | Re-plan Agent: decline, full or timeout → re-match and re-dispatch | A6 | Dimuth | Not started | T17, T19 | |
 | T21 | Map: moving ambulance marker and police clearance panel | B3 | Akeesha | Not started | T16, T17 | |
-| T22 | Clinic Reminder Agent + ClinicPatient profile + mock email inbox | A7 | Dimuth | Not started | T05 | |
+| T22 | Clinic Reminder Agent + ClinicPatient profile + mock email inbox | A7 | Dimuth | Done | T05 | `clinic.jac`; 5 tests pass offline. Reminder emails use the template until the model key works |
 | T23 | Clinic UI: form, reminder card, EmailPreview, in-app notices | B5 | Akeesha | Not started | T07, T22 | |
 | T24 | Document Agent: pypdf extractor + `summarise_report` | A3 | Dimuth | Not started | T10 | |
 | T25 | Reliability: timeouts, retries, fallbacks, "Using backup logic" banner, canned demo results | A10 | Dimuth | Not started | T13, T15 | |
@@ -87,15 +89,18 @@ Read with `plan.md`, `README.md` and `skill.md`.
 
 ## 5. Next up
 Keep this to 3 to 6 items and refresh it whenever a task is Done.
-1. **T17** Dimuth: Dispatch Agent + simulated ambulance, police and hospital requests
-2. **T16** Sethika: result UI (HospitalCard, AlternativesList, MapPanel), matcher is ready
-3. **T11** Sethika: patient form UI
-4. **T12** Sethika: live agent timeline UI
-5. **T22** Dimuth: Clinic Reminder Agent
-6. **T28** Akeesha: Jac share check
+1. **T24** Dimuth: Document Agent (PDF text and summary)
+2. **T20** Dimuth: Re-plan Agent (waits for T19, Sethika's hospital alert UI)
+3. **T18** Sethika: countdown banner and live dispatch status (backend ready)
+4. **T19** Sethika: hospital alert cards with Accept and Decline (backend ready)
+5. **T16** Sethika: result UI (backend ready)
+6. **T23** Akeesha: clinic UI (backend ready)
+
 
 ## 6. Shared notes (blockers, interface changes, decisions)
 Add a dated line when an API shape, data model or decision changes. Newest first.
+- 2026-10-17: **Clinic Reminder (T22)** in `clinic.jac`, all `def:pub`. `save_clinic_patient(name, email, clinic, hospital_id, clinic_date "YYYY-MM-DD", condition_note) -> ClinicResult{ok, message, patient: ClinicView{id, name, email, clinic, hospital_id, clinic_date, condition_note, arrival_tip}}` (a friendly message when the email or date is bad). `clinic_inbox(patient_id) -> list[MailView{id, channel "EMAIL"|"NOTICE", to, subject, body, sent_at, simulated}]` newest first (poll it, it also delivers anything that became due), `get_clinic_patient(patient_id)`. **Two reminders** are scheduled, the evening before (6 PM) and the morning of (6:30 AM). **Demo "Skip time" (T27):** `skip_time(hours: float) -> int` moves the simulated clock and delivers due reminders; call it e.g. with 24. Arrival tip is earlier when the hospital is busier. The clinic UI (T23) shows `arrival_tip`, the reminder card and EmailPreview from `MailView`. Models: new nodes `ReminderTask` and `MailItem` in `models.jac`.
+- 2026-10-17: **Dispatch (T17)** in `dispatch.jac`, runs in the orchestrator DISPATCH step for CRITICAL cases with a matched hospital. It creates 3 simulated requests (AMBULANCE, POLICE with the route, HOSPITAL_ALERT) and starts a 10 s countdown, case status DISPATCHING. Nothing runs in the background: the clock is checked whenever `get_dispatch` is called, so **poll `get_dispatch(case_id)` about once a second** (T18). `DispatchView{case_id, case_status, seconds_left, requests: [RequestView{id, kind, target, message, status, priority, simulated, route}], ambulance_progress 0..1}`. `case_status` goes DISPATCHING, then DISPATCHED when the countdown ends (requests become SENT), or CANCELLED. **Cancel button:** `cancel_dispatch(case_id)` works only while DISPATCHING. **Hospital dashboard (T19):** `hospital_alerts(token) -> list[AlertView{request_id, case_id, status, message, severity, unit, eta_minutes, created_at}]` (status SENT, ACCEPTED, DECLINED) and `respond_alert(token, request_id, accept: bool)`. **Decline** sets the case to REPLANNING (T20 will re-match and re-dispatch). **Map (T21):** `ambulance_progress` is 0..1 along the POLICE/AMBULANCE `route` coordinates, sped up 30x for the demo (`DEMO_SPEEDUP`). Models: `Request` got `target_id`, `sent_at`, `route`; `CaseState` got `countdown_ends_at`.
 - 2026-10-17: **Matcher (T15)** in `matcher.jac`, runs inside the orchestrator MATCH step. Read the result with `get_match(case_id) -> MatchResult{best, alternatives, summary, used_fallback}`; `HospitalPick{hospital_id, name, sector, city, lat, lon, eta_minutes, distance_km, free_beds, total_beds, score, estimated, reason, route: list[[lat, lon]]}` (T16: HospitalCard, AlternativesList, MapPanel; `estimated` true means a straight-line ETA, show "Estimated"). `best` is None only when no hospital exists at all; when nobody has a free bed the nearest hospital comes back with `free_beds` 0. The CaseState gets `hospital_id`, `eta_minutes` and status MATCHED. **T20 (re-plan):** add the declined hospital id to `cs.excluded_hospital_ids`, then call `match_case(cs)` again. Tests switch live services off with `LIVE_SERVICES["on"] = False` (matcher module).
 - 2026-10-17: **Orchestrator (T13)** in `orchestrator.jac`. UI flow for T11/T12/T16: `create_case(description, lat, lon, address, has_pdf) -> case_id`, then call `run_case_by_id(case_id)` (do not wait on it) and poll `case_events(case_id)` once a second; when it returns, read `CaseView{id, description, status, severity, unit, red_flags, confidence, followup_question, hospital_id, eta_minutes, replan_count, used_fallback}`. If `status == "NEEDS_INFO"`, show `followup_question`, send the answer with `answer_followup(case_id, answer)`, then call `run_case_by_id` again. `get_case(case_id)` re-reads a case. **Hooks for teammates:** the placeholders `_do_read_document` (T24), `_do_match` (T15), `_do_dispatch` (T17) and `_do_replan` (T20) in `orchestrator.jac` log "not connected yet" and end the case; the owner replaces each with the real agent call. Guard rules are in `allowed_steps`.
 - 2026-10-17: **Triage Agent (T10)** in `triage.jac`. `triage_case(cs: CaseState) -> TriageResult` rates a case: model first (retried once), keyword rules as backup, and a safety override so the model can never go below the rules. It writes severity, unit_needed, red_flags, confidence, followup_question and status (TRIAGED, or NEEDS_INFO when it needs a follow-up) onto the CaseState, sets `used_fallback`, and logs one timeline step ("Using backup logic" in the detail when the fallback ran). Reusable pieces: `red_flag_check`, `rule_triage`, `apply_override`. T13 (Orchestrator) calls `triage_case`.

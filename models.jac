@@ -82,6 +82,7 @@ node CaseState {
         excluded_hospital_ids: list[str] = [],
         replan_count: int = 0,
         used_fallback: bool = False,
+        countdown_ends_at: float = 0.0,
         created_at: float = 0.0;
 }
 
@@ -105,7 +106,10 @@ node Request {
         status: RequestStatus = RequestStatus.PENDING,
         priority: str = "high",
         simulated: bool = True,
-        created_at: float = 0.0;
+        created_at: float = 0.0,
+        sent_at: float = 0.0,
+        target_id: str = "",
+        route: list[list[float]] = [];
 }
 
 """Saved profile for a clinic patient. Emergency users get no profile."""
@@ -116,6 +120,25 @@ node ClinicPatient {
         hospital_id: str,
         clinic_date: str,
         condition_note: str = "";
+}
+
+"""A scheduled clinic reminder. `due_at` is in simulated time, see clinic.jac."""
+node ReminderTask {
+    has patient_id: str,
+        kind: str,
+        due_at: float,
+        sent: bool = False;
+}
+
+"""One mock email or in-app notice in a clinic patient's inbox."""
+node MailItem {
+    has patient_id: str,
+        channel: str,
+        to: str,
+        subject: str,
+        body: str,
+        sent_at: float = 0.0,
+        simulated: bool = True;
 }
 
 edge HasUnit: Hospital --> Unit {}
