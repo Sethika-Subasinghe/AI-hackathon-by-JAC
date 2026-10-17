@@ -1,3 +1,9 @@
+---------------------------------------------------------------------------------------------------------
+## ATTENTION ##
+
+If the server showed up a error massage wait couple of minutes cuz the applications hosted in  free server and it goes to sleep  after inactivate for several minutes
+------------------------------------------------------------------------------------------------------------------------
+
 # CareRoute
 
 AI agents that find the nearest hospital with free beds, and clear the way in a critical emergency.
@@ -15,6 +21,8 @@ In an emergency, families don't know which hospital has free beds or the right u
 - The responsive CareRoute shell is ready with Patient, Hospital and Clinic workspaces; the workflow screens are being added task by task.
 - use this gemini api key -- GEMINI_API_KEY= "AQ.Ab8RN6Io4BcVsNCGs_YWDyY3C3lhVJ5ovF-zM1CRw2JAFyYoBQ"
 - map key - GEOAPIFY_API_KEY="650335c43d8f47dfbb01eb97f03480f8"
+
+
 
 ## What it does
 A patient or family describes the condition (and can upload a medical PDF), shares their location, and a team of AI agents finds the best hospital with free beds nearby, public or private. If the case is critical, CareRoute also requests an ambulance, asks police to clear the route, and alerts the hospital so the team is ready on arrival. Clinic patients get reminders for their clinic date.
