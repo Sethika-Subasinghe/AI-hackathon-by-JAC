@@ -32,6 +32,7 @@ Read with `plan.md`, `README.md` and `skill.md`.
 ## 3. Workflow (phases in order)
 | Phase | Time | Tasks | Gate: what must work before moving on |
 |---|---|---|---|
+| 2026-10-17 | Dimuth | T05 done: graph model and shared types (7 nodes, 4 edges, 7 enums, Location obj), validated with `jac check` and a runtime smoke test | models.jac, progress.md |
 | 2026-10-17 | Dimuth | T01 done: Jac fullstack scaffold (main.jac, endpoints.jac, frontend.cl.jac, components/), jac.toml with microservice auto-detect disabled, .gitignore, .env.example, data/ | jac.toml, main.jac, endpoints.jac, frontend.cl.jac, frontend.impl.jac, components/, .gitignore, .env.example, AGENTS.md, progress.md |
 | P0 Setup | 9:00 to 9:45 | T00-T03 | Jac app runs, Jac MCP works for everyone, keys in place |
 | P1 Data and hospital side | 9:45 to 11:30 | T04-T08 | Hospital logs in and changes beds on the dashboard |
@@ -50,7 +51,7 @@ Read with `plan.md`, `README.md` and `skill.md`.
 | T02 | Jac MCP + Jac skills on each machine (`codex mcp add jac -- jac mcp`, `claude mcp add jac -- jac mcp`, `jac guide --export .claude/skills`) | skill | All | Done | T01 | Tick names here: Akeesha ✅ (Jac 0.16.7 and Jac MCP verified); Sethika ✅ (Jac 0.16.7; Jac MCP registered and verified); Dimuth ✅ (skills exported; MCP registration unavailable because `claude` CLI is not on PATH). Team confirmed complete. |
 | T03 | API keys: free LLM key (Gemini or Groq) and Geoapify key, local `.env` only | plan 6 | Akeesha | Done | | Gemini and Geoapify credentials are stored only in ignored `.env`; both were validated against their provider APIs without exposing values. |
 | T04 | Fake Sri Lanka hospital dataset (public and private, units, beds, coordinates) | plan F1 | Akeesha | Not started | T01 | |
-| T05 | Graph model and shared types: Hospital, Unit, BedStatus, CaseState, AgentEvent, ClinicPatient, Request | A9 | Dimuth | In progress | T01 | Post data model in Shared notes |
+| T05 | Graph model and shared types: Hospital, Unit, BedStatus, CaseState, AgentEvent, ClinicPatient, Request | A9 | Dimuth | Done | T01 | Model in `models.jac` (checked, smoke-tested); summary in Shared notes |
 | T06 | Hospital login + bed-update backend | plan F2 | Dimuth | Not started | T05 | Post API shape in Shared notes |
 | T07 | Design system and app shell: tokens, fonts, layout, SafetyBanner, base components, responsive | B1-B3 | Sethika | In progress | T01 | Claimed by Sethika. |
 | T08 | Hospital dashboard UI: login page, bed cards, BedStepper | B5 | Sethika | Not started | T06, T07 | |
@@ -81,7 +82,8 @@ Read with `plan.md`, `README.md` and `skill.md`.
 
 ## 5. Next up
 Keep this to 3 to 6 items and refresh it whenever a task is Done.
-1. **T05** Dimuth: graph model and shared types
+1. **T06** Dimuth: hospital login and bed-update backend
+2. **T09** Dimuth: agent conventions (`llm` setup, AgentEvent helper)
 2. **T07** Sethika: design system and app shell
 3. **T04** Akeesha: fake hospital dataset
 4. **T14** Akeesha: Geoapify geocoding, routing, ETA and caching
@@ -89,6 +91,7 @@ Keep this to 3 to 6 items and refresh it whenever a task is Done.
 
 ## 6. Shared notes (blockers, interface changes, decisions)
 Add a dated line when an API shape, data model or decision changes. Newest first.
+- 2026-10-17: **Data model (T05) is in `models.jac`**, import with `import from models { Hospital, ... }`. Graph: `root --> Hospital --HasUnit--> Unit --HasBeds--> BedStatus(total, free)`; `root --> CaseState --CaseEvent--> AgentEvent`, `--CaseRequest--> Request`; `root --> ClinicPatient`. Enums: Severity (CRITICAL/URGENT/STABLE), Sector (PUBLIC/PRIVATE), UnitType (CARDIAC/TRAUMA/ICU/NEURO/GENERAL), CaseStatus, EventStatus (RUNNING/DONE/FAILED/WAITING), RequestKind (AMBULANCE/POLICE/HOSPITAL_ALERT), RequestStatus. `Location(lat, lon, address)` is a plain obj. Seed data (T04) must create Hospital -> Unit -> BedStatus with these fields. Ask Dimuth before changing a field.
 - 2026-10-17: T01 is Done, `git pull` to get the skeleton. Run the app with `jac start --dev main.jac` (open http://localhost:8000). `main.jac`, `endpoints.jac`, `frontend.cl.jac`, `frontend.impl.jac` and `components/MessageCard.cl.jac` are generated guestbook placeholders, replace them. Keep `[plugins.scale.microservices] enabled = false` in `jac.toml` or jac-scale auto-switches to microservice mode and the page 404s. Unblocked now: T02, T04, T05, T07 (all depend only on T01).
 - 2026-10-17: Dispatch uses a 10-second cancellable countdown. Orchestrator, re-plan, hospital Accept/Decline and clinic-patient profile are in scope (see `skill.md`).
 
