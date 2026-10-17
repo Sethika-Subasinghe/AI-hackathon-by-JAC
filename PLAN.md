@@ -9,7 +9,7 @@ Problem: in an emergency, families don't know which hospital has capacity or the
 
 ## 2. Users
 - **Patient / family** (main user): describe condition, share location, get a hospital recommendation.
-- **Hospital staff**: log in, update bed availability, see incoming-patient alerts.
+- **Hospital staff**: log in, update bed availability, see incoming-patient alerts and accept or decline them.
 - **Ambulance and police**: simulated receivers of dispatch and route-clearance requests (demo only).
 
 ## 3. Scope
@@ -17,26 +17,28 @@ Problem: in an emergency, families don't know which hospital has capacity or the
 
 **Out of scope:** real ambulance/police integration, real diagnosis, real patient data, production auth hardening.
 
-**Safety notice (always shown):** "This is not a medical diagnosis. In a real emergency call 1990." The triage agent outputs urgency and the care needed, never a diagnosis. Critical dispatch asks the patient to confirm before sending.
+**Safety notice (always shown):** "This is not a medical diagnosis. In a real emergency call 1990." The triage agent outputs urgency and the care needed, never a diagnosis. Critical dispatch starts a 10-second countdown that the patient can cancel.
 
 ## 4. Agents (priority: agentic behaviour)
-Each agent has a clear job, uses tools, and passes structured output to the next.
+An Orchestrator agent decides which agent runs next. Each agent has a clear job, uses tools (built with Jac `by llm()`), and passes structured output on. Details are in `skill.md`.
 
 1. **Triage Agent**: reads the free text and PDF summary, returns severity (critical / urgent / stable), required unit (trauma, cardiac, ICU, neuro, general), red flags and confidence. Asks follow-up questions if the input is too vague.
 2. **Hospital Matcher Agent**: tools = hospital graph query, Geoapify routing/ETA. Filters by unit and free beds, scores by ETA, capacity and sector, returns the best hospital plus ranked alternatives with a reason for each.
-3. **Emergency Dispatch Agent (critical only)**: after patient confirmation, creates an ambulance request, a police route-clearance request (with the route from Geoapify) and a "get ready" alert to the chosen hospital. Logs each step so the demo shows the chain.
+3. **Emergency Dispatch Agent (critical only)**: after a 10-second countdown the patient can cancel, creates an ambulance request, a police route-clearance request (with the route from Geoapify) and a "get ready" alert to the chosen hospital. Logs each step so the demo shows the chain.
 4. **Clinic Reminder Agent**: takes clinic name, date and condition, schedules reminders, suggests a good arrival time based on hospital load, sends in-app notice and mock email.
 5. **Document Agent (small)**: extracts text from the PDF and summarises the key medical facts for the Triage Agent.
+6. **Orchestrator Agent**: decides the next step for each case (read the PDF only if one exists, ask a follow-up, triage, match, dispatch only if critical, re-plan). Deterministic guard rules can veto its choices.
+7. **Re-plan Agent**: if the chosen hospital declines, runs out of beds or does not respond, excludes it, re-matches and re-dispatches to the next best hospital (max 3 times).
 
 ## 5. Features, added step by step
 1. Fake hospital dataset + graph model (nodes: Hospital, Unit, BedStatus)
 2. Hospital login + bed-availability dashboard
 3. Patient form (text, location, optional PDF)
-4. Triage Agent
+4. Triage Agent, agent event log with live agent timeline, Orchestrator Agent
 5. Hospital Matcher + Geoapify (geocoding, routing, map)
 6. Alternatives list with reasons
-7. Critical flow: Dispatch Agent, hospital incoming-patient alert, simulated ambulance/police panel
-8. Clinic Reminder Agent + mock email, then real email as a stretch
+7. Critical flow: Dispatch Agent with 10-second cancel countdown, hospital incoming-patient alert with Accept/Decline, simulated ambulance/police panel, automatic re-planning
+8. Clinic Reminder Agent + saved clinic-patient profile + mock email, then real email as a stretch
 9. PDF Document Agent
 10. Polish: loading states, error handling, demo data reset, disclaimer
 
@@ -47,14 +49,15 @@ Each agent has a clear job, uses tools, and passes structured output to the next
 - **Email:** mock first (render the email in the app), real SMTP/Resend only as a stretch.
 - **PDF text:** a small Python extractor (pypdf) called from Jac.
 - **Hosting:** Jac Hammer sandbox for judges, local fallback for the video.
+- **Jac tooling:** `pip install jaseci`. Coding agents use the Jac MCP server (`codex mcp add jac -- jac mcp` or `claude mcp add jac -- jac mcp`) to validate Jac code. See `skill.md`.
+- **UI:** medical theme, responsive on phone, tablet and PC, English only (see `skill.md` Part B).
 
 ## 7. Team and workflow
-Proposed split (adjust freely): A (Claude Code): Jac backend and agents. B (Codex): frontend and hospital dashboard. C: data, Geoapify, demo video, README.
+Dimuth (Claude Code): Jac backend and agents. Sethika (Codex): frontend and hospital dashboard. Akeesha (Codex): data, Geoapify, demo, README. This split is proposed and can be changed in `progress.md`.
 
-Coordination runs through `progress.md`:
-- Before starting, every agent reads `progress.md`, picks the next unclaimed task in order, writes its owner and `IN PROGRESS`, then marks `DONE` with a one-line note when finished.
-- Edit only your own rows. Commit small and often. Pull before starting each task.
-- Any blocker or interface change (API shape, data model) goes in the Notes section so the others see it.
+Coordination runs through `progress.md`, which holds the agent rules, task tracker, next-up list and change log:
+- Every agent reads it first, claims a task (status In progress + owner) and pushes the claim before starting, then marks Done and adds a change log entry when finished.
+- A new feature or change of direction updates `progress.md`, `plan.md`, `README.md` and `skill.md` together.
 
 ## 8. Milestones (9:00 AM to 5:30 PM)
 | Time | Milestone |
@@ -69,7 +72,7 @@ Coordination runs through `progress.md`:
 | 4:45 to 5:30 | Deploy, record demo video, README and description, submit with buffer |
 
 ## 9. Definition of done
-- Scenario 1 (critical, e.g. chest pain): triage → best hospital with ETA → alternatives → confirmation → ambulance and police requests → hospital sees the incoming alert, all working live.
+- Scenario 1 (critical, e.g. chest pain): triage → best hospital with ETA → alternatives → 10-second cancellable countdown → ambulance and police requests → hospital sees the incoming alert and can accept or decline (a decline triggers re-planning to the next hospital), all working live and visible in the agent timeline.
 - Scenario 2 (clinic patient): enters clinic date, gets reminder in-app and as mock email.
 - Hospital can log in and change beds, and the next recommendation changes accordingly.
 - Submitted by 5:30 PM: GitHub link (80%+ Jac), demo video, written description of Jac/Jaseci usage, repo starred.
@@ -83,5 +86,5 @@ Coordination runs through `progress.md`:
 | Scope too big for ~7 hours | Strict order in section 5, feature freeze at 4:45, simulate integrations |
 | Two AI coding agents conflict | `progress.md` ownership, small commits, separate folders per member |
 | Under 80% Jac | Check the language split on GitHub at midday and at 4:00 |
-| Medical safety / misuse | Disclaimer, no diagnosis, confirmation before dispatch, fake data only |
+| Medical safety / misuse | Disclaimer, no diagnosis, cancellable countdown before dispatch, fake data only |
 | Demo fails live | Pre-recorded video, seeded demo data, one-click reset |

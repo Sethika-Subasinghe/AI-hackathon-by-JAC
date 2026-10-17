@@ -20,22 +20,26 @@ A patient or family describes the condition (and can upload a medical PDF), shar
 ## Features
 - **Triage:** rates urgency (critical / urgent / stable) and the care needed, such as cardiac, trauma or ICU
 - **Best-hospital matching:** ranks hospitals by unit, free beds and travel time, with alternatives and the reason each ranked lower
-- **Emergency dispatch (critical only):** ambulance request, police route clearance and a hospital pre-arrival alert, sent after the patient confirms (simulated in this demo)
-- **Hospital dashboard:** hospital staff log in to update bed availability and see incoming-patient alerts
+- **Emergency dispatch (critical only):** ambulance request, police route clearance and a hospital pre-arrival alert, sent after a 10-second countdown the patient can cancel (simulated in this demo)
+- **Hospital dashboard:** hospital staff log in to update bed availability and see incoming-patient alerts they can accept or decline
 - **Clinic reminders:** in-app notice and email for clinic dates, with a suggested arrival time
 - **Medical PDF upload (optional):** key facts are extracted and passed to triage
+- **Live agent timeline:** every agent step, tool call and decision is shown to the user as it happens
+- **Automatic re-planning:** if a hospital declines or is full, the agents pick the next best hospital and re-dispatch
 
 ## Agents
 | Agent | Job |
 |---|---|
+| Orchestrator | Decides the next step for each case, asks follow-up questions and calls the other agents |
 | Triage | Reads the description and report, returns severity, required unit and red flags |
 | Hospital Matcher | Queries hospitals and Geoapify routes, picks the best match and alternatives |
 | Emergency Dispatch | Creates ambulance, police and hospital alerts for critical cases |
 | Clinic Reminder | Schedules reminders and suggests arrival times |
 | Document | Extracts and summarises key facts from the uploaded PDF |
+| Re-plan | If a hospital declines or is full, re-matches and re-dispatches to the next best |
 
 ## Tech stack
-- **Jac / Jaseci** (80%+ of the code): backend, agents and frontend
+- **Jac / Jaseci** (80%+ of the code): backend, agents (`by llm()`) and frontend (`jac-client`)
 - **LLM:** free-tier API (Gemini or Groq)
 - **Geoapify:** geocoding, routing and maps
 - **Email:** mock email in the app, real email as a stretch
@@ -44,12 +48,12 @@ A patient or family describes the condition (and can upload a medical PDF), shar
 ## Setup
 > _TODO: confirm every command below once the project runs._
 
-**Requirements:** Python 3.x, Jac (`jaclang`), a free LLM API key, a Geoapify API key.
+**Requirements:** Python 3.x, Jaseci (`jaseci`), a free LLM API key, a Geoapify API key.
 
 ```bash
 git clone <repo-url>
 cd careroute
-pip install jaclang            # TODO: confirm package and extra dependencies
+pip install jaseci             # includes jaclang, byllm, jac-client, jac-mcp (TODO: confirm extra dependencies)
 cp .env.example .env           # then add your keys
 ```
 
@@ -66,8 +70,8 @@ GEOAPIFY_API_KEY=your-key
 jac start main.jac             # TODO: confirm entry file and command
 ```
 
-1. **Patient:** open the app, describe the condition, share your location (optional PDF), and view the recommended hospital and alternatives. For a critical case, confirm to send the dispatch.
-2. **Hospital staff:** log in with a demo account _(TODO: add credentials)_, update bed availability, and watch incoming-patient alerts.
+1. **Patient:** open the app, describe the condition, share your location (optional PDF), and view the recommended hospital and alternatives. For a critical case, a 10-second countdown starts and you can tap Cancel to stop the dispatch.
+2. **Hospital staff:** log in with a demo account _(TODO: add credentials)_, update bed availability, and accept or decline incoming-patient alerts.
 3. **Clinic patient:** enter the clinic, date and condition to get a reminder.
 
 ## Project structure
@@ -77,6 +81,7 @@ jac start main.jac             # TODO: confirm entry file and command
 careroute/
 ├── plan.md          # project plan
 ├── progress.md      # shared task board for the team and their agents
+├── skill.md         # agent skills and UI/UX guide for the coding agents
 ├── README.md
 ├── backend/         # Jac nodes, walkers and agents
 ├── frontend/        # Jac client UI
@@ -92,4 +97,4 @@ careroute/
 - Clinical review of the triage logic before any real-world use
 
 ## Team
-Sethika, Akeesha and Dimuth
+Sethika (Codex), Akeesha (Codex) and Dimuth (Claude Code)
