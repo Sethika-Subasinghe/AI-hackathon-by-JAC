@@ -69,7 +69,7 @@ Read with `plan.md`, `README.md` and `skill.md`.
 | T13 | Orchestrator Agent: `decide_next` by llm(), guard rules, follow-up question flow | A1 | Dimuth | Done | T10 | `orchestrator.jac`; 7 MockLLM tests pass. Match, dispatch, re-plan and document steps are placeholders until T15, T17, T20, T24 |
 | T14 | Geoapify: geocode and autocomplete, routing and ETA, caching | plan F5 | Akeesha | Done | T03 | Sri Lanka geocoding/autocomplete and driving route/ETA endpoints use in-memory caches; live provider calls and labelled straight-line fallback verified. |
 | T15 | Hospital Matcher Agent with tools and deterministic fallback | A4 | Dimuth | Done | T04, T05, T14 | `matcher.jac`; 4 tests pass offline; live Geoapify routes checked end to end. Model-written reasons fall back to templates (Gemini key invalid) |
-| T16 | Result UI: HospitalCard, AlternativesList with reasons, MapPanel with route | B3 | Sethika | Not started | T14, T15 | |
+| T16 | Result UI: HospitalCard, AlternativesList with reasons, MapPanel with route | B3 | Sethika | In progress | T14, T15 | Claimed by Sethika. |
 | T17 | Dispatch Agent + simulated ambulance, police and hospital requests + accept/decline endpoints | A5 | Dimuth | Done | T15 | `dispatch.jac`; 8 tests pass offline (countdown, cancel, send once, accept, decline). Model-drafted messages use templates while the key is invalid |
 | T18 | CountdownBanner (10 s, Cancel) + live dispatch status panel | B5 | Sethika | Not started | T17 | |
 | T19 | Hospital incoming alerts: AlertCard with Accept and Decline in the dashboard | B3, B5 | Sethika | Not started | T08, T17 | |
