@@ -117,10 +117,12 @@ node Request {
 """Saved profile for a clinic patient. Emergency users get no profile."""
 node ClinicPatient {
     has name: str,
-        email: str,
+        phone: str,
+        contact_role: str,
         clinic: str,
         hospital_id: str,
         clinic_date: str,
+        clinic_time: str,
         condition_note: str = "";
 }
 
@@ -132,7 +134,7 @@ node ReminderTask {
         sent: bool = False;
 }
 
-"""One mock email or in-app notice in a clinic patient's inbox."""
+"""One simulated phone message or in-app notice in a clinic patient's inbox."""
 node MailItem {
     has patient_id: str,
         channel: str,

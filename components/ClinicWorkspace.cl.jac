@@ -2,7 +2,7 @@
 
 import "./ClinicWorkspace.css";
 import from .UiKit { StatusBadge }
-import from .ClinicCards { EmailPreview, NoticeInbox, ReminderCard }
+import from .ClinicCards { MessagePreview, NoticeInbox, ReminderCard }
 sv import from hospitals { HospitalView, list_hospitals }
 sv import from clinic {
     ClinicView, MailView,
@@ -12,10 +12,12 @@ sv import from clinic {
 def:pub ClinicWorkspace -> JsxElement {
     has hospitals: list[HospitalView] = [],
         name: str = "",
-        email: str = "",
+        phone: str = "",
+        contact_role: str = "PATIENT",
         clinic_name: str = "",
         hospital_id: str = "",
         clinic_date: str = "",
+        clinic_time: str = "",
         condition_note: str = "",
         patient: ClinicView | None = None,
         inbox_items: list[MailView] = [],
@@ -43,10 +45,12 @@ def:pub ClinicWorkspace -> JsxElement {
     }
 
     def update_name(e: ChangeEvent) { name = e.target.value; }
-    def update_email(e: ChangeEvent) { email = e.target.value; }
+    def update_phone(e: ChangeEvent) { phone = e.target.value; }
+    def update_contact_role(e: ChangeEvent) { contact_role = e.target.value; }
     def update_clinic_name(e: ChangeEvent) { clinic_name = e.target.value; }
     def update_hospital(e: ChangeEvent) { hospital_id = e.target.value; }
     def update_clinic_date(e: ChangeEvent) { clinic_date = e.target.value; }
+    def update_clinic_time(e: ChangeEvent) { clinic_time = e.target.value; }
     def update_condition_note(e: ChangeEvent) { condition_note = e.target.value; }
 
     async def submit_visit(e: FormEvent) {
@@ -57,10 +61,12 @@ def:pub ClinicWorkspace -> JsxElement {
         try {
             result = await save_clinic_patient(
                 name,
-                email,
+                phone,
+                contact_role,
                 clinic_name,
                 hospital_id,
                 clinic_date,
+                clinic_time,
                 condition_note
             );
             if result.ok and result.patient is not None {
@@ -111,10 +117,12 @@ def:pub ClinicWorkspace -> JsxElement {
         try {
             demo_date = await demo_clinic_date();
             name = "Nimal Perera";
-            email = "nimal.demo@example.com";
+            phone = "0771234567";
+            contact_role = "GUARDIAN";
             clinic_name = "Cardiology clinic";
             hospital_id = hospitals[0].id;
             clinic_date = demo_date;
+            clinic_time = "09:30";
             condition_note = "Routine follow-up visit";
             notice = "Clinic demo details loaded. Save the visit, then skip 24 hours to show reminders.";
         } except Exception as err {
@@ -127,17 +135,19 @@ def:pub ClinicWorkspace -> JsxElement {
         patient = None;
         inbox_items = [];
         name = "";
-        email = "";
+        phone = "";
+        contact_role = "PATIENT";
         clinic_name = "";
         clinic_date = "";
+        clinic_time = "";
         condition_note = "";
         error = "";
         notice = "";
     }
 
-    email_items = [item for item in inbox_items if item.channel == "EMAIL"];
+    message_items = [item for item in inbox_items if item.channel == "SMS"];
     notice_items = [item for item in inbox_items if item.channel == "NOTICE"];
-    latest_email: MailView | None = email_items[0] if len(email_items) > 0 else None;
+    latest_message: MailView | None = message_items[0] if len(message_items) > 0 else None;
 
     return <section className="clinic-workspace" aria-label="Clinic reminder workspace">
         {if patient is None {
@@ -149,7 +159,7 @@ def:pub ClinicWorkspace -> JsxElement {
                     <ul>
                         <li><span>1</span> Evening-before reminder</li>
                         <li><span>2</span> Morning-of reminder</li>
-                        <li><span>3</span> In-app notice and mock email</li>
+                        <li><span>3</span> In-app notice and simulated phone message</li>
                     </ul>
                 </div>
 
@@ -164,32 +174,45 @@ def:pub ClinicWorkspace -> JsxElement {
                             <input type="text" value={name} onChange={update_name} autoComplete="name" placeholder="e.g. Nimal Perera" required={True}/>
                         </label>
                         <label>
-                            <span>Email address</span>
-                            <input type="email" value={email} onChange={update_email} autoComplete="email" placeholder="nimal@example.com" required={True}/>
+                            <span>Patient or guardian phone</span>
+                            <input type="tel" value={phone} onChange={update_phone} autoComplete="tel" inputMode="tel" placeholder="077 123 4567" required={True}/>
                         </label>
                     </div>
-                    <label>
-                        <span>Clinic</span>
-                        <input type="text" value={clinic_name} onChange={update_clinic_name} placeholder="e.g. Diabetes clinic" required={True}/>
-                    </label>
                     <div className="clinic-field-grid">
                         <label>
-                            <span>Hospital</span>
-                            <select value={hospital_id} onChange={update_hospital} disabled={loading_hospitals} required={True}>
-                                {if loading_hospitals {
-                                    <option value="">Loading demo hospitals...</option>
-                                } elif len(hospitals) == 0 {
-                                    <option value="">No hospitals available</option>
-                                } else {
-                                    <>{for hospital in hospitals {
-                                        <option value={hospital.id} key={hospital.id}>{hospital.name + " - " + hospital.city}</option>
-                                    }}</>
-                                }}
+                            <span>This number belongs to</span>
+                            <select value={contact_role} onChange={update_contact_role} required={True}>
+                                <option value="PATIENT">Patient</option>
+                                <option value="GUARDIAN">Guardian</option>
                             </select>
                         </label>
                         <label>
+                            <span>Clinic</span>
+                            <input type="text" value={clinic_name} onChange={update_clinic_name} placeholder="e.g. Diabetes clinic" required={True}/>
+                        </label>
+                    </div>
+                    <label>
+                        <span>Hospital</span>
+                        <select value={hospital_id} onChange={update_hospital} disabled={loading_hospitals} required={True}>
+                            {if loading_hospitals {
+                                <option value="">Loading demo hospitals...</option>
+                            } elif len(hospitals) == 0 {
+                                <option value="">No hospitals available</option>
+                            } else {
+                                <>{for hospital in hospitals {
+                                    <option value={hospital.id} key={hospital.id}>{hospital.name + " - " + hospital.city}</option>
+                                }}</>
+                            }}
+                        </select>
+                    </label>
+                    <div className="clinic-field-grid">
+                        <label>
                             <span>Clinic date</span>
                             <input type="date" value={clinic_date} onChange={update_clinic_date} required={True}/>
+                        </label>
+                        <label>
+                            <span>Clinic time</span>
+                            <input type="time" value={clinic_time} onChange={update_clinic_time} required={True}/>
                         </label>
                     </div>
                     <label>
@@ -200,7 +223,7 @@ def:pub ClinicWorkspace -> JsxElement {
                     <button type="submit" className="app-button clinic-submit" disabled={saving or loading_hospitals or hospital_id == ""}>
                         {"Saving clinic visit..." if saving else "Save visit and plan reminders"}
                     </button>
-                    <p className="clinic-privacy">Saved only in this CareRoute demo. Mock emails never leave the app.</p>
+                    <p className="clinic-privacy">Saved only in this CareRoute demo. Phone messages are simulated and never leave the app.</p>
                 </form>
             </div>
         } else {
@@ -209,7 +232,7 @@ def:pub ClinicWorkspace -> JsxElement {
                     <div>
                         <StatusBadge label="Visit saved" tone="teal"/>
                         <h3>{patient.clinic}</h3>
-                        <p>{patient.name + " - " + patient.clinic_date}</p>
+                        <p>{patient.name + " - " + patient.clinic_date + " at " + patient.clinic_time}</p>
                     </div>
                     <div className="clinic-actions">
                         <button type="button" className="clinic-time-button" onClick={skip_demo_time} disabled={skipping_time}>
@@ -226,7 +249,7 @@ def:pub ClinicWorkspace -> JsxElement {
                     <ReminderCard patient={patient}/>
                     <NoticeInbox items={notice_items} refreshing={refreshing} on_refresh={refresh_inbox}/>
                 </div>
-                <EmailPreview item={latest_email}/>
+                <MessagePreview item={latest_message}/>
             </div>
         }}
     </section>;

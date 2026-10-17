@@ -27,7 +27,7 @@ import from surgery {
     change_surgery_capacity, set_surgery_offered
 }
 import from clinic {
-    EmailDraft, ClinicView, ClinicResult, MailView,
+    MessageDraft, ClinicView, ClinicResult, MailView,
     save_clinic_patient, get_clinic_patient, clinic_inbox, skip_time,
     demo_clinic_date
 }

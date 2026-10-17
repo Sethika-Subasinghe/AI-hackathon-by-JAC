@@ -1,4 +1,4 @@
-"""Reusable clinic reminder, notice inbox and mock email cards."""
+"""Reusable clinic reminder, notice inbox and phone message cards."""
 
 sv import from clinic { ClinicView, MailView }
 
@@ -11,6 +11,8 @@ def:pub ReminderCard(patient: ClinicView) -> JsxElement {
         <div className="visit-facts">
             <span><small>Clinic</small>{patient.clinic}</span>
             <span><small>Date</small>{patient.clinic_date}</span>
+            <span><small>Time</small>{patient.clinic_time}</span>
+            <span><small>Message to</small>{"Guardian" if patient.contact_role == "GUARDIAN" else "Patient"}</span>
             <span><small>Reminders</small>Evening before + morning of</span>
         </div>
     </article>;
@@ -58,33 +60,33 @@ def:pub NoticeInbox(
 }
 
 
-def:pub EmailPreview(item: MailView | None) -> JsxElement {
+def:pub MessagePreview(item: MailView | None) -> JsxElement {
     if item is None {
-        return <section className="email-preview" aria-labelledby="email-preview-title">
-            <div className="email-toolbar">
+        return <section className="message-preview" aria-labelledby="message-preview-title">
+            <div className="message-toolbar">
                 <div><span></span><span></span><span></span></div>
-                <strong id="email-preview-title">Mock email preview</strong>
+                <strong id="message-preview-title">Phone message preview</strong>
                 <em>Simulated</em>
             </div>
-            <div className="email-empty">
-                <strong>Your reminder email will appear here</strong>
-                <p>It is prepared when the evening-before or morning-of reminder becomes due.</p>
+            <div className="message-empty">
+                <strong>Your reminder message will appear here</strong>
+                <p>It is prepared for the saved phone number when a reminder becomes due.</p>
             </div>
         </section>;
     }
-    return <section className="email-preview" aria-labelledby="email-preview-title">
-        <div className="email-toolbar">
+    return <section className="message-preview" aria-labelledby="message-preview-title">
+        <div className="message-toolbar">
             <div><span></span><span></span><span></span></div>
-            <strong id="email-preview-title">Mock email preview</strong>
+            <strong id="message-preview-title">Phone message preview</strong>
             <em>Simulated</em>
         </div>
-        <div className="email-content">
+        <div className="message-content">
             <dl>
                 <div><dt>To</dt><dd>{item.to}</dd></div>
                 <div><dt>Subject</dt><dd>{item.subject}</dd></div>
             </dl>
             <p>{item.body}</p>
-            <small>Demo message only - no email was sent.</small>
+            <small>Simulated message only - no SMS was sent.</small>
         </div>
     </section>;
 }

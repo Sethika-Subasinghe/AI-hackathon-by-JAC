@@ -13,7 +13,7 @@ Problem: in an emergency, families don't know which hospital has capacity or the
 - **Ambulance and police**: simulated receivers of dispatch and route-clearance requests (demo only).
 
 ## 3. Scope
-**In scope (demo):** fake Sri Lanka hospital data (public and private), triage, hospital matching with ETA, critical-case dispatch flow (simulated), hospital dashboard with login, clinic reminders (in-app + mock email), optional PDF upload.
+**In scope (demo):** fake Sri Lanka hospital data (public and private), triage, hospital matching with ETA, critical-case dispatch flow (simulated), hospital dashboard with login, clinic reminders (in-app + simulated phone message), optional PDF upload.
 
 **Out of scope:** real ambulance/police integration, real diagnosis, real patient data, production auth hardening.
 
@@ -25,7 +25,7 @@ An Orchestrator agent decides which agent runs next. Each agent has a clear job,
 1. **Triage Agent**: reads the free text and PDF summary, returns severity (critical / urgent / stable), required unit (trauma, cardiac, ICU, neuro, general), red flags and confidence. Asks follow-up questions if the input is too vague.
 2. **Hospital Matcher Agent**: tools = hospital graph query, Geoapify routing/ETA. Filters by unit and free beds, scores by ETA, capacity and sector, returns the best hospital plus ranked alternatives with a reason for each.
 3. **Emergency Dispatch Agent (critical only)**: after a 10-second countdown the patient can cancel, creates an ambulance request, a police route-clearance request (with the route from Geoapify) and a "get ready" alert to the chosen hospital. Logs each step so the demo shows the chain.
-4. **Clinic Reminder Agent**: takes clinic name, date and condition, schedules reminders, suggests a good arrival time based on hospital load, sends in-app notice and mock email.
+4. **Clinic Reminder Agent**: takes clinic name, date, time, condition and a patient or guardian phone number, schedules reminders, suggests a good arrival time based on hospital load, and creates an in-app notice plus simulated phone message.
 5. **Document Agent (small)**: extracts text from the PDF and summarises the key medical facts for the Triage Agent.
 6. **Orchestrator Agent**: decides the next step for each case (read the PDF only if one exists, ask a follow-up, triage, match, dispatch only if critical, re-plan). Deterministic guard rules can veto its choices.
 7. **Re-plan Agent**: if the chosen hospital declines, runs out of beds or does not respond, excludes it, re-matches and re-dispatches to the next best hospital (max 3 times).
@@ -38,7 +38,7 @@ An Orchestrator agent decides which agent runs next. Each agent has a clear job,
 5. Hospital Matcher + Geoapify (geocoding, routing, map)
 6. Alternatives list with reasons
 7. Critical flow: Dispatch Agent with 10-second cancel countdown, hospital incoming-patient alert with Accept/Decline, simulated ambulance/police panel, automatic re-planning
-8. Clinic Reminder Agent + saved clinic-patient profile + mock email, then real email as a stretch
+8. Clinic Reminder Agent + saved clinic-patient/guardian contact + simulated phone-message preview, then real SMS as a stretch
 9. PDF Document Agent
 10. Polish: loading states, error handling, demo data reset, disclaimer
 11. Emergency SOS button (T33): one tap, location from the phone, no questions. Case is CRITICAL at once, nearest hospital with a free bed (public or private), ambulance and police route clearance sent after a 3-second cancel window (`sos.jac`; `SOS_CANCEL_SECONDS = 0` would send instantly). All simulated; the 1990 notice stays visible.
@@ -48,7 +48,7 @@ An Orchestrator agent decides which agent runs next. Each agent has a clear job,
 - **Language:** Jac, at least 80% of code, covering backend and frontend. Use nodes/edges/walkers for the hospital graph and `by llm` style agent functions for the AI parts. Plain JS/CSS only where Jac can't cover it (keep under 20%). Verify exact syntax against jaclang.org/docs/latest.
 - **LLM:** a free-tier API key (Gemini or Groq). Cache results and keep prompts short to stay under rate limits.
 - **Location:** Geoapify (geocoding, routing, places, map tiles).
-- **Email:** mock first (render the email in the app), real SMTP/Resend only as a stretch.
+- **Phone messages:** simulate and preview them in the app; connect a real SMS provider only as a stretch.
 - **PDF text:** a small Python extractor (pypdf) called from Jac.
 - **Hosting:** Jac Hammer sandbox for judges, local fallback for the video.
 - **Jac tooling:** `pip install jaseci`. Coding agents use the Jac MCP server (`codex mcp add jac -- jac mcp` or `claude mcp add jac -- jac mcp`) to validate Jac code. See `skill.md`.
@@ -69,13 +69,13 @@ Coordination runs through `progress.md`, which holds the agent rules, task track
 | 11:30 to 1:30 | Patient form, Triage Agent, Matcher end to end (3-4, 6) |
 | 1:30 to 2:30 | Geoapify routing, ETA, map (5) |
 | 2:30 to 3:30 | Critical flow: dispatch, hospital alert, police panel (7) |
-| 3:30 to 4:15 | Clinic reminders + mock email (8) |
+| 3:30 to 4:15 | Clinic reminders + simulated phone message (8) |
 | 4:15 to 4:45 | PDF agent and polish (9-10). Feature freeze at 4:45 |
 | 4:45 to 5:30 | Deploy, record demo video, README and description, submit with buffer |
 
 ## 9. Definition of done
 - Scenario 1 (critical, e.g. chest pain): triage → best hospital with ETA → alternatives → 10-second cancellable countdown → ambulance and police requests → hospital sees the incoming alert and can accept or decline (a decline triggers re-planning to the next hospital), all working live and visible in the agent timeline.
-- Scenario 2 (clinic patient): enters clinic date, gets reminder in-app and as mock email.
+- Scenario 2 (clinic patient): enters clinic date/time and a patient or guardian phone number, then gets an in-app notice and simulated phone message.
 - Hospital can log in and change beds, and the next recommendation changes accordingly.
 - Submitted by 5:30 PM: GitHub link (80%+ Jac), demo video, written description of Jac/Jaseci usage, repo starred.
 

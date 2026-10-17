@@ -23,7 +23,7 @@ A patient or family describes the condition (and can upload a medical PDF), shar
 - **Emergency SOS button:** one tap, no typing. The phone shares its location, the nearest hospital with a free bed (public or private) is picked, and an ambulance, police route clearance and a hospital alert go out after a 3-second cancel window (simulated in this demo)
 - **Emergency dispatch (critical only):** ambulance request, police route clearance and a hospital pre-arrival alert, sent after a 10-second countdown the patient can cancel (simulated in this demo)
 - **Hospital dashboard:** hospital staff log in to update bed availability and see incoming-patient alerts they can accept or decline
-- **Clinic reminders:** in-app notice and email for clinic dates, with a suggested arrival time
+- **Clinic reminders:** patient or guardian phone number, clinic date and time, in-app notice, and simulated phone message with a suggested arrival time
 - **Surgery waiting lists:** patients choose a planned surgery (cataract, hernia, knee replacement and more) and see the hospital with the shortest expected wait near them, then join its list; hospitals keep their waiting counts up to date
 - **Medical PDF upload (optional):** key facts are extracted and passed to triage
 - **Live agent timeline:** every agent step, tool call and decision is shown to the user as it happens
@@ -44,7 +44,7 @@ A patient or family describes the condition (and can upload a medical PDF), shar
 - **Jac / Jaseci** (80%+ of the code): backend, agents (`by llm()`) and frontend (`jac-client`)
 - **LLM:** free-tier API (Gemini or Groq)
 - **Geoapify:** geocoding, routing and maps
-- **Email:** mock email in the app, real email as a stretch
+- **Messages:** simulated phone-message preview in the app; no external SMS is sent in the demo
 - **Hosting:** Jac Hammer sandbox
 
 ## Setup
@@ -73,7 +73,7 @@ Open `http://localhost:8000`. Use the Patient, Hospital and Clinic tabs to switc
 0. **Emergency (no typing):** on the Patient tab tap the big red **Emergency: get help now** button and allow location access. CareRoute finds the nearest hospital with a free bed, asks for an ambulance and police route clearance, and shows the live status. You have 3 seconds to cancel if you tapped by mistake. If location is blocked it tells you to allow it, type an address, or call 1990.
 1. **Patient:** open the app, describe the condition, share your location (optional PDF), and view the recommended hospital and alternatives. For a critical case, a 10-second countdown starts and you can tap Cancel to stop the dispatch.
 2. **Hospital staff:** log in with a demo account _(TODO: add credentials)_, update bed availability, and accept or decline incoming-patient alerts.
-3. **Clinic patient:** enter the clinic, date and condition to get a reminder.
+3. **Clinic patient:** enter the clinic date and time plus a patient or guardian phone number to preview reminder messages.
 
 ## Project structure
 ```
@@ -96,7 +96,7 @@ careroute/
 ## Next steps
 - Replace simulated ambulance and police integration with real services (for example 1990 Suwa Seriya and traffic police)
 - Live bed data from real hospital systems instead of manual updates
-- Real email and SMS reminders
+- Real SMS delivery through a configured provider
 - Sinhala and Tamil language support
 - Clinical review of the triage logic before any real-world use
 

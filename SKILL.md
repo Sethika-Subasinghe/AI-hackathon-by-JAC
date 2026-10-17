@@ -137,11 +137,11 @@ Keep a deterministic ranking as the fallback so the demo never breaks.
 ## A7. Clinic Reminder Agent
 **Purpose:** remind clinic patients and suggest when to arrive.
 **Use when:** a clinic patient saves a clinic date, and when a reminder is due.
-**Tools:** `get_hospital_load(hospital_id)`, `schedule_reminder`, `send_inapp_notice`, `send_email` (mock: writes to an in-app inbox).
-**Decides:** best arrival time from hospital load, reminder timing (day before and morning of), and the email text (`by llm()`).
-**Memory:** saved `ClinicPatient` profile (name, email, clinic, date, condition note).
+**Tools:** `get_hospital_load(hospital_id)`, `schedule_reminder`, `send_inapp_notice`, `send_phone_message` (simulated: writes to an in-app inbox).
+**Decides:** best arrival time from hospital load and clinic time, reminder timing (day before and two hours before), and the phone-message text (`by llm()`).
+**Memory:** saved `ClinicPatient` profile (name, patient/guardian phone, contact role, clinic, date, time, condition note).
 **Demo:** add a **"Skip time"** button so reminders can be shown live.
-**Implement:** `def compose_reminder(patient: ClinicPatient, tip: str) -> EmailDraft by llm();`
+**Implement:** `def compose_reminder(patient: ClinicPatient, tip: str) -> MessageDraft by llm();`
 
 ## A8. Agent Event Log (powers the visible timeline)
 **Purpose:** make every agent action observable by the UI.
@@ -187,7 +187,7 @@ Write `running` before a step and `done` or `failed` after. The frontend polls e
 - Test at 360, 768 and 1280 px. No horizontal scroll.
 
 ## B3. Component kit (build once, reuse)
-SafetyBanner · SeverityBadge · HospitalCard (name, public/private chip, ETA, beds by unit, "Best match", why-text) · AlternativesList · MapPanel (Geoapify tiles, markers, route line, moving ambulance marker) · **AgentTimeline** · CountdownBanner · BedStepper (+/- per unit) · AlertCard (Accept / Decline) · EmailPreview · Toast · Skeleton · EmptyState.
+SafetyBanner · SeverityBadge · HospitalCard (name, public/private chip, ETA, beds by unit, "Best match", why-text) · AlternativesList · MapPanel (Geoapify tiles, markers, route line, moving ambulance marker) · **AgentTimeline** · CountdownBanner · BedStepper (+/- per unit) · AlertCard (Accept / Decline) · MessagePreview · Toast · Skeleton · EmptyState.
 
 ## B4. Making agent actions visible (key skill)
 - Vertical **AgentTimeline**: icon per agent, plain-language title ("Checking 6 hospitals with cardiac beds"), status (spinner / check / warning / waiting), time.
@@ -200,7 +200,7 @@ SafetyBanner · SeverityBadge · HospitalCard (name, public/private chip, ETA, b
 - **Patient:** description box with example chips, location button + address field (Geoapify autocomplete), optional PDF drop zone → timeline runs → result card with map.
 - **Critical:** a red banner takes over: "Critical case. Dispatching in 10…" with a ring countdown and a big Cancel button, then a live status of ambulance, police and hospital.
 - **Hospital:** log in → bed steppers with colour thresholds (green, amber, red) → incoming alerts with ETA and Accept / Decline.
-- **Clinic:** a short form → saved profile → reminder card + email preview.
+- **Clinic:** a short form with patient/guardian phone and clinic time → saved profile → reminder card + phone-message preview.
 
 ## B6. Interaction and feedback states
 Skeletons while loading · streamed timeline steps · success confirmation · inline validation · friendly errors with Retry · "Using backup logic" banner · disabled-while-working buttons · toasts for hospital updates · respects `prefers-reduced-motion`. Microcopy: calm, short, no jargon.

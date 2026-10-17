@@ -29,18 +29,20 @@ test "reset clears demo records, restores beds and resets the simulated clock" {
     );
     root.shared ++> ClinicPatient(
         name="Demo patient",
-        email="demo@example.com",
+        phone="0771234567",
+        contact_role="PATIENT",
         clinic="Demo clinic",
         hospital_id="demo-colombo-central",
-        clinic_date="2030-01-01"
+        clinic_date="2030-01-01",
+        clinic_time="09:00"
     );
     root.shared ++> ReminderTask(patient_id="demo-patient", kind="DAY_BEFORE", due_at=1.0);
     root.shared ++> MailItem(
         patient_id="demo-patient",
-        channel="EMAIL",
-        to="demo@example.com",
+        channel="SMS",
+        to="0771234567",
         subject="Demo reminder",
-        body="Test email"
+        body="Test phone message"
     );
     SIM["offset_hours"] = 48.0;
     colombo = [h for h in list_hospitals() if h.name == "Colombo Central Care Hospital (Demo)"][0];
