@@ -104,13 +104,15 @@ Read with `plan.md`, `README.md` and `skill.md`.
 | T34 | Fix custom "What is happening?" text stuck on sending; Gemini rates severity and decides whether to call the ambulance; police only when severe AND ambulance called; hospital matching and location unchanged | A2, A5 | Sethika | In progress | T33 | Claimed by Sethika (user report 2026-10-17). Will update plan.md, README.md and SKILL.md with the code (rule 10). |
 | T34 | Clinic contact update: patient/guardian phone, clinic time, and simulated reminder messages | user request | Akeesha | Done | T22, T23 | Clinic form and profile now save a patient/guardian phone and appointment time; reminders produce in-app notices and simulated phone messages containing the time. MCP client transpile/lint, Jac check, 5 clinic tests, demo reset, and live browser flow pass at desktop and 360 px. |
 | T35 | Surgery waiting lists: hospital side keeps the number of patients waiting per surgery, patient side picks a surgery and sees the best hospital by wait and distance | user request | Dimuth | Done | T06 | `surgery.jac` + `data/surgery_seed.jac` (9 planned surgeries, demo numbers for all 10 hospitals), `components/SurgeryPlanner.cl.jac`, `components/SurgeryLists.cl.jac`, new "Surgery" tab. 9 tests pass; verified in headless Chrome (patient picks cataract, sees the best hospital, joins the list as number 26; hospital changes the count). "Reset demo data" restores the lists |
+| T36 | Deploy CareRoute to a free Render web service | user request | Akeesha | In progress | T26 | Claimed for a separate Render deployment while Dimuth continues T29 on Jac Hammer. Prepare a reproducible free-tier configuration, publish the current `main`, and verify the public UI and API. |
 
 ## 5. Next up
 Keep this to 3 to 6 items and refresh it whenever a task is Done.
-1. **T29** Dimuth (in progress): deploy, then the local fallback
-2. **T30** Sethika: record both demo scenarios (after T29)
-3. **T31** Akeesha: finalize README and Jac/Jaseci description (after T29)
-4. **T32** Dimuth: submit (after T30 video and T31 README)
+1. **T36** Akeesha (in progress): deploy the current app to Render free tier
+2. **T29** Dimuth (in progress): deploy, then the local fallback
+3. **T30** Sethika: record both demo scenarios (after T29)
+4. **T31** Akeesha: finalize README and Jac/Jaseci description (after T29)
+5. **T32** Dimuth: submit (after T30 video and T31 README)
 
 
 ## 6. Shared notes (blockers, interface changes, decisions)
