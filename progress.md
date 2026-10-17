@@ -77,7 +77,7 @@ Read with `plan.md`, `README.md` and `skill.md`.
 | T21 | Map: moving ambulance marker and police clearance panel | B3 | Akeesha | Not started | T16, T17 | |
 | T22 | Clinic Reminder Agent + ClinicPatient profile + mock email inbox | A7 | Dimuth | Done | T05 | `clinic.jac`; 5 tests pass offline. Reminder emails use the template until the model key works |
 | T23 | Clinic UI: form, reminder card, EmailPreview, in-app notices | B5 | Akeesha | Not started | T07, T22 | |
-| T24 | Document Agent: pypdf extractor + `summarise_report` | A3 | Dimuth | Not started | T10 | |
+| T24 | Document Agent: pypdf extractor + `summarise_report` | A3 | Dimuth | In progress | T10 | |
 | T25 | Reliability: timeouts, retries, fallbacks, "Using backup logic" banner, canned demo results | A10 | Dimuth | Not started | T13, T15 | |
 | T26 | UI polish: loading, empty and error states, responsive check (360/768/1280), accessibility, microcopy | B6 | Sethika | Not started | T16, T18 | |
 | T27 | Demo tools: Load demo scenario, Reset demo data, Skip time | B7 | Akeesha | Not started | T22 | |
