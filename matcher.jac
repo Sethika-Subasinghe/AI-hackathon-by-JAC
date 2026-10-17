@@ -176,11 +176,13 @@ def rank_hospitals(
         candidates,
         key=lambda h: HospitalView : haversine_km(origin_lat, origin_lon, h.lat, h.lon)
     )[:MAX_ROUTED];
+    # Route all candidates at the same time: the road lookups are the slow part, and SOS needs speed.
+    futures = [flow _make_pick(h, unit_name, origin_lat, origin_lon) for h in nearest_few];
     picks: list[HospitalPick] = [];
-    for h in nearest_few {
-        p = _make_pick(h, unit_name, origin_lat, origin_lon);
+    for i in range(len(nearest_few)) {
+        p = wait futures[i];
         p.score = score_hospital(
-            severity, p.eta_minutes, p.free_beds, p.total_beds, p.sector, _unit_free(h, "ICU")
+            severity, p.eta_minutes, p.free_beds, p.total_beds, p.sector, _unit_free(nearest_few[i], "ICU")
         );
         picks.append(p);
     }
@@ -195,7 +197,7 @@ def rank_hospitals(
 }
 
 """Match a case: rank hospitals, word the reasons, write the choice onto the case and log it."""
-def match_case(cs: CaseState) -> MatchResult {
+def match_case(cs: CaseState, explain: bool = True) -> MatchResult {
     ev = start_event(cs, "matcher", "find_hospital", "Looking for the best hospital");
     unit_name = cs.unit_needed.name;
     result = rank_hospitals(
@@ -212,7 +214,7 @@ def match_case(cs: CaseState) -> MatchResult {
         finish_event(ev, EventStatus.FAILED, "No hospital found", result.summary);
         return result;
     }
-    if LIVE_SERVICES["on"] and model_available() and len(result.alternatives) > 0 and best.free_beds > 0 {
+    if explain and LIVE_SERVICES["on"] and model_available() and len(result.alternatives) > 0 and best.free_beds > 0 {
         shown = [best] + result.alternatives;
         facts = [
             f"{p.name}: {round(p.eta_minutes)} min, {p.free_beds} free beds, {p.sector.lower()}"

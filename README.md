@@ -20,6 +20,7 @@ A patient or family describes the condition (and can upload a medical PDF), shar
 ## Features
 - **Triage:** rates urgency (critical / urgent / stable) and the care needed, such as cardiac, trauma or ICU
 - **Best-hospital matching:** ranks hospitals by unit, free beds and travel time, with alternatives and the reason each ranked lower
+- **Emergency SOS button:** one tap, no typing. The phone shares its location, the nearest hospital with a free bed (public or private) is picked, and an ambulance, police route clearance and a hospital alert go out after a 3-second cancel window (simulated in this demo)
 - **Emergency dispatch (critical only):** ambulance request, police route clearance and a hospital pre-arrival alert, sent after a 10-second countdown the patient can cancel (simulated in this demo)
 - **Hospital dashboard:** hospital staff log in to update bed availability and see incoming-patient alerts they can accept or decline
 - **Clinic reminders:** in-app notice and email for clinic dates, with a suggested arrival time
@@ -69,6 +70,7 @@ jac start main.jac
 
 Open `http://localhost:8000`. Use the Patient, Hospital and Clinic tabs to switch between the current workspace placeholders. The medical safety banner remains visible throughout the app.
 
+0. **Emergency (no typing):** on the Patient tab tap the big red **Emergency: get help now** button and allow location access. CareRoute finds the nearest hospital with a free bed, asks for an ambulance and police route clearance, and shows the live status. You have 3 seconds to cancel if you tapped by mistake. If location is blocked it tells you to allow it, type an address, or call 1990.
 1. **Patient:** open the app, describe the condition, share your location (optional PDF), and view the recommended hospital and alternatives. For a critical case, a 10-second countdown starts and you can tap Cancel to stop the dispatch.
 2. **Hospital staff:** log in with a demo account _(TODO: add credentials)_, update bed availability, and accept or decline incoming-patient alerts.
 3. **Clinic patient:** enter the clinic, date and condition to get a reminder.
@@ -83,6 +85,7 @@ careroute/
 ├── assets/theme.css         # design tokens and responsive presentation
 ├── models.jac               # shared graph model and types
 ├── hospitals.jac            # hospital services
+├── sos.jac                  # one-tap emergency SOS flow
 ├── agent_log.jac            # agent event helpers
 ├── data/                    # fake Sri Lanka hospital dataset
 ├── plan.md                  # project plan

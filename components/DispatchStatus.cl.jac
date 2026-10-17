@@ -40,11 +40,11 @@ def _status_text(status: str) -> str {
 }
 
 """Red takeover banner with a ring countdown and a large Cancel button."""
-def:pub CountdownBanner(seconds_left: float, on_cancel: Callable[[], None]) -> JsxElement {
+def:pub CountdownBanner(seconds_left: float, on_cancel: Callable[[], None], total: float = 10.0) -> JsxElement {
     def cancel_click(_e: MouseEvent) { on_cancel(); }
 
     shown: int = int(seconds_left + 0.99);
-    fraction: float = max(0.0, min(1.0, seconds_left / COUNTDOWN_TOTAL));
+    fraction: float = max(0.0, min(1.0, seconds_left / max(total, 1.0)));
     offset: float = RING_LENGTH * (1.0 - fraction);
 
     return <section className="countdown-banner" role="region" aria-label="Emergency dispatch countdown">
@@ -127,7 +127,7 @@ def:pub DispatchPanel(
 ) -> JsxElement {
     return <div className="dispatch-panel-slot">
         {if dispatch is not None and dispatch.case_status == "DISPATCHING" {
-            <CountdownBanner key="dispatch-countdown" seconds_left={dispatch.seconds_left} on_cancel={on_cancel}/>
+            <CountdownBanner key="dispatch-countdown" seconds_left={dispatch.seconds_left} on_cancel={on_cancel} total={dispatch.countdown_total}/>
         }}
         {if dispatch is not None and dispatch.case_status == "CANCELLED" {
             <p key="dispatch-cancelled" className="cancelled-note" role="status">

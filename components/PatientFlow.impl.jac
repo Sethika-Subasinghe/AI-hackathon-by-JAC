@@ -197,6 +197,43 @@ impl PatientFlow.refresh_case() -> None {
     }
 }
 
+"""Emergency button: get the phone's location and start the SOS flow with no other input."""
+impl PatientFlow.press_sos() {
+    sos_message = "";
+    nav: any = navigator;
+    if not nav.geolocation {
+        sos_message = "Your browser cannot share its location. Type your address below, or call 1990.";
+        return;
+    }
+    sos_busy = True;
+    nav.geolocation.getCurrentPosition(
+        lambda(pos: any) {
+            begin_sos(pos.coords.latitude as float, pos.coords.longitude as float);
+        },
+        lambda(_err: any) {
+            sos_busy = False;
+            sos_message = "We could not get your location. Allow location access and tap again, type your address below, or call 1990.";
+        },
+        {"enableHighAccuracy": True, "timeout": 8000, "maximumAge": 60000}
+    );
+}
+
+impl PatientFlow.begin_sos(s_lat: float, s_lon: float) -> None {
+    lat = s_lat;
+    lon = s_lon;
+    address = "My current location";
+    try {
+        new_id: str = await start_sos(s_lat, s_lon, "My current location");
+        case_id = new_id;
+        sos_busy = False;
+        # Do not wait: the page keeps polling while the nearest hospital is found and help is asked for.
+        run_sos(new_id);
+    } except Exception {
+        sos_busy = False;
+        sos_message = "We could not start the emergency request. Please call 1990 now.";
+    }
+}
+
 impl PatientFlow.cancel_countdown() -> None {
     if case_id == "" {
         return;

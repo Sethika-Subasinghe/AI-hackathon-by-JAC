@@ -12,6 +12,8 @@ import from .ResultCards { HospitalCard, AlternativesList }
 import from .MapPanel { MapPanel }
 import from .UiKit { StatusBadge }
 import from .DispatchStatus { DispatchPanel }
+import from .SosButton { SosButton }
+sv import from sos { start_sos, run_sos }
 sv import from orchestrator { CaseView, create_case, run_case_by_id, get_case, answer_followup }
 sv import from dispatch { DispatchView, get_dispatch, cancel_dispatch }
 sv import from agent_log { EventView, case_events }
@@ -39,7 +41,9 @@ def:pub PatientFlow -> JsxElement {
         followup_answer: str = "",
         match_result: MatchResult | None = None,
         events: list[EventView] = [],
-        dispatch: DispatchView | None = None;
+        dispatch: DispatchView | None = None,
+        sos_busy: bool = False,
+        sos_message: str = "";
 
     def update_description(e: ChangeEvent);
     def pick_example(text: str);
@@ -56,6 +60,8 @@ def:pub PatientFlow -> JsxElement {
     def update_followup(e: ChangeEvent);
     async def send_followup(e: FormEvent) -> None;
     def start_over();
+    def press_sos();
+    async def begin_sos(s_lat: float, s_lon: float) -> None;
 
     # Poll the case about once a second while one is open.
     useEffect(lambda {
@@ -105,6 +111,9 @@ def:pub PatientFlow -> JsxElement {
     }
 
     return <div className="patient-flow">
+        {if case_id == "" {
+            <SosButton key="sos-button" busy={sos_busy} message={sos_message} on_press={press_sos}/>
+        }}
         {if case_id == "" {
             <IntakeForm
                 key="patient-intake"

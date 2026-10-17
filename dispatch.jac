@@ -22,6 +22,8 @@ import from geoapify { get_route }
 import from reliability { model_available, record_model_success, record_model_failure }
 
 glob COUNTDOWN_SECONDS: float = 10.0;
+# Length of each case's cancel window, so the banner ring can scale (SOS uses a shorter one).
+glob COUNTDOWN_TOTALS: dict[str, float] = {};
 # Demo speed: the ambulance covers the route this many times faster than real time.
 glob DEMO_SPEEDUP: float = 30.0;
 glob LIVE_MODEL: dict[str, bool] = {"on": True};
@@ -60,7 +62,8 @@ obj DispatchView {
         seconds_left: float,
         requests: list[RequestView],
         previous: list[RequestView] = [],
-        ambulance_progress: float = 0.0;
+        ambulance_progress: float = 0.0,
+        countdown_total: float = 10.0;
 }
 
 """A hospital's incoming alert."""
@@ -129,7 +132,7 @@ def _new_request(
     ))[0];
 }
 
-def _make_requests(cs: CaseState) -> list[Request] {
+def _make_requests(cs: CaseState, use_model: bool = True) -> list[Request] {
     hospital_name = "the chosen hospital";
     route_coords: list[list[float]] = [];
     km = 0.0;
@@ -147,7 +150,7 @@ def _make_requests(cs: CaseState) -> list[Request] {
     }
     unit = cs.unit_needed.name;
     plan = _template_plan(hospital_name, unit, eta, km);
-    if LIVE_MODEL["on"] and model_available() {
+    if use_model and LIVE_MODEL["on"] and model_available() {
         try {
             plan = draft_dispatch_messages(
                 compact_case(cs) + f"{chr(10)}Hospital: {hospital_name}, ETA {round(eta)} min, route {km:.1f} km"
@@ -166,17 +169,19 @@ def _make_requests(cs: CaseState) -> list[Request] {
 }
 
 """Create the three requests and open the countdown. Safe to call twice."""
-def start_dispatch(cs: CaseState) -> list[Request] {
+def start_dispatch(cs: CaseState, countdown_seconds: float = COUNTDOWN_SECONDS, use_model: bool = True) -> list[Request] {
     existing = _current(cs);
     if len(existing) > 0 {
         return existing;
     }
     ev = start_event(cs, "dispatch", "prepare", "Preparing ambulance, police and hospital requests");
-    created = _make_requests(cs);
+    created = _make_requests(cs, use_model);
     cs.status = CaseStatus.DISPATCHING;
-    cs.countdown_ends_at = time.time() + COUNTDOWN_SECONDS;
-    finish_event(ev, EventStatus.DONE, "Requests ready (simulated)", "Dispatching in 10 seconds unless you cancel");
-    log_event(cs, "dispatch", "countdown", EventStatus.WAITING, "Dispatching in 10 seconds", "Tap Cancel to stop");
+    cs.countdown_ends_at = time.time() + countdown_seconds;
+    COUNTDOWN_TOTALS[jid(cs)] = countdown_seconds;
+    secs = str(int(countdown_seconds));
+    finish_event(ev, EventStatus.DONE, "Requests ready (simulated)", f"Dispatching in {secs} seconds unless you cancel");
+    log_event(cs, "dispatch", "countdown", EventStatus.WAITING, f"Dispatching in {secs} seconds", "Tap Cancel to stop");
     return created;
 }
 
@@ -253,7 +258,8 @@ def _dispatch_view(cs: CaseState) -> DispatchView {
         seconds_left=left,
         requests=[_view_request(r) for r in _current(cs)],
         previous=[_view_request(r) for r in _requests(cs) if r.attempt != cs.replan_count],
-        ambulance_progress=_ambulance_progress(cs)
+        ambulance_progress=_ambulance_progress(cs),
+        countdown_total=COUNTDOWN_TOTALS.get(jid(cs), COUNTDOWN_SECONDS)
     );
 }
 

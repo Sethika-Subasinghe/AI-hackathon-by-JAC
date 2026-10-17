@@ -122,6 +122,11 @@ Keep a deterministic ranking as the fallback so the demo never breaks.
 **Errors:** each action is idempotent (never sent twice) and logged; if one fails, retry once, show the failure in the timeline and continue with the rest.
 **Implement:** `def draft_dispatch_messages(case: CaseState) -> DispatchPlan by llm();` then plain Jac functions that create `Request` nodes for ambulance, police and hospital.
 
+## A5b. Emergency SOS (T33)
+**Purpose:** for someone who cannot type. One tap on the big red button (Patient tab) starts a critical case.
+**Flow:** browser geolocation -> `start_sos(lat, lon)` creates a CRITICAL case (unit GENERAL, red flag "Emergency button pressed") -> `run_sos(case_id)` runs the Matcher without waiting for the model (parallel road lookups, template reasons) -> `start_dispatch(cs, SOS_CANCEL_SECONDS, False)` sends ambulance, police route clearance and hospital alert after a **3 s** Cancel window. The UI then polls the normal endpoints (`get_case`, `case_events`, `get_match`, `get_dispatch`).
+**Safety:** the cancel window stays so an accidental tap can be stopped; set `SOS_CANCEL_SECONDS = 0.0` for instant sending. Location denied -> never guess a place, tell the user to allow location, type an address or call 1990. Everything is simulated and labelled.
+
 ## A6. Re-plan Agent
 **Purpose:** recover when the plan breaks. This is the main agentic demo moment.
 **Use when:** the hospital taps **Decline**, bed count drops to 0, or no response within the timeout (demo: about 20 s).

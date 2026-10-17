@@ -41,6 +41,7 @@ An Orchestrator agent decides which agent runs next. Each agent has a clear job,
 8. Clinic Reminder Agent + saved clinic-patient profile + mock email, then real email as a stretch
 9. PDF Document Agent
 10. Polish: loading states, error handling, demo data reset, disclaimer
+11. Emergency SOS button (T33): one tap, location from the phone, no questions. Case is CRITICAL at once, nearest hospital with a free bed (public or private), ambulance and police route clearance sent after a 3-second cancel window (`sos.jac`; `SOS_CANCEL_SECONDS = 0` would send instantly). All simulated; the 1990 notice stays visible.
 11. **Surgery waiting lists (added 3:10 PM, T33):** planned surgeries such as cataract have long waits in Sri Lanka. Hospitals keep the number of patients waiting and operations per week; a patient picks a surgery, sees the best hospitals ranked by expected wait and distance, and can join a list. Built in Jac (`surgery.jac`), a "Surgery" tab for patients and a "Surgery waiting lists" section in the hospital dashboard.
 
 ## 6. Tech stack

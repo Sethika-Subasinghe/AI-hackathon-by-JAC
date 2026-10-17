@@ -16,6 +16,7 @@ import from dispatch {
     RequestView, DispatchView, AlertView,
     get_dispatch, cancel_dispatch, hospital_alerts, respond_alert
 }
+import from sos { start_sos, run_sos }
 import from documents { ReportSummary, UploadResult, upload_report }
 import from reliability { SystemStatus, get_system_status }
 import from mapconfig { MapConfig, get_map_config }
