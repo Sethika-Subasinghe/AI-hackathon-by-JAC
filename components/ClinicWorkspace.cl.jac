@@ -2,6 +2,7 @@
 
 import "./ClinicWorkspace.css";
 import from .UiKit { StatusBadge }
+import from .ClinicCards { EmailPreview, NoticeInbox, ReminderCard }
 sv import from hospitals { HospitalView, list_hospitals }
 sv import from clinic {
     ClinicView, MailView,
@@ -27,43 +28,65 @@ def:pub ClinicWorkspace -> JsxElement {
         notice: str = "";
 
     async can with entry {
-        loaded_hospitals = await list_hospitals();
-        hospitals = loaded_hospitals;
-        if len(loaded_hospitals) > 0 {
-            hospital_id = loaded_hospitals[0].id;
+        try {
+            loaded_hospitals = await list_hospitals();
+            hospitals = loaded_hospitals;
+            if len(loaded_hospitals) > 0 {
+                hospital_id = loaded_hospitals[0].id;
+            } else {
+                error = "No demo hospitals are available right now.";
+            }
+        } except Exception {
+            error = "Could not load demo hospitals. Please try the Clinic tab again.";
         }
         loading_hospitals = False;
     }
+
+    def update_name(e: ChangeEvent) { name = e.target.value; }
+    def update_email(e: ChangeEvent) { email = e.target.value; }
+    def update_clinic_name(e: ChangeEvent) { clinic_name = e.target.value; }
+    def update_hospital(e: ChangeEvent) { hospital_id = e.target.value; }
+    def update_clinic_date(e: ChangeEvent) { clinic_date = e.target.value; }
+    def update_condition_note(e: ChangeEvent) { condition_note = e.target.value; }
 
     async def submit_visit(e: FormEvent) {
         e.preventDefault();
         error = "";
         notice = "";
         saving = True;
-        result = await save_clinic_patient(
-            name,
-            email,
-            clinic_name,
-            hospital_id,
-            clinic_date,
-            condition_note
-        );
-        saving = False;
-        if result.ok and result.patient is not None {
-            patient = result.patient;
-            inbox_items = await clinic_inbox(result.patient.id);
-            notice = result.message;
-        } else {
-            error = result.message;
+        try {
+            result = await save_clinic_patient(
+                name,
+                email,
+                clinic_name,
+                hospital_id,
+                clinic_date,
+                condition_note
+            );
+            if result.ok and result.patient is not None {
+                patient = result.patient;
+                inbox_items = await clinic_inbox(result.patient.id);
+                notice = result.message;
+            } else {
+                error = result.message;
+            }
+        } except Exception as err {
+            error = "Could not save this clinic visit: " + str(err);
         }
+        saving = False;
     }
 
     async def refresh_inbox(_e: MouseEvent) -> None {
         if patient is None { return; }
         refreshing = True;
-        inbox_items = await clinic_inbox(patient.id);
+        error = "";
+        try {
+            inbox_items = await clinic_inbox(patient.id);
+            notice = "Reminder inbox refreshed.";
+        } except Exception as err {
+            error = "Could not refresh reminders: " + str(err);
+        }
         refreshing = False;
-        notice = "Reminder inbox refreshed.";
     }
 
     async def skip_demo_time(_e: MouseEvent) -> None {
@@ -138,21 +161,21 @@ def:pub ClinicWorkspace -> JsxElement {
                     <div className="clinic-field-grid">
                         <label>
                             <span>Your name</span>
-                            <input type="text" value={name} onChange={lambda e: ChangeEvent { name = e.target.value; }} autoComplete="name" placeholder="e.g. Nimal Perera" required={True}/>
+                            <input type="text" value={name} onChange={update_name} autoComplete="name" placeholder="e.g. Nimal Perera" required={True}/>
                         </label>
                         <label>
                             <span>Email address</span>
-                            <input type="email" value={email} onChange={lambda e: ChangeEvent { email = e.target.value; }} autoComplete="email" placeholder="nimal@example.com" required={True}/>
+                            <input type="email" value={email} onChange={update_email} autoComplete="email" placeholder="nimal@example.com" required={True}/>
                         </label>
                     </div>
                     <label>
                         <span>Clinic</span>
-                        <input type="text" value={clinic_name} onChange={lambda e: ChangeEvent { clinic_name = e.target.value; }} placeholder="e.g. Diabetes clinic" required={True}/>
+                        <input type="text" value={clinic_name} onChange={update_clinic_name} placeholder="e.g. Diabetes clinic" required={True}/>
                     </label>
                     <div className="clinic-field-grid">
                         <label>
                             <span>Hospital</span>
-                            <select value={hospital_id} onChange={lambda e: ChangeEvent { hospital_id = e.target.value; }} disabled={loading_hospitals} required={True}>
+                            <select value={hospital_id} onChange={update_hospital} disabled={loading_hospitals} required={True}>
                                 {if loading_hospitals {
                                     <option value="">Loading demo hospitals...</option>
                                 } elif len(hospitals) == 0 {
@@ -166,12 +189,12 @@ def:pub ClinicWorkspace -> JsxElement {
                         </label>
                         <label>
                             <span>Clinic date</span>
-                            <input type="date" value={clinic_date} onChange={lambda e: ChangeEvent { clinic_date = e.target.value; }} required={True}/>
+                            <input type="date" value={clinic_date} onChange={update_clinic_date} required={True}/>
                         </label>
                     </div>
                     <label>
                         <span>Condition note <small>optional</small></span>
-                        <textarea value={condition_note} onChange={lambda e: ChangeEvent { condition_note = e.target.value; }} rows={3} placeholder="A short note to help identify this visit"></textarea>
+                        <textarea value={condition_note} onChange={update_condition_note} rows={3} placeholder="A short note to help identify this visit"></textarea>
                     </label>
                     {error and <p className="clinic-message error" role="alert">{error}</p>}
                     <button type="submit" className="app-button clinic-submit" disabled={saving or loading_hospitals or hospital_id == ""}>
@@ -200,54 +223,10 @@ def:pub ClinicWorkspace -> JsxElement {
                 {notice and <p className="clinic-message success" aria-live="polite">{notice}</p>}
 
                 <div className="clinic-result-grid">
-                    <article className="reminder-card">
-                        <p className="clinic-eyebrow">Suggested arrival</p>
-                        <strong>{patient.arrival_tip}</strong>
-                        <p>Based on the current load at your selected demo hospital.</p>
-                        <div className="visit-facts">
-                            <span><small>Clinic</small>{patient.clinic}</span>
-                            <span><small>Date</small>{patient.clinic_date}</span>
-                            <span><small>Reminders</small>Evening before + morning of</span>
-                        </div>
-                    </article>
-
-                    <section className="notice-panel" aria-labelledby="clinic-notices-title">
-                        <div className="clinic-panel-heading">
-                            <div><p className="clinic-eyebrow">In-app notices</p><h4 id="clinic-notices-title">Reminder inbox</h4></div>
-                            <button type="button" onClick={refresh_inbox} disabled={refreshing}>{"Refreshing..." if refreshing else "Refresh"}</button>
-                        </div>
-                        {if len(notice_items) == 0 {
-                            <p className="clinic-empty">No notice is due yet. CareRoute will add one here before the clinic date.</p>
-                        } else {
-                            <div className="notice-list">{for item in notice_items {
-                                <article key={item.id}>
-                                    <span aria-hidden="true">!</span>
-                                    <div><strong>{item.subject}</strong><p>{item.body}</p><small>Simulated in-app notice</small></div>
-                                </article>
-                            }}</div>
-                        }}
-                    </section>
+                    <ReminderCard patient={patient}/>
+                    <NoticeInbox items={notice_items} refreshing={refreshing} on_refresh={refresh_inbox}/>
                 </div>
-
-                <section className="email-preview" aria-labelledby="email-preview-title">
-                    <div className="email-toolbar">
-                        <div><span></span><span></span><span></span></div>
-                        <strong id="email-preview-title">Mock email preview</strong>
-                        <em>Simulated</em>
-                    </div>
-                    {if latest_email is None {
-                        <div className="email-empty">
-                            <strong>Your reminder email will appear here</strong>
-                            <p>It is prepared when the evening-before or morning-of reminder becomes due.</p>
-                        </div>
-                    } else {
-                        <div className="email-content">
-                            <dl><div><dt>To</dt><dd>{latest_email.to}</dd></div><div><dt>Subject</dt><dd>{latest_email.subject}</dd></div></dl>
-                            <p>{latest_email.body}</p>
-                            <small>Demo message only - no email was sent.</small>
-                        </div>
-                    }}
-                </section>
+                <EmailPreview item={latest_email}/>
             </div>
         }}
     </section>;

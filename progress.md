@@ -1,6 +1,6 @@
 # progress.md: CareRoute shared tracker
 
-**Last updated:** 2026-10-17 by Sethika
+**Last updated:** 2026-10-17 by Akeesha
 **Deadline:** hacking 9:00 AM to 5:30 PM, Sat 17 Oct 2026. **Feature freeze 4:45 PM.** Submit (GitHub link, demo video, description) before 5:30 PM.
 Read with `plan.md`, `README.md` and `skill.md`.
 
@@ -85,7 +85,7 @@ Read with `plan.md`, `README.md` and `skill.md`.
 | T20 | Re-plan Agent: decline, full or timeout → re-match and re-dispatch | A6 | Dimuth | Done | T17, T19 | `replan.jac`; 6 tests pass; decline over HTTP verified live (new hospital alerted, old requests cancelled). Started before T19 with the user\'s OK |
 | T21 | Map: moving ambulance marker and police clearance panel | B3 | Akeesha | In progress | T16, T17 | Claimed (Claude Code, 2026-10-17): checking the T16 ambulance marker, adding what is missing for the police clearance panel. |
 | T22 | Clinic Reminder Agent + ClinicPatient profile + mock email inbox | A7 | Dimuth | Done | T05 | `clinic.jac`; 5 tests pass offline. Reminder emails use the template until the model key works |
-| T23 | Clinic UI: form, reminder card, EmailPreview, in-app notices | B5 | Akeesha | In progress | T07, T22 | Claimed by Akeesha; validating and polishing the clinic workspace integrated with T27. |
+| T23 | Clinic UI: form, reminder card, EmailPreview, in-app notices | B5 | Akeesha | Done | T07, T22 | Clinic form, suggested-arrival card, in-app reminder inbox, and mock EmailPreview work end to end with T22/T27; error states and reusable Jac components added. Live browser flow and 360/768/1280 widths verified; MCP client transpile/lint, `jac check main.jac`, and 5 clinic tests pass. |
 | T24 | Document Agent: pypdf extractor + `summarise_report` | A3 | Dimuth | Done | T10 | `documents.jac`; 5 tests pass; real PDF upload to a running server verified end to end. Summary uses an excerpt backup until the model key works |
 | T25 | Reliability: timeouts, retries, fallbacks, "Using backup logic" banner, canned demo results | A10 | Dimuth | Done | T13, T15 | `reliability.jac` + step shield and backup pipeline in `orchestrator.jac`; 50+ tests pass; verified with the invalid model key (backup path, breaker opens) |
 | T26 | UI polish: loading, empty and error states, responsive check (360/768/1280), accessibility, microcopy | B6 | Sethika | Done | T16, T18 | Clear address lookup, upload, submission and polling feedback; terminal empty states and plain-language status labels; 44px example targets, reduced-motion support, and calmer live announcements. Jac check/lint pass and app rendered in browser; responsive breakpoints reviewed. |
@@ -99,11 +99,10 @@ Read with `plan.md`, `README.md` and `skill.md`.
 ## 5. Next up
 Keep this to 3 to 6 items and refresh it whenever a task is Done.
 1. **T21** Akeesha: check moving ambulance marker and police panel (T16 map is implemented)
-2. **T23** Akeesha: finish clinic UI browser QA and polish on the integrated workspace
-3. **T29** Akeesha: deploy (T26 is done)
-4. **T30** Sethika: record both demo scenarios (after T29)
-5. **T31** Akeesha: finalize README and Jac/Jaseci description (after T29)
-6. **T32** Dimuth: submit (after T30 video and T31 README)
+2. **T29** Akeesha: deploy (T26 is done)
+3. **T30** Sethika: record both demo scenarios (after T29)
+4. **T31** Akeesha: finalize README and Jac/Jaseci description (after T29)
+5. **T32** Dimuth: submit (after T30 video and T31 README)
 
 
 ## 6. Shared notes (blockers, interface changes, decisions)
@@ -137,6 +136,7 @@ Add one entry per completed piece of work: date and time, who, what changed, fil
 
 | Date | Who | What changed | Files |
 |---|---|---|---|
+| 2026-10-17 13:52 | Akeesha | Completed T23: polished the clinic form and service error states, extracted reusable reminder/inbox/email cards, and verified the full live flow from demo load through save and simulated 24-hour reminder delivery at 360/768/1280 px; Jac share is 93.8%, MCP client transpile/lint, `jac check main.jac`, and all 5 clinic tests pass | components/ClinicWorkspace.cl.jac, components/ClinicCards.cl.jac, progress.md |
 | 2026-10-17 13:32 | Akeesha | Completed T27: added patient and clinic demo loaders, confirmed global reset, demo hospital restoration, and simulated 24-hour reminder delivery; verified Jac checks/tests, MCP validation/lint/transpilation, generated client controls, and live reset/reminder endpoints | demo.jac, demo.test.jac, clinic.jac, hospitals.jac, main.jac, frontend.cl.jac, frontend.impl.jac, components/IntakeForm.cl.jac, components/PatientFlow.cl.jac, components/PatientFlow.impl.jac, components/ClinicWorkspace.cl.jac, components/ClinicWorkspace.css, assets/demo.css, progress.md |
 | 2026-10-17 | Sethika | Completed T26: added patient loading, empty, search and recoverable error states; improved status microcopy, accessible announcements, touch targets and reduced-motion behavior; checked Jac and rendered the app in browser | components/PatientFlow.cl.jac, components/PatientFlow.impl.jac, components/IntakeForm.cl.jac, components/DispatchStatus.cl.jac, assets/theme.css, progress.md |
 | 2026-10-17 | Sethika | Resolved the T16 ownership conflict: confirmed T16 remains assigned to Sethika, corrected the hand-over references and Next up owner for T18 | progress.md |
