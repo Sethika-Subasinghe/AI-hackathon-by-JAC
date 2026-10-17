@@ -1,9 +1,13 @@
 """Tests for agent_log.jac (annex) plus a MockLLM check of the by-llm convention."""
 
-import from byllm.lib { MockLLM }
+import os;
+import sys;
+import from byllm.lib { Model, MockLLM }
 import from models { Location, Severity, UnitType }
 
-glob llm = MockLLM(model_name="mockllm", config={"outputs": [Severity.URGENT]});
+"""Mock model only while `jac test` runs; normal runs keep the real model."""
+glob llm = MockLLM(model_name="mockllm", config={"outputs": [Severity.URGENT]})
+    if sys.argv[1:2] == ["test"] else Model(model_name=os.environ.get("LLM_MODEL", "gemini/gemini-2.0-flash"));
 
 def rate(text: str) -> Severity by llm(temperature=0.2);
 sem rate = "Rate the urgency of the described case. Never diagnose.";

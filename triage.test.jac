@@ -1,8 +1,11 @@
 """Tests for triage.jac (annex). The model is a MockLLM, outputs are consumed in order."""
 
-import from byllm.lib { MockLLM }
+import os;
+import sys;
+import from byllm.lib { Model, MockLLM }
 import from models { Location }
 
+"""Mock model only while `jac test` runs; normal runs keep the real model."""
 glob llm = MockLLM(model_name="mockllm", config={"outputs": [
     TriageResult(severity=Severity.STABLE, unit=UnitType.GENERAL, confidence=0.9),
     TriageResult(
@@ -13,7 +16,8 @@ glob llm = MockLLM(model_name="mockllm", config={"outputs": [
         followup_question="Where does it hurt?"
     ),
     TriageResult(severity=Severity.URGENT, unit=UnitType.TRAUMA, confidence=0.8)
-]});
+]})
+    if sys.argv[1:2] == ["test"] else Model(model_name=os.environ.get("LLM_MODEL", "gemini/gemini-2.0-flash"));
 
 def _new_case(text: str) -> CaseState {
     return (root.shared ++> CaseState(

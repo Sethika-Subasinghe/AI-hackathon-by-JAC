@@ -1,16 +1,20 @@
 """Tests for orchestrator.jac (annex). The decide_next model is a MockLLM.
 Triage falls back to its keyword rules here because no real model is configured."""
 
-import from byllm.lib { MockLLM }
+import os;
+import sys;
+import from byllm.lib { Model, MockLLM }
 import from agent_log { case_events }
 
+"""Mock model only while `jac test` runs; normal runs keep the real model."""
 glob llm = MockLLM(model_name="mockllm", config={"outputs": [
     NextAction(step=Step.TRIAGE, reason="new case"),
     NextAction(step=Step.MATCH, reason="triaged"),
     NextAction(step=Step.FINISH, reason="done"),
     NextAction(step=Step.TRIAGE, reason="new case"),
     NextAction(step=Step.ASK_FOLLOWUP, reason="vague")
-]});
+]})
+    if sys.argv[1:2] == ["test"] else Model(model_name=os.environ.get("LLM_MODEL", "gemini/gemini-2.0-flash"));
 
 def _case(text: str) -> CaseState {
     r = create_case(text, 6.9, 79.8);
