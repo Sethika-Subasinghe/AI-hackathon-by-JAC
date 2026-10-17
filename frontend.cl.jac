@@ -4,12 +4,26 @@ import "./assets/theme.css";
 import from .components.AppHeader { AppHeader }
 import from .components.SafetyBanner { SafetyBanner }
 import from .components.UiKit { AppButton, EmptyState, StatusBadge, SurfaceCard }
+sv import from hospitals { HospitalView, hospital_login, hospital_logout, my_hospital, change_free_beds }
 
 
 def:pub app -> JsxElement {
-    has active_view: str = "patient";
+    has active_view: str = "patient",
+        hospital_username: str = "",
+        hospital_password: str = "",
+        hospital_token: str = "",
+        hospital: HospitalView | None = None,
+        hospital_loading: bool = False,
+        hospital_error: str = "",
+        hospital_notice: str = "",
+        updating_unit: str = "";
 
     def select_view(view: str);
+    async def submit_hospital_login(e: FormEvent) -> None;
+    async def adjust_beds(unit_type: str, delta: int) -> None;
+    async def sign_out_hospital() -> None;
+    def update_hospital_username(e: ChangeEvent);
+    def update_hospital_password(e: ChangeEvent);
 
     view_title: str = "Patient care";
     view_detail: str = "Describe what is happening and CareRoute will coordinate the next safe step.";
@@ -63,13 +77,58 @@ def:pub app -> JsxElement {
                                 <AppButton label="Patient intake coming next" disabled={True}/>
                             </EmptyState>
                         } elif active_view == "hospital" {
-                            <EmptyState
-                                icon="H"
-                                title="Capacity at a glance"
-                                detail="Hospital login, bed controls, and alerts arrive in T08."
-                            >
-                                <AppButton label="Hospital dashboard planned" disabled={True}/>
-                            </EmptyState>
+                            <section className="hospital-ops" aria-label="Hospital operations dashboard">
+                                {if hospital is None {
+                                    <div className="ops-login">
+                                        <div className="ops-icon" aria-hidden="true">+</div>
+                                        <div>
+                                            <h3>Staff sign in</h3>
+                                            <p>Use your demo hospital account to update live capacity.</p>
+                                        </div>
+                                        <form className="ops-form" onSubmit={submit_hospital_login}>
+                                            <label for="hospital-username">Username</label>
+                                            <input id="hospital-username" type="text" autoComplete="username" value={hospital_username} onChange={update_hospital_username} placeholder="e.g. colombo_central_demo" required={True}/>
+                                            <label for="hospital-password">Password</label>
+                                            <input id="hospital-password" type="password" autoComplete="current-password" value={hospital_password} onChange={update_hospital_password} placeholder="Demo password" required={True}/>
+                                            {hospital_error and <p className="ops-error" role="alert">{hospital_error}</p>}
+                                            <button type="submit" className="app-button" disabled={hospital_loading}>
+                                                {"Signing in..." if hospital_loading else "Open capacity dashboard"}
+                                            </button>
+                                        </form>
+                                        <p className="ops-help">Demo only: credentials are provided by the event team. No real hospital data is used.</p>
+                                    </div>
+                                } else {
+                                    <div className="ops-dashboard">
+                                        <div className="ops-heading">
+                                            <div>
+                                                <StatusBadge label="Authenticated staff session" tone="teal"/>
+                                                <h3>{hospital.name}</h3>
+                                                <p>{hospital.city + " · " + hospital.sector.title() + " demo hospital"}</p>
+                                            </div>
+                                            <button type="button" className="ops-signout" onClick={sign_out_hospital}>Sign out</button>
+                                        </div>
+                                        <div className="ops-summary">
+                                            <strong>Live capacity</strong>
+                                            <span>Update free beds as arrivals and discharges are confirmed.</span>
+                                        </div>
+                                        {hospital_notice and <p className="ops-success" aria-live="polite">{hospital_notice}</p>}
+                                        <div className="bed-grid" aria-live="polite">
+                                            {for unit in hospital.units {
+                                                <article className="bed-card" key={unit.unit_type}>
+                                                    <div className="bed-card-top"><span className="bed-unit">{unit.unit_type}</span><span className="bed-total">{str(unit.total) + " total"}</span></div>
+                                                    <strong className="bed-count">{str(unit.free)}<small> free beds</small></strong>
+                                                    <div className="bed-meter" aria-label={unit.unit_type + ": " + str(unit.free) + " free of " + str(unit.total)}><span style={{"width": str((unit.free * 100) // unit.total) + "%"}}></span></div>
+                                                    <div className="bed-stepper" aria-label={"Change " + unit.unit_type + " free beds"}>
+                                                        <button type="button" aria-label={"Decrease " + unit.unit_type + " free beds"} disabled={updating_unit != "" or unit.free == 0} onClick={lambda { adjust_beds(unit.unit_type, -1); }}>-</button>
+                                                        <span>{str(unit.free) + " / " + str(unit.total)}</span>
+                                                        <button type="button" aria-label={"Increase " + unit.unit_type + " free beds"} disabled={updating_unit != "" or unit.free == unit.total} onClick={lambda { adjust_beds(unit.unit_type, 1); }}>+</button>
+                                                    </div>
+                                                </article>
+                                            }}
+                                        </div>
+                                    </div>
+                                }}
+                            </section>
                         } else {
                             <EmptyState
                                 icon="C"

@@ -116,6 +116,37 @@ Coordination runs through `progress.md`, which holds the agent rules, task track
 
 **Verification:** completed 2026-10-17 with Jac MCP validation/lint, `jac check main.jac`, a live `jac start main.jac` build, interaction checks for all three workspaces, and rendered QA at 360, 768, and 1280 px.
 
+## 12. T08 execution plan: hospital dashboard UI
+
+**Goal:** replace the Hospital workspace placeholder with a usable Jac-client dashboard that signs staff in through T06, shows unit capacity, and changes free-bed counts with accessible +/- steppers.
+
+**Non-goals:** incoming patient alerts (T19), persistent browser sessions, backend/auth changes, and dispatch or re-planning behavior.
+
+**Dependencies and API contract:** T06 and T07 are Done. The client will call `hospital_login`, `my_hospital`, `change_free_beds`, and `hospital_logout` from `hospitals.jac`. Sessions remain in memory, so a server restart returns the user to login.
+
+**Acceptance criteria:**
+
+- T08-AC1: the Hospital tab provides an accessible username/password login form with loading and error feedback.
+- T08-AC2: successful login displays the authenticated hospital name, city, sector, and one capacity card per unit.
+- T08-AC3: every card has a labelled BedStepper; +/- calls T06 and refreshes the displayed free count without exceeding backend limits.
+- T08-AC4: staff can sign out and the dashboard returns to login.
+- T08-AC5: the dark ops layout stacks cleanly at 360, 768, and 1280 px, while the global safety banner remains visible.
+- T08-AC6: changed Jac files pass Jac MCP validation/lint, `jac check main.jac`, and live browser interaction checks.
+
+**Ordered work:**
+
+1. Import the existing hospital service APIs into the Jac client and add bounded dashboard state/actions.
+2. Build the login form, capacity cards, BedStepper, and sign-out control using the existing shell and token system.
+3. Extend responsive styles for the dark hospital operations workspace.
+4. Validate, run, interact with a real seeded demo account, and inspect all required viewports.
+5. Review the actual diff, then update documentation and task tracking only after verification.
+
+**Risks and safety checks:** never log or persist passwords/tokens; treat an unavailable/expired session as signed out; disable controls while a write is in flight; label all hospital data as demo data; retain the persistent medical disclaimer.
+
+**Validation commands:** Jac MCP `validate_jac` and `lint_jac` for changed Jac files; `jac check main.jac`; `jac start main.jac`; endpoint-backed browser interaction checks at 360, 768, and 1280 px; `git diff --check`.
+
+**Jac research record:** `jac-cl-organization`, `jac-cl-components`, and `jac-cl-routing` compiler guides, Jac 0.16.7, accessed 2026-10-17. On Windows, guide output requires `PYTHONUTF8=1`; the service-call structure also follows the existing generated Jac client source in this repository.
+
 **Risks and safety checks:** preserve the always-visible emergency disclaimer; do not imply diagnosis or real dispatch; keep navigation placeholders clearly labeled; inspect diffs for secrets, unsafe HTML, external calls, and unrelated teammate changes.
 
 **Validation commands:** Jac MCP `validate_jac` and `lint_jac` for every changed Jac file; `jac check main.jac`; `jac start --dev main.jac`; `jac browse`/browser screenshots at 360, 768, and 1280 px; `git diff --check`.
