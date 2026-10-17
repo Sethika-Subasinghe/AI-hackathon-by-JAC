@@ -125,6 +125,13 @@ impl PatientFlow.refresh_case() -> None {
     latest = await get_case(case_id);
     if latest is not None {
         current = latest;
+        # Fetch match result when the case is matched or done.
+        if latest.status in ["MATCHED", "DONE", "DISPATCHING", "DISPATCHED"] and match_result is None {
+            mr = await get_match(case_id);
+            if mr is not None {
+                match_result = mr;
+            }
+        }
     }
 }
 
@@ -151,4 +158,5 @@ impl PatientFlow.start_over() {
     picked_file = None;
     file_name = "";
     error = "";
+    match_result = None;
 }
