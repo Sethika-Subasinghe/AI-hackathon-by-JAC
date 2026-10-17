@@ -56,8 +56,15 @@ def:pub MapPanel(
     useEffect(lambda {
         m: any = map_ref.current;
         if m and best is not None {
+            # Clear the previous hospital's markers and route, and the ambulance that followed it.
             if layers_ref.current {
-                m.removeLayer(layers_ref.current);
+                for old in layers_ref.current {
+                    m.removeLayer(old);
+                }
+            }
+            if ambulance_ref.current {
+                m.removeLayer(ambulance_ref.current);
+                ambulance_ref.current = None;  # jac:ignore[E1001]
             }
             origin_marker: any = marker([origin_lat, origin_lon], {"icon": _dot("patient", "P"), "title": "Patient"});
             best_marker: any = marker([best.lat, best.lon], {"icon": _dot("best", "H"), "title": best.name});

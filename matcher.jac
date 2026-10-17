@@ -13,7 +13,7 @@ why. The ranking is deterministic so the demo never breaks:
 """
 
 import from models { CaseState, CaseStatus, EventStatus, Severity, UnitType }
-import from agent_log { start_event, finish_event }
+import from agent_log { start_event, finish_event, find_case }
 import from reliability { model_available, record_model_success, record_model_failure }
 import from hospitals { list_hospitals, HospitalView }
 import from geoapify { get_route, haversine_km, DEFAULT_DRIVE_SPEED_KMH }
@@ -242,5 +242,11 @@ def match_case(cs: CaseState) -> MatchResult {
 
 """The last match for a case (best hospital, alternatives with reasons), or None."""
 def:pub get_match(case_id: str) -> MatchResult | None {
+    # Reading the case from the graph (not only the dict) lets the server see that the case
+    # changed, so it does not serve a cached answer after a re-plan.
+    cs = find_case(case_id);
+    if cs is None {
+        return None;
+    }
     return matches.get(case_id, None);
 }

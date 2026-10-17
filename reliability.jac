@@ -62,6 +62,8 @@ obj SystemStatus {
 
 """Poll this to show a global "Using backup logic" banner when the model is paused."""
 def:pub get_system_status() -> SystemStatus {
+    # Touch the graph so the server does not serve a cached answer after the breaker changes.
+    _seen = len([root.shared -->]);
     ok = model_available();
     return SystemStatus(
         model_ok=ok,
