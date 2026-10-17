@@ -52,7 +52,7 @@ Read with `plan.md`, `README.md` and `skill.md`.
 | T03 | API keys: free LLM key (Gemini or Groq) and Geoapify key, local `.env` only | plan 6 | Akeesha | Done | | Gemini and Geoapify credentials are stored only in ignored `.env`; both were validated against their provider APIs without exposing values. |
 | T04 | Fake Sri Lanka hospital dataset (public and private, units, beds, coordinates) | plan F1 | Akeesha | In progress | T01 | Claimed by Akeesha. |
 | T05 | Graph model and shared types: Hospital, Unit, BedStatus, CaseState, AgentEvent, ClinicPatient, Request | A9 | Dimuth | Done | T01 | Model in `models.jac` (checked, smoke-tested); summary in Shared notes |
-| T06 | Hospital login + bed-update backend | plan F2 | Dimuth | Not started | T05 | Post API shape in Shared notes |
+| T06 | Hospital login + bed-update backend | plan F2 | Dimuth | In progress | T05 | Post API shape in Shared notes |
 | T07 | Design system and app shell: tokens, fonts, layout, SafetyBanner, base components, responsive | B1-B3 | Sethika | In progress | T01 | Claimed by Sethika. |
 | T08 | Hospital dashboard UI: login page, bed cards, BedStepper | B5 | Sethika | Not started | T06, T07 | |
 | T09 | Agent conventions: `llm` setup, typed outputs, AgentEvent logging helper | A0, A8 | Dimuth | Not started | T05 | |
