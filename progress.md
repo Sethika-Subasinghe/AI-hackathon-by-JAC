@@ -84,10 +84,10 @@ Read with `plan.md`, `README.md` and `skill.md`.
 Keep this to 3 to 6 items and refresh it whenever a task is Done.
 1. **T06** Dimuth: hospital login and bed-update backend
 2. **T09** Dimuth: agent conventions (`llm` setup, AgentEvent helper)
-2. **T07** Sethika: design system and app shell
-3. **T04** Akeesha: fake hospital dataset
-4. **T14** Akeesha: Geoapify geocoding, routing, ETA and caching
-5. **T28** Akeesha: Jac share check
+3. **T07** Sethika: design system and app shell
+4. **T04** Akeesha: fake hospital dataset
+5. **T14** Akeesha: Geoapify geocoding, routing, ETA and caching
+6. **T28** Akeesha: Jac share check
 
 ## 6. Shared notes (blockers, interface changes, decisions)
 Add a dated line when an API shape, data model or decision changes. Newest first.
